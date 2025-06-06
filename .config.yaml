@@ -1,0 +1,16 @@
+logging:
+  level: ERROR
+web:
+  address: 0.0.0.0
+  port: 8088  
+mqtt:
+  broker: hastings.attlocal.net
+  port: 1883
+  username: mqttuser
+  password: mqttuser-password
+  polling_interval: 1
+bme280:
+  address: 0x76
+  port: 1
+  sensor_name: tph280
+  polling_interval: 60

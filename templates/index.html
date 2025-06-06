@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MQTT Slide Switch</title>
+  <script src="{{ url_for('static', filename='js/myscripts.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/myscripts2.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles2.css') }}"/>
+</head>
+<body>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="lozenge-group">
+    <div class="lozenge notactive" id="mqtt-toggle">
+      <span >MQTT Connection State:</span>
+      <span id="mqtt-status">Not Connected</span>
+      <span id="mqtt-description">Click to connect</span>
+    </div>
+  
+    <div class="lozenge notactive no-hover" id="discovery-toggle">
+      <span>Discovery State:</span>
+      <span id="discovery-status">Discovery not Completed</span>
+      <span id="discovery-description">You must Connect before Discovery</span>
+    </div>
+  </div>  
+  
+</body>
+</html>
+

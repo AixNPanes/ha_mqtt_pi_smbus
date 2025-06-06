@@ -1,0 +1,98 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 2em;
+}
+
+:root {
+  --control-height: 70px;
+  --slider-width: 300px;
+  --slider-padding: 4px;
+  --button-size: calc(var(--control-height) - 2 * var(--slider-padding));
+  --button-translation: calc(var(--slider-width) - var(--button-size) - 2 * (--slider-padding));
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  width: fit-content;
+  margin: 2em;
+  align-items: center;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.labels {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: var(--control-height); /* Set this to control vertical space between labels */
+}
+
+.control-group input {
+  height: var(--control-height); /* Match input heights if needed */
+  align-self: center;
+}
+
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+.switch-label {
+  font-size: 1.2em;
+  white-space: nowrap;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  /*width: 60px;*/
+  height: var(--control-height);
+}
+
+.switch input {
+  opacity: 0;
+  width: var(--button-size);
+  height: var(--button-size);
+}
+
+.slider {
+  display: flex;	
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: var(--slider-width);
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: var(--control-height);
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: var(--button-size);
+  width: var(--button-size);
+  left: var(--slider-padding);
+  bottom: var(--slider-padding);
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(var(--button-translation));
+}

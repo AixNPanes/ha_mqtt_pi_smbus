@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MQTT Slide Switch</title>
+  <script src="{{ url_for('static', filename='js/myscripts.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+</head>
+<body>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <div style="display:flex; display-style: column">
+  <div class="switch-container">
+    <label class="switch-label" for="discovery-toggle">Discovery Enabled:</label>
+    <br>
+    <label class="switch-label">Switch state</label>
+    <label class="switch">
+      <input type="checkbox" id="discovery-toggle"
+          {% if discovery_state %}checked{% endif %}
+          {% if not mqtt_state %}disabled{% endif %}>
+      <span class="slider">Not Discovered</span>
+    </label>
+  </div>
+  <div class="switch-container">
+    <label class="switch-label" for="mqtt-toggle">MQTT Connected:</label>
+    <label class="switch">
+      <input type="checkbox" id="mqtt-toggle"
+          {% if mqtt_state %}checked{% endif %}>
+      <span class="slider">Disconnected</span>
+    </label>
+  </div>
+  </div>
+    <div id="mqtt-status">Disconnected</div>
+
+</body>
+</html>
+

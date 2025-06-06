@@ -1,0 +1,55 @@
+.lozenge-group {
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.lozenge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 1.2em;
+  cursor: pointer;
+  user-select: none;
+  width: 350px;
+  margin-bottom:10px;
+  transition: background-color 0.2s;
+}
+
+.lozenge span {
+  margin: 2px 0;
+}
+
+.notactive {
+  background-color: LightSlateGray;
+  color: black;
+}
+
+.notactive:hover {
+  background-color: DarkSlateGray;
+  color: white;
+}
+
+.processing {
+  background-color: GoldenRod;
+  color: black;
+}
+
+.isactive {
+  background-color: SkyBlue;
+  color: black;
+}
+
+.isactive:hover {
+  background-color: DeepSkyBlue;
+  color: black;
+}
+
+.no-hover {
+  pointer-events: none;
+}
