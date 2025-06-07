@@ -1,7 +1,7 @@
 import json
 from environ import CpuInfo, OSInfo, MacAddress
 
-class HADevice:
+class HASensor:
     def __init__(self, name:str, units:str, state_topic:str, manufacturer:str, model:str, base_name:str=None):
         self.name = name
         basename = base_name
@@ -50,15 +50,15 @@ class HADevice:
     def data(self):
         raise Exception('Class needs data(self) definition')
 
-class HASensor:
-    def __init__(self, devices:list):
+class HADevice:
+    def __init__(self, sensors:list):
         mac_address = MacAddress.get()
-        self.devices = {}
-        dev = None
-        for device in devices:
-            self.devices[device.discovery_payload['name'].lower()] = device
-            dev = device
-        self.device_names = list(self.devices.keys())
-        self.discovery_topics = {k: v.discovery_topic for k, v in self.devices.items()}
-        self.discovery_payload = {k: v.discovery_payload for k, v in self.devices.items()}
-        self.state_topic = self.devices[self.device_names[0]].state_topic
+        self.sensors = {}
+        _sensor = None
+        for sensor in sensors:
+            self.sensors[sensor.discovery_payload['name'].lower()] = sensor
+            _sensor = sensor
+        self.sensor_names = list(self.sensors.keys())
+        self.discovery_topics = {k: v.discovery_topic for k, v in self.sensors.items()}
+        self.discovery_payload = {k: v.discovery_payload for k, v in self.sensors.items()}
+        self.state_topic = self.sensors[self.sensor_names[0]].state_topic

@@ -3,7 +3,7 @@ import threading
 import logging
 import time
 from environ import CpuInfo, OSInfo, MacAddress
-from sensor import HASensor, HADevice
+from device import HADevice, HASensor
 from bme_280 import BME_280
 
 class BME_280_Sampler_Thread(threading.Thread):
@@ -24,19 +24,19 @@ class BME_280_Sampler_Thread(threading.Thread):
                     self.bme280.sample()
                 time.sleep(1)
 
-class Temperature(HADevice):
+class Temperature(HASensor):
     def __init__(self, sensor_name:str):
         super().__init__(sensor_name, f'{chr(176)}C', "tph280/state", "Bosch", "BME280")
 
-class Pressure(HADevice):
+class Pressure(HASensor):
     def __init__(self, sensor_name:str):
-        super().__init__(sensor_name, " hPa", "tph280/state", "Bosch", "BME280")
+        super().__init__(sensor_name, "mbar", "tph280/state", "Bosch", "BME280")
 
-class Humidity(HADevice):
+class Humidity(HASensor):
     def __init__(self, sensor_name:str):
         super().__init__(sensor_name, "%", "tph280/state", "Bosch", "BME280")
 
-class BME280_Sensor(HASensor):
+class BME280_Device(HADevice):
     def __init__(self, logger:logging.Logger, name:str, bme280:BME_280, polling_interval:int):
         super().__init__((Temperature(name), Pressure(name), Humidity(name)))
         route = 'BME280_Sensor'

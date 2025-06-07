@@ -12,10 +12,9 @@ import atexit
 import argparse
 from parsing import Parser
 from environ import MacAddress, CpuInfo, OSInfo
-#from sensor import Sensor
 from mqtt_client import MQTTClient
 from bme_280 import BME_280
-from bme280_sensor import BME280_Sensor
+from bme280_device import BME280_Device
 from hamqtt_logging import loggerConfig
 
 # parse config and command line args
@@ -28,11 +27,11 @@ logger = logging.getLogger(__name__)
 # BME280 Setup
 bme280 = BME_280(port=parser.bme280['port'], address=parser.bme280['address'])
 
-# Sensor setup
-sensor = BME280_Sensor(logger, parser.bme280['sensor_name'], bme280, parser.bme280['polling_interval'])
+# Device setup
+device = BME280_Device(logger, parser.bme280['sensor_name'], bme280, parser.bme280['polling_interval'])
 
 # MQTT Setup
-client = MQTTClient('tph280', sensor, bme280, parser.mqtt)
+client = MQTTClient('tph280', device, bme280, parser.mqtt)
 
 # Flask web server setup
 app = Flask(__name__)
@@ -83,7 +82,7 @@ def mqtt_toggle():
         client.connect_mqtt()
         logger.debug(f'{route} client.loop_start()')
         client.loop_start()
-        for _ in range(10):
+        for _ in range(20):
             logger.debug(f'{route} client.is_connected(): {client.is_connected()}')
             if client.is_connected():
                 break
@@ -130,14 +129,14 @@ def discovery_toggle():
         logger.debug(f'{route} client.loop_start()')
         client.loop_start()
         logger.debug(f'{route} client.publish_discoveries()')
-        client.publish_discoveries(sensor.devices)
+        client.publish_discoveries(device.sensors)
 
         state['Discovered'] = True
     else:
         # Turn OFF
         logger.debug(f'{route} turning off discovery')
         logger.debug(f'{route} client.clear_discoveries()')
-        client.clear_discoveries(sensor.devices)
+        client.clear_discoveries(device.sensors)
         logger.debug(f'{route} time.sleep(0.5)')
         time.sleep(0.5)
         logger.debug(f'{route} client.loop_stop()')
@@ -154,7 +153,7 @@ def shutdown_server():
     logger.info(f'Shutting down server')
     if state['Discovered']:
         logger.info(f'{route} Clearing discovery')
-        client.clear_discoveries(sensor.devices)
+        client.clear_discoveries(device.sensors)
         time.sleep(0.5)
         client.loop_stop()
         state['Discovered'] = False
