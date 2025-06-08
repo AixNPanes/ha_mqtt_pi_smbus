@@ -5,6 +5,7 @@ import logging
 import random
 import threading
 import time
+from typing import Any, Dict
 
 import paho
 
@@ -22,7 +23,7 @@ class MQTT_Publisher_Thread(threading.Thread):
         self.do_run = True
         self.data = self.bme280.data()
 
-    def run(self):
+    def run(self) -> None:
         while True:
             if not self.do_run:
                 return
@@ -33,11 +34,11 @@ class MQTT_Publisher_Thread(threading.Thread):
                 self.__logger.debug(f"MQTT publisher: {json.dumps(data, indent=4)}")
             time.sleep(1)
 
-    def clear_do_run(self):
+    def clear_do_run(self) -> None:
         self.do_run = False
 
 class MQTTClient(paho.mqtt.client.Client):
-    def on_connect(client, userdata, flags, rc, properties=None):
+    def on_connect(client, userdata, flags, rc, properties=None) -> None:
         """Callback function called when the client connects to the broker."""
         client.status['rc'] = rc
         if rc == 0:
@@ -45,14 +46,14 @@ class MQTTClient(paho.mqtt.client.Client):
         else:
             client.status['error'] = connack_string(rc)
             
-    def init_status(self):
+    def init_status(self) -> None:
         self.status = {
              "connected": False,
              "rc": None,
              "error": None
         }
 
-    def __init__(self, client_prefix:str, device:HADevice, bme280:BME_280, mqtt_config:dict = None):
+    def __init__(self, client_prefix:str, device:HADevice, bme280:BME_280, mqtt_config:Dict[str, Any] = None):
         super().__init__(
                 paho.mqtt.enums.CallbackAPIVersion.VERSION2, 
                 f'{client_prefix}-{MacAddress.getObjectId()}-{str(random.randint(0,1000)).zfill(3)}',
@@ -73,7 +74,7 @@ class MQTTClient(paho.mqtt.client.Client):
         super().user_data_set(self)
         self.__logger = logging.getLogger('MQTTClient')
 
-    def connect_mqtt(self):
+    def connect_mqtt(self) -> None:
         route = "connect_mqtt"
         super().username_pw_set(self.username, self.password)
         print(self.username+"/"+self.password+"/"+self.broker_address+"/"+str(self.port))
@@ -83,20 +84,20 @@ class MQTTClient(paho.mqtt.client.Client):
             self.__logger.critical(f'{route} error {mqttErrorCode} in connect_mqtt')
         self.__logger.info(f"{route} connecting to broker at {self.broker_address}:{self.port}")
 
-    def disconnect_mqtt(self):
+    def disconnect_mqtt(self) -> None:
         route = "disconnect_mqtt"
         mqttErrorCode = super().disconnect()
         if mqttErrorCode != 0:
             self.__logger.critical(f'{route} error {mqttErrorCode} in disconnect_mqtt')
 
 
-    def subscribe(self, topic):
+    def subscribe(self, topici:str) -> None:
         route = "subscribe"
         self.__logger.info(f'{route} subscribing to topic "{topic}"')
         tuple = super().subscribe(topic)
         return tuple
 
-    def publish(self, topic, message, qos: int = 0, retain: bool = False,
+    def publish(self, topic:str, message:str, qos: int = 0, retain: bool = False,
                 properties: paho.mqtt.properties.Properties | None = None):
         route = "publish"
         self.__logger.info(f'{route} publishing to topic: "{topic}"')
@@ -112,7 +113,7 @@ class MQTTClient(paho.mqtt.client.Client):
             pass
         return result
 
-    def publish_discovery(self, key:str, device:dict):
+    def publish_discovery(self, key:str, device:Dict[str, Any]) -> None:
         route = "publish_discovery"
         self.publish(
                 device.discovery_topic, 
@@ -120,18 +121,18 @@ class MQTTClient(paho.mqtt.client.Client):
                 qos=2, retain=True)
         self.__logger.info(f"{route} Published discovery for {key}")
 
-    def clear_discovery(self, key:str, device:dict):
+    def clear_discovery(self, key:str, device:Dict[str, Any]) -> None:
         route = "clear_discovery"
         self.publish(device.discovery_topic, "", qos=2, retain=True)
         self.__logger.info(f"{route} Cleared discovery for {key}")
 
-    def publish_discoveries(self, devices:dict):
+    def publish_discoveries(self, devices:Dict[str, Any]) -> None:
         self.publisher_thread = MQTT_Publisher_Thread(self, self.device, self.bme280)
         self.publisher_thread.start()
         for key, device in devices.items():
             self.publish_discovery(key, device)
 
-    def clear_discoveries(self, devices:dict):
+    def clear_discoveries(self, devices:Dict[str, Any]) -> None:
         for key, device in devices.items():
             self.clear_discovery(key, device)
         self.publisher_thread.clear_do_run()

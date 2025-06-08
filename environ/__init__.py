@@ -7,7 +7,7 @@ class CPUTemperature:
             return float(file_object.read()) / 1000.0
 
 class MacAddress:
-    def getByInterface(interface):
+    def getByInterface(interface) -> str:
         try:
             output = subprocess.check_output(["ifconfig", interface]).decode("utf-8")
             for line in output.splitlines():
@@ -17,13 +17,13 @@ class MacAddress:
         except subprocess.CalledProcessError:
             return None
 
-    def get():
+    def get() -> str:
         mac = MacAddress.getByInterface("eth0")
         if not mac is None:
             return mac
         return MacAddress.getByInterface("wlan0")
 
-    def getObjectId():
+    def getObjectId() -> str:
         return MacAddress.get().replace(":","")
 
 class CpuInfo:

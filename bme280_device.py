@@ -2,6 +2,8 @@ import json
 import threading
 import logging
 import time
+from typing import Any, Dict
+
 from environ import CpuInfo, OSInfo, MacAddress
 from device import HADevice, HASensor
 from bme_280 import BME_280
@@ -14,7 +16,7 @@ class BME_280_Sampler_Thread(threading.Thread):
         self.polling_interval = polling_interval
         self.do_run = True
 
-    def run(self):
+    def run(self) -> None:
         route = 'BME_280_Sampler_Thread'
         while True:
             for i in range(self.polling_interval):
@@ -45,6 +47,6 @@ class BME280_Device(HADevice):
         self.sampler_thread = BME_280_Sampler_Thread(logger, bme280, polling_interval)
         self.sampler_thread.start()
 
-    def data(self):
+    def data(self) -> Dict[str, Any]:
         route = 'BME280_Sensor'
         return self.bme280.data()

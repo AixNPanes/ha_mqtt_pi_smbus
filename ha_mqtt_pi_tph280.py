@@ -33,5 +33,5 @@ def shutdown_server():
 
 if __name__ == '__main__':
     atexit.register(shutdown_server)
-    debug = parser.logginglevel == 'DEBUG'
+    debug:bool = parser.logginglevel == 'DEBUG'
     app.run(debug=debug, host=parser.web['address'], port=parser.web['port'], use_reloader=False)

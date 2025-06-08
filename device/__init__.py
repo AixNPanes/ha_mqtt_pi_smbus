@@ -1,4 +1,5 @@
 import json
+from typing import Any, Dict, List
 
 from environ import CpuInfo, OSInfo, MacAddress
 
@@ -39,20 +40,20 @@ class HASensor:
             }
         self.discovery_topic = f'{basename}/sensor/{unique_id}-{device_class}/config'
 
-    def topic(self):
+    def topic(self) -> Dict[str, Any]:
         return self.config_topic
 
-    def payload(self):
+    def payload(self) -> Dict[str, Any]:
         return self.config_payload
 
-    def jsonPayload(self):
+    def jsonPayload(self) -> str:
         return json.dumps(self.config_payload, default=vars)
 
-    def data(self):
+    def data(self) -> Dict[str, Any]:
         raise Exception('Class needs data(self) definition')
 
 class HADevice:
-    def __init__(self, sensors:list):
+    def __init__(self, sensors:List[Dict[str, Any]]):
         mac_address = MacAddress.get()
         self.sensors = {}
         _sensor = None

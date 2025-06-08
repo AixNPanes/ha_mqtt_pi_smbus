@@ -1,20 +1,21 @@
-import re
-import time
+import argparse
 import json
-import yaml
 import logging
 import random
-import sys
-import argparse
+import re
 import socket
+import sys
+import time
+from typing import Any, Dict
+import yaml
 
-def deep_merge_dicts(dict1, dict2):
+def deep_merge_dicts(dict1:Dict[str, Any], dict2:Dict[str, Any]) -> Dict[str, Any]:
     """
     Recursively merges two dictionaries.
     Values from dict2 will overwrite values from dict1 in case of conflicts,
     except for nested dictionaries, which are recursively merged.
     """
-    merged_dict = dict1.copy()  # Start with a copy to avoid modifying original dict1
+    merged_dict:Dict[str, Any] = dict1.copy()  # Start with a copy to avoid modifying original dict1
 
     for key, value in dict2.items():
         if key in merged_dict and isinstance(merged_dict[key], dict) and isinstance(value, dict):
@@ -26,7 +27,7 @@ def deep_merge_dicts(dict1, dict2):
     return merged_dict
 
 
-def read_yaml(file_path):
+def read_yaml(file_path) -> Dict[str, Any]:
     try:
         with open(file_path, 'r') as file:
             data = yaml.safe_load(file)
@@ -41,7 +42,7 @@ def read_yaml(file_path):
 loglevels = logging.getLevelNamesMapping()
 lognames = ', '.join(list(loglevels.keys()))
 
-def auto_int(x):
+def auto_int(x) -> int:
     return int(x,0)
 
 def ipaddress(ip:str):
@@ -51,7 +52,7 @@ def ipaddress(ip:str):
     except OSError as e:
         print(f'Invalid ipaddress ({ip}): {e}')
 
-def configOrCmdParm(arg, config:dict, secrets:dict, cfg_name:list, default:str = None, required: bool = False) -> str:
+def configOrCmdParm(arg, config:Dict[str, Any], secrets:Dict[str, Any], cfg_name:list, default:str = None, required: bool = False) -> str:
     if arg:
         return arg
     cfg = deep_merge_dicts(config, secrets)

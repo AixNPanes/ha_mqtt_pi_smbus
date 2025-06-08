@@ -40,7 +40,7 @@ class HAFlask(Flask):
             self.logger_.debug(f'{route} state: {self.state}')
             self.logger_.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
             if self.state['Connected'] != self.client.is_connected():
-                state.state['Error'] = f'state[\'Connected\']({self.state["Connected"]}) does not match client.is_connected()({self.client.is_connected()})'
+                self.state['Error'] = f'state[\'Connected\']({self.state["Connected"]}) does not match client.is_connected()({self.client.is_connected()})'
                 return render_template('index.html', state=jsonify(self.state))
                 #return jsonify(self.state)
             return render_template('index.html', state=self.state)
