@@ -116,10 +116,6 @@ class Parser:
         # get MQTT parameters
         self.mqtt = {}
         self.mqtt['broker'] = configOrCmdParm(args.mqtt_broker, config, secrets,['mqtt','broker'], default="localhost")
-        print(config)
-        print(secrets)
-        print(deep_merge_dicts(config, secrets))
-        print(self.mqtt['broker'])
         self.mqtt['port'] = configOrCmdParm(args.mqtt_port, config, secrets,['mqtt','portxr'], default=1883)
         self.mqtt['username'] = configOrCmdParm(args.mqtt_username, config, secrets,['mqtt','username'])
         self.mqtt['password'] = configOrCmdParm(args.mqtt_password, config, secrets,['mqtt','password'])
