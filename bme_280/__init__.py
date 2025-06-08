@@ -1,6 +1,7 @@
+import datetime
+
 import bme280
 from smbus2 import SMBus
-import datetime
 
 class BME_280:
     port: int = None

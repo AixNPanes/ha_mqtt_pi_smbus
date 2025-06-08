@@ -1,5 +1,5 @@
-import subprocess
 import psutil
+import subprocess
 
 class CPUTemperature:
     def getTemperature():

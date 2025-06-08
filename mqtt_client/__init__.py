@@ -7,13 +7,10 @@ import threading
 import time
 
 import paho
-#import paho.mqtt.client as mqtt
-#from paho.mqtt.enums import CallbackAPIVersion
-#from paho.mqtt.properties import Properties
 
-from environ import MacAddress
-from device import HADevice
 from bme_280 import BME_280
+from device import HADevice
+from environ import MacAddress
 
 class MQTT_Publisher_Thread(threading.Thread):
     def __init__(self, client:"MQTTClient", device: HADevice, bme280:BME_280):

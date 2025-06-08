@@ -1,4 +1,5 @@
 import json
+
 from environ import CpuInfo, OSInfo, MacAddress
 
 class HASensor:

@@ -1,21 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-import paho.mqtt.client as mqtt
+import atexit
+import json
+import logging
+import secrets
 import threading
 import time
-import json
-import yaml
-import logging
-import random
-import secrets
-import sys
-import atexit
-import argparse
-from parsing import Parser
-from environ import MacAddress, CpuInfo, OSInfo
-from mqtt_client import MQTTClient
-from bme_280 import BME_280
+
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+
 from device import HADevice
-from hamqtt_logging import loggerConfig
+from mqtt_client import MQTTClient
 
 class HAFlask(Flask):
     def __init__(self, import_name, parser, logger, client:MQTTClient, device:HADevice):
@@ -122,7 +115,7 @@ class HAFlask(Flask):
                 # Turn OFF
                 self.logger_.debug(f'{route} turning off discovery')
                 self.logger_.debug(f'{route} client.clear_discoveries()')
-                self.client.clear_discoveries(device.sensors)
+                self.client.clear_discoveries(self.device.sensors)
                 self.logger_.debug(f'{route} time.sleep(0.5)')
                 time.sleep(0.5)
                 self.logger_.debug(f'{route} client.loop_stop()')
