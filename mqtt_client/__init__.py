@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 import paho
 
-from bme_280 import SMBusDevice
+from smbus_device import SMBusDevice
 from device import HADevice
 from environ import MacAddress
 
