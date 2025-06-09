@@ -7,7 +7,7 @@ import time
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
-from device import HADevice
+from ha_device import HADevice
 from mqtt_client import MQTTClient
 
 class HAFlask(Flask):

@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict
 
 from environ import CpuInfo, OSInfo, MacAddress
-from device import HADevice, HASensor
+from ha_device import HADevice, HASensor
 from smbus_device import SMBusDevice, SMBusDevice_Sampler_Thread
 from bme_280 import BME_280
 

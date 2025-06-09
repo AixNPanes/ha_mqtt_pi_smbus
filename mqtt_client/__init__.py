@@ -10,7 +10,7 @@ from typing import Any, Dict
 import paho
 
 from smbus_device import SMBusDevice
-from device import HADevice
+from ha_device import HADevice
 from environ import MacAddress
 
 class MQTT_Publisher_Thread(threading.Thread):
