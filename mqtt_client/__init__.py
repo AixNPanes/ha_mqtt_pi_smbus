@@ -77,7 +77,6 @@ class MQTTClient(paho.mqtt.client.Client):
     def connect_mqtt(self) -> None:
         route = "connect_mqtt"
         super().username_pw_set(self.username, self.password)
-        print(self.username+"/"+self.password+"/"+self.broker_address+"/"+str(self.port))
         self.init_status()
         mqttErrorCode = super().connect(self.broker_address, self.port)
         if mqttErrorCode != 0:

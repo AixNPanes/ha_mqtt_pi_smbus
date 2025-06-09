@@ -17,7 +17,6 @@ class HAFlask(Flask):
         self.parser = parser
         self.logger.setLevel(parser.logginglevel)
         self.logger_ = logging.getLogger(self.__class__.__name__)
-        print(self.__class__.__name__)
         self.client = client
         self.device = device
         logging.getLogger('werkzeug').setLevel(parser.logginglevel)
