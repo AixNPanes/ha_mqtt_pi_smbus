@@ -4,9 +4,10 @@ from typing import Any, Dict
 import bme280
 from smbus2 import SMBus
 
-class BME_280:
+class BME_280(SMBus):
     port:int = None
     address = None
+    # let self.smbus = self for temporary tranisition
     bus:SMBus = None
     temperature:float = -32.0 * 5 / 9
     pressure:float = 0.0
@@ -14,9 +15,12 @@ class BME_280:
     last_update:datetime.datetime = datetime.datetime.now()
 
     def __init__(self, port:int = 1, address:int = 0x76):
+        super().__init__(port)
         self.port = port
         self.address = address
-        self.bus = SMBus(port)
+        # let self.smbus = self for temporary tranisition
+        # self.bus = SMBus(port)
+        self.bus = self
         self._calibration_params = bme280.load_calibration_params(self.bus, self.address)
 
     def sample(self) -> None:
