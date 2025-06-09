@@ -105,9 +105,9 @@ To get a local copy up and running follow these simple example steps.
   - RPi.bme280
 
 This is an example of how to list things you need to use the software and how to install them.
-* npm
+* run pip in the virtual environment (see below)
   ```sh
-  npm install npm@latest -g
+  pip show flas, paho-mqtt psutil pyyaml rpi.bme280 | grep Warning
   ```
 
 ### Installation
@@ -124,13 +124,16 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    python3 -m venv myvenv
    ```
+4. Install prerequisites
+   ```sh
+   pip install -r requirements.txt
+   ```
 4. Activate the virtual environment (do this each time you start a shell (or terminal session)
    ```sh
    source venv/bin/activate
    ```
 5. Configure the BME280 example
   a. In .config.yaml, change the following mqtt parameters: broker, username, password (note: you may place confidential information in .secrets.yaml and it will override information in .config.yaml)
-
 6. Run the example
    ```
    python -m example.ha_mqtt_pi_tph280
