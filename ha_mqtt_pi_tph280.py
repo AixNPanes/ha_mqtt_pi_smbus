@@ -5,8 +5,7 @@ import paho.mqtt.client as mqtt
 
 from parsing import Parser
 from mqtt_client import MQTTClient
-from bme_280 import BME_280
-from bme280_device import BME280_Device
+from device import BME280, BME280_Device
 from hamqtt_logging import loggerConfig
 from web_server import HAFlask
 
@@ -18,7 +17,7 @@ loggerConfig(parser.logginglevelname)
 logger = logging.getLogger(__name__)
 
 # BME280 Setup
-bme280 = BME_280(bus=parser.bme280['bus'], address=parser.bme280['address'])
+bme280 = BME280(bus=parser.bme280['bus'], address=parser.bme280['address'])
 
 # Device setup
 device = BME280_Device(logger, parser.bme280['sensor_name'], bme280, parser.bme280['polling_interval'])
