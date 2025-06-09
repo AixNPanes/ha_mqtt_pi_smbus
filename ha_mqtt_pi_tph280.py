@@ -18,7 +18,7 @@ loggerConfig(parser.logginglevelname)
 logger = logging.getLogger(__name__)
 
 # BME280 Setup
-bme280 = BME_280(port=parser.bme280['port'], address=parser.bme280['address'])
+bme280 = BME_280(bus=parser.bme280['bus'], address=parser.bme280['address'])
 
 # Device setup
 device = BME280_Device(logger, parser.bme280['sensor_name'], bme280, parser.bme280['polling_interval'])

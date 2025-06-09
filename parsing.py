@@ -80,7 +80,7 @@ class Parser:
         parser.add_argument("-p", "--mqtt_password", "--password", help="MQTT password")
         parser.add_argument("-i", "--mqtt_polling_interval", help="MQTT polling interval to check sensor data", type=int)
         parser.add_argument("-a", "--bme280_address", help="BME280 address (118, 119, 0x67, 0x77", type=auto_int, choices=(118, 119))
-        parser.add_argument("-r", "--bme280_port", help="BME280 I2C port (1, 2)", type=int, choices=(1, 2))
+        parser.add_argument("-r", "--bme280_bus", help="BME280 I2C bus (1, 2)", type=int, choices=(1, 2))
         parser.add_argument("-N", "--bme280_sensor_name", help="BME280 Home Assistant sensor name", type=str)
         parser.add_argument("-I", "--bme280_polling_interval", help="BME280 polling interval", type=int)
         parser.add_argument("-c", "--config", help="config file name (YAML)")
@@ -117,14 +117,14 @@ class Parser:
         # get MQTT parameters
         self.mqtt = {}
         self.mqtt['broker'] = configOrCmdParm(args.mqtt_broker, config, secrets,['mqtt','broker'], default="localhost")
-        self.mqtt['port'] = configOrCmdParm(args.mqtt_port, config, secrets,['mqtt','portxr'], default=1883)
+        self.mqtt['port'] = configOrCmdParm(args.mqtt_port, config, secrets,['mqtt','port'], default=1883)
         self.mqtt['username'] = configOrCmdParm(args.mqtt_username, config, secrets,['mqtt','username'])
         self.mqtt['password'] = configOrCmdParm(args.mqtt_password, config, secrets,['mqtt','password'])
         self.mqtt['polling_interval'] = configOrCmdParm(args.mqtt_password, config, secrets,['mqtt','polling_interval'], default=1)
 
         # get BME280 parameters
         self.bme280 = {}
-        self.bme280['port'] = configOrCmdParm(args.bme280_port, config, secrets,['bme280','port'], default=1)
+        self.bme280['bus'] = configOrCmdParm(args.bme280_bus, config, secrets,['bme280','bus'], default=1)
         self.bme280['address'] = configOrCmdParm(args.bme280_address, config, secrets,['bme280','address'], default=0x76)
         self.bme280['sensor_name'] = configOrCmdParm(args.bme280_address, config, secrets,['bme280','sensor_name'])
         self.bme280['polling_interval'] = configOrCmdParm(args.bme280_address, config, secrets,['bme280','polling_interval'], default=60)
