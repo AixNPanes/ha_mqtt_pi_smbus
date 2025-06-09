@@ -9,25 +9,25 @@ from typing import Any, Dict
 
 import paho
 
-from bme_280 import BME_280
+from bme_280 import SMBusDevice
 from device import HADevice
 from environ import MacAddress
 
 class MQTT_Publisher_Thread(threading.Thread):
-    def __init__(self, client:"MQTTClient", device: HADevice, bme280:BME_280):
+    def __init__(self, client:"MQTTClient", device: HADevice, smbus_device:SMBusDevice):
         super().__init__(name='MQTT_Publisher', daemon=True)
         self.client = client
         self.device = device
-        self.bme280 = bme280
+        self.smbus_device = smbus_device
         self.__logger = logging.getLogger('MQTT_Publisher_Thread')
         self.do_run = True
-        self.data = self.bme280.data()
+        self.data = self.smbus_device.data()
 
     def run(self) -> None:
         while True:
             if not self.do_run:
                 return
-            data = self.bme280.data()
+            data = self.smbus_device.data()
             if data['last_update'] != self.data['last_update']:
                 self.data = data
                 self.client.publish(self.device.state_topic, json.dumps(data))
@@ -53,7 +53,7 @@ class MQTTClient(paho.mqtt.client.Client):
              "error": None
         }
 
-    def __init__(self, client_prefix:str, device:HADevice, bme280:BME_280, mqtt_config:Dict[str, Any] = None):
+    def __init__(self, client_prefix:str, device:HADevice, smbus_device:SMBusDevice, mqtt_config:Dict[str, Any] = None):
         super().__init__(
                 paho.mqtt.enums.CallbackAPIVersion.VERSION2, 
                 f'{client_prefix}-{MacAddress.getObjectId()}-{str(random.randint(0,1000)).zfill(3)}',
@@ -63,7 +63,7 @@ class MQTTClient(paho.mqtt.client.Client):
         self.username = mqtt_config['username']
         self.password = mqtt_config['password']
         self.device = device
-        self.bme280 = bme280
+        self.smbus_device = smbus_device
         self.init_status()
         self.connected = False
         self.connected_flag = False
@@ -127,7 +127,7 @@ class MQTTClient(paho.mqtt.client.Client):
         self.__logger.info(f"{route} Cleared discovery for {key}")
 
     def publish_discoveries(self, devices:Dict[str, Any]) -> None:
-        self.publisher_thread = MQTT_Publisher_Thread(self, self.device, self.bme280)
+        self.publisher_thread = MQTT_Publisher_Thread(self, self.device, self.smbus_device)
         self.publisher_thread.start()
         for key, device in devices.items():
             self.publish_discovery(key, device)
