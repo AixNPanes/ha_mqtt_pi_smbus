@@ -1,6 +1,7 @@
 import atexit
 import json
 import logging
+import os
 import secrets
 import threading
 import time
@@ -12,7 +13,9 @@ from mqtt_client import MQTTClient
 
 class HAFlask(Flask):
     def __init__(self, import_name, parser, logger, client:MQTTClient, device:HADevice):
-        super().__init__(import_name)
+        templates_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+        static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+        super().__init__(import_name, template_folder=templates_path, static_folder=static_path)
         self._register_routes()
         self.parser = parser
         self.logger.setLevel(parser.logginglevel)
