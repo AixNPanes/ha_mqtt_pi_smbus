@@ -18,14 +18,12 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-<!--
-[![Contributors][contributors-shield]][contributors-url]
+[![Contributors][contributors-shield]](contributors-url)
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![project_license][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
--->
 
 
 
@@ -33,7 +31,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/AixNPanes/ha_mqtt_pi_smbus">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="static/images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">Home Assistant MQTT discovery client for SMBus on Raspberry PI</h3>
@@ -60,9 +58,6 @@ This project is an MQTT discovery client for Home Assistant. It exposes a device
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -87,22 +82,6 @@ This project is an MQTT discovery client for Home Assistant. It exposes a device
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `AixNPanes`, `ha_mqtt_pi_smbus`, `AixNPanes`, `tim-daley-96226036`, `earthling.net`, `timdaley`, `project_title`, `project_description`, `project_license`
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-### Built With
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
