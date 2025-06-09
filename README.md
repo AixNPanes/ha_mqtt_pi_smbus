@@ -28,6 +28,7 @@
 
 
 <!-- PROJECT LOGO -->
+
 <br />
 <div align="center">
   <a href="https://github.com/AixNPanes/ha_mqtt_pi_smbus">
