@@ -96,12 +96,13 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-- **Python Version:** 3.7+
+- **Python Version:** 3.11+
 - **Dependencies:**
-  - numpy
-  - pandas
-  - scikit-learn
-  - 
+  - flask
+  - paho-mqtt
+  - psutil
+  - pyyaml
+  - RPi.bme280
 
 This is an example of how to list things you need to use the software and how to install them.
 * npm
@@ -111,26 +112,45 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Clone the repo
    ```sh
    git clone https://github.com/AixNPanes/ha_mqtt_pi_smbus.git
    ```
-3. Install NPM packages
+2. Change directory to ha_mqtt_pi_smbus
    ```sh
-   npm install
+   cd ha_mqtt_pi_smbus
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
+3. Build a python virtual env (change the name from myvenv to a virtual environment name of your choice
    ```sh
-   git remote set-url origin AixNPanes/ha_mqtt_pi_smbus
-   git remote -v # confirm the changes
+   python3 -m venv myvenv
    ```
+4. Activate the virtual environment (do this each time you start a shell (or terminal session)
+   ```sh
+   source venv/bin/activate
+   ```
+5. Configure the BME280 example
+  a. In .config.yaml, change the following mqtt parameters: broker, username, password (note: you may place confidential information in .secrets.yaml and it will override information in .config.yaml)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+6. Run the example
+   ```
+   python -m example.ha_mqtt_pi_tph280
+   ```
+7. Start a web browser
+   a. Connect to port 8088 on the server running the sample program
+   b. Click the MQTT Connection State: button to connect the client to Home Assistant's MQTT broker
+   c. Wait until connection is complete (about 10 seconds on my systems), then click the Discovery State: button to send publish discovery messages
+   d. Wait until discovery is complete
+8. In the Home Assistant GUI, go to Settings -> Devices and Services -> Devices and enter 280 in the filter and click on the device
+9. You should see 3 sensors: Temperature, Pressure, and Humidity. The values may start with 'Unknown' but at least within 3 minutes should show values.
+10. You can click the UnDiscovery and Disconnect buttons to remove the device from Home Assistant.
+11. When you are finished, hit Ctrl-C on the terminal session running the example.ha_mqtt_pi_tph280 python module. If the device has not yet been disconnected, UnDiscovery will be initiated and MQTT will be disconnected and the application will shut down normally.
+12. You should not just kill the python program as this will not properly clean the device and sensors in Home Assistant. If this happens, just start the module again, connect, and discover as before, then hit Ctrl-C and cleanup should happen.
+   
+
+<p 
+  d. Wait until discovery is complete
+  8. In the Home Assistant GUI, go to Settings -> Devices and services -> Devices
+  lign="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
