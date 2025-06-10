@@ -96,19 +96,16 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-- **Python Version:** 3.11+
-- **Dependencies:**
+- A Raspberry Pi processor (models Zero through 5 should work)
+- Network connection 
+- Raspian OS installed and operational
+- Python Version: 3.11+
+- Python Dependencies:
   - flask
   - paho-mqtt
   - psutil
   - pyyaml
   - RPi.bme280
-
-This is an example of how to list things you need to use the software and how to install them.
-* run pip in the virtual environment (see below)
-  ```sh
-  pip show flas, paho-mqtt psutil pyyaml rpi.bme280 | grep Warning
-  ```
 
 ### Installation
 
@@ -134,6 +131,7 @@ This is an example of how to list things you need to use the software and how to
    ```
 5. Configure the BME280 example
   a. In .config.yaml, change the following mqtt parameters: broker, username, password (note: you may place confidential information in .secrets.yaml and it will override information in .config.yaml)
+
 6. Run the example
    ```
    python -m example.ha_mqtt_pi_tph280
@@ -143,24 +141,36 @@ This is an example of how to list things you need to use the software and how to
    b. Click the MQTT Connection State: button to connect the client to Home Assistant's MQTT broker
    c. Wait until connection is complete (about 10 seconds on my systems), then click the Discovery State: button to send publish discovery messages
    d. Wait until discovery is complete
-8. In the Home Assistant GUI, go to Settings -> Devices and Services -> Devices and enter 280 in the filter and click on the device
-9. You should see 3 sensors: Temperature, Pressure, and Humidity. The values may start with 'Unknown' but at least within 3 minutes should show values.
-10. You can click the UnDiscovery and Disconnect buttons to remove the device from Home Assistant.
-11. When you are finished, hit Ctrl-C on the terminal session running the example.ha_mqtt_pi_tph280 python module. If the device has not yet been disconnected, UnDiscovery will be initiated and MQTT will be disconnected and the application will shut down normally.
-12. You should not just kill the python program as this will not properly clean the device and sensors in Home Assistant. If this happens, just start the module again, connect, and discover as before, then hit Ctrl-C and cleanup should happen.
-   
 
-<p 
-  d. Wait until discovery is complete
-  8. In the Home Assistant GUI, go to Settings -> Devices and services -> Devices
-  lign="right">(<a href="#readme-top">back to top</a>)</p>
+8. In the Home Assistant GUI, go to Settings -> Devices and Services -> Devices and enter 280 in the filter and click on the device
+
+9. You should see 3 sensors: Temperature, Pressure, and Humidity. The values may start with 'Unknown' but at least within 3 minutes should show values.
+
+10. You can click the UnDiscovery and Disconnect buttons to remove the device from Home Assistant.
+
+11. When you are finished, hit Ctrl-C on the terminal session running the example.ha_mqtt_pi_tph280 python module. If the device has not yet been disconnected, UnDiscovery will be initiated and MQTT will be disconnected and the application will shut down normally.
+
+12. You should not just kill the python program as this will not properly clean the device and sensors in Home Assistant. If this happens, just start the module again, connect, and discover as before, then hit Ctrl-C and cleanup should happen. Wait until discovery is complete. In the Home Assistant GUI, go to Settings -> Devices and services -> Devices
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+The provided example provides support for the Bosch BME280 environmental sensor.
+
+Additionally, other sensors utilizing SMBus support of the I2C bus should be fairly easily implemented.
+ 
+1. Copy the example folder to a myproject folder
+2. In myproject/device.py add a subclass for each sensor (mine are Temperature, Pressure, and Humidity). These class names converted to lower case become the names of the sensors in Home Assistant. The parameters for __init__ for each class are the user-supplied name for the sensor, the units string (use the units provided by the sensor, not Home Assistant, however the possible values for the sensor type must be valid Home Assistant values), the vendor name for the sensor device, the model name for the sensor.
+3. Replace the class BME280_Device, in the __init__() method place a list or the sensor objects
+4. Replace the class BME280 which implements the actual device interface. In the __init__ method, change the default bus and address defaults as required. Also, my device requires calibration, so I put that code in __init__. The sample method reads the data from the physical sensor and saves in in the object. The data method takes the data from the object and forms a dictionary which will be formatted with json and sent to Home Assistant as a data message.
+5. The sensor data will be sampled every minute and will be used by MQTT shortly after it is sampled.
+6. In myproject/parsing.py format any yaml/cmdline configuration you need to change.
+7. In myproject/ha_mqtt_pi_tph280.py, change the imports to point to myproject rather than exmple. Change the bme280 and device variable initializations to match your changes in myproject/device.py. Change the MQTTClient initialization to have your device name and the device and bme280 variables if you changed the names of the variables earlier in the module.
+8. Note: the route variable in each method is used only in logging. It probably doesn't need to be changed except in myproject/device.py if you change a method name.
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
