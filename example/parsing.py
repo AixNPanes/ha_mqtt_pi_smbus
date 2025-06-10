@@ -72,6 +72,7 @@ class Parser:
                 epilog = "This  program starts a simple web server which can be used to connect /disconnect the MQTT client and enable/disable device discovery. Without these 2 operations, the device wil not appear in Home Assistant."
                 )
         parser.add_argument("-t", "--title", help=f"the title for the web management interface")
+        parser.add_argument("--subtitle", help=f"the subtitle for the web management interface")
         parser.add_argument("-l", "--loglevel", help=f"logging level ({lognames})")
         parser.add_argument("-w", "--web_address", help="The address the web server listens on, default(0.0.0.0)", type=ipaddress)
         parser.add_argument("-o", "--web_port", help="The port the web server listens on, default(8088)", type=int)
@@ -102,13 +103,19 @@ class Parser:
         config = read_yaml(config_file)
         secrets = read_yaml(secrets_file)
 
-        # determine logging level from command, if supplied, otherwise config
+        # determine title and subtitle from command, if supplied, otherwise config
         if args.title:
             self.title = args.title
         elif 'title' in config:
             self.title = config['title']
         else:
             self.title = ''
+        if args.subtitle:
+            self.subtitle = args.subtitle
+        elif 'subtitle' in config:
+            self.subtitle = config['subtitle']
+        else:
+            self.subtitle = ''
 
         # determine logging level from command, if supplied, otherwise config
         if args.loglevel:

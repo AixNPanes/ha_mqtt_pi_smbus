@@ -1,4 +1,5 @@
-title: Bosch BME280 Temperature, Pressure, Humidity Sensors
+title: Bosch BME280
+subtitle: Temperature, Pressure, Humidity Sensors
 logging:
   level: ERROR
 web:
