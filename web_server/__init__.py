@@ -25,6 +25,7 @@ class HAFlask(Flask):
         logging.getLogger('werkzeug').setLevel(parser.logginglevel)
         secret_key = secrets.token_hex(32)
         self.config['SECRET_KEY'] = secret_key
+        self.title = parser.title
         # Flask template variables
         self.state = {
                 'Discovered': False,
@@ -41,11 +42,12 @@ class HAFlask(Flask):
                 self.state = {'Connected': False, 'Discovered': False, 'Error': ''}
             self.logger_.debug(f'{route} state: {self.state}')
             self.logger_.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
+            self.logger_.debug(f'{route} title: {self.title}')
             if self.state['Connected'] != self.client.is_connected():
                 self.state['Error'] = f'state[\'Connected\']({self.state["Connected"]}) does not match client.is_connected()({self.client.is_connected()})'
-                return render_template('index.html', state=jsonify(self.state))
+                return render_template('index.html', state=jsonify(self.state), variable_title=self.title)
                 #return jsonify(self.state)
-            return render_template('index.html', state=self.state)
+            return render_template('index.html', state=self.state, variable_title=self.title)
         
         @self.route('/mqtt-toggle', methods=['POST'])
         def mqtt_toggle():

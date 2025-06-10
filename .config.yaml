@@ -1,3 +1,4 @@
+title: Bosch BME280 Temperature, Pressure, Humidity sensor Management Interface
 logging:
   level: ERROR
 web:
