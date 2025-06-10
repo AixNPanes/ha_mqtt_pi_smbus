@@ -1,81 +1,175 @@
 import psutil
 import subprocess
+from typing import Any, Dict
 
-class CPUTemperature:
-    def getTemperature():
-        with open("/sys/class/thermal/thermal_zone0/temp", "r") as file_object:
-            return float(file_object.read()) / 1000.0
+def getTemperature() -> float:
+    """ get Raspberry Pi CPU temperature in Centigrade as a float
 
-class MacAddress:
-    def getByInterface(interface) -> str:
-        try:
-            output = subprocess.check_output(["ifconfig", interface]).decode("utf-8")
-            for line in output.splitlines():
-                if "ether" in line:
-                    mac_address = line.split()[1]
-                    return mac_address
-        except subprocess.CalledProcessError:
-            return None
+    Parameters
+    ----------
+    None
 
-    def get() -> str:
-        mac = MacAddress.getByInterface("eth0")
-        if not mac is None:
-            return mac
-        return MacAddress.getByInterface("wlan0")
+    Returns
+    -------
+    a float value representing the temperature of the Raspberry Pi
+    CPU
 
-    def getObjectId() -> str:
-        return MacAddress.get().replace(":","")
+    Example
+    ------
+    >>> from environ import getTemperature
+    >>> print(f'The temperature of the Raspberry Pi is {getTemperature()}{chr(176)}C')
+    The temperature of the Raspberry Pi is 50.464°C
+    >>>
+    """
+    with open("/sys/class/thermal/thermal_zone0/temp", "r") as file_object:
+        return float(file_object.read()) / 1000.0
 
-class CpuInfo:
-    def __init__(self):
-        self.info = {}
-        with open('/proc/cpuinfo','r') as f:
-            content = f.read()
-        groups = content.split("\n\n")
-        stanzas = []
-        processors = {}
-        for group in groups:
-            piece = group.split("\n")
-            stanza = {}
-            for line in piece:
-                if len(line) > 0:
-                    token = line.split(":")
-                    token[0] = token[0].strip()
-                    token[1] = token[1].strip()
-                    stanza[token[0]] = token[1]
-            processor = stanza.pop('processor', None)
-            if not processor is None:
-                stanza['BogoMIPS'] = float(stanza['BogoMIPS'])
-                stanza['CPU architecture'] = int(stanza['CPU architecture'])
-                stanza['CPU revision'] = int(stanza['CPU revision'])
-                stanza['Features'] = stanza['Features'].split(' ')
-                processors[processor] = stanza
-            else:
-                stanza['processors'] = len(processors)
-                self.info['cpu'] = stanza
-        self.info['processors'] = processors
+def getMacAddressByInterface(interface) -> str:
+    """ get the Mac address of the specified interface
 
-class OSInfo:
-    def __init__(self):
-        self.info = {}
-        with open('/etc/os-release','r') as f:
-            content = f.read()
-        for line in content.split("\n"):
-            token = line.split("=")
-            if len(token) == 2:
-                self.info[token[0].strip()] = token[1].strip()
+    Parameters
+    ----------
+    a str containing the name of the interface
 
-class NetIfAddr:
-    def __init__(self):
-        ifaces = psutil.net_if_addrs()
-        if 'eth0' in ifaces:
-            iface = ifaces['eth0']
-        elif 'wlan0' in ifaces:
-            iface = ifaces['wlan0']
+    Returns
+    -------
+    a str containing 6 pairs of hexadecimal digits separated by semicolongs (:) which is the encoding of the 48-bit mac address of the specified interface 
+
+    Example
+    ------
+    >>> from environ import getTemperature
+    >>> print(f'The Mac address for wlan0 is {getMacAddressByInterface("wlan0")}')
+    The Mac address for wlan0 is b8:27:eb:94:a7:18
+    >>>
+    """
+    try:
+        output = subprocess.check_output(["ifconfig", interface]).decode("utf-8")
+        for line in output.splitlines():
+            if "ether" in line:
+                mac_address = line.split()[1]
+                return mac_address
+    except subprocess.CalledProcessError:
+        return None
+
+def getMacAddress() -> str:
+    """ get the 'primary' iac address of the Raspberry pi
+
+    The Mac address for eth0 is returned, if no eth0, then for wlan0, if no wlan0, then None is returned
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    a str containing 6 pairs of hexadecimal digits separated by semicolongs (:) which is the encoding of the 48-bit mac address of the 'primary' interface or None if the 'primary' interface cannot be determined
+
+    Example
+    ------
+    >>> from environ import getMacAddress
+    >>> print(f'The mac address for the primary interface is {getMacAddress()}')
+    The mac address for the primary interface is b8:27:eb:c1:f2:4d
+    >>>
+    """
+    mac = getMacAddressByInterface("eth0")
+    if not mac is None:
+        return mac
+    return getMacAddressByInterface("wlan0")
+
+def getObjectId() -> str:
+    """ get a unique object id representing the Raspberry Pi system
+
+    The object id returned is a str containing the Mac Address for the 'primary' interface with the semicolons(:) removed. If no 'primary' interface can be determined, None is returned.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    a str containing 6 pairs of hexadecimal digits which is the encoding of the 48-bit mac address of the 'primary' interface or None if the 'primary' interface cannot be determined
+
+    Example
+    ------
+    >>> from environ import getObjectId
+    >>> print(f'The object id is {getObjectId()}')
+    The object id is b827ebc1f24d
+    >>>
+    """
+    return getMacAddress().replace(":","")
+
+def getCpuInfo() -> Dict[str, Any]:
+    """ get Raspberry Pi CPU info
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    a dict value representing the information read from /proc/cpuinfo
+
+    Example
+    ------
+    >>> from environ import getCpuInfo
+    >>> print(f'The cpu info is as follows:\n{getCpuInfo()}')
+    The cpu info is as follows:
+{'cpu': {'Revision': 'a22082', 'Serial': '000000009ec1f24d', 'Model': 'Raspberry Pi 3 Model B Rev 1.2', 'processors': 4}, 'processors': {'0': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '1': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '2': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '3': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}}}
+    >>>
+    """
+    info = {}
+    with open('/proc/cpuinfo','r') as f:
+        content = f.read()
+    groups = content.split("\n\n")
+    stanzas = []
+    processors = {}
+    for group in groups:
+        piece = group.split("\n")
+        stanza = {}
+        for line in piece:
+            if len(line) > 0:
+                token = line.split(":")
+                token[0] = token[0].strip()
+                token[1] = token[1].strip()
+                stanza[token[0]] = token[1]
+        processor = stanza.pop('processor', None)
+        if not processor is None:
+            stanza['BogoMIPS'] = float(stanza['BogoMIPS'])
+            stanza['CPU architecture'] = int(stanza['CPU architecture'])
+            stanza['CPU revision'] = int(stanza['CPU revision'])
+            stanza['Features'] = stanza['Features'].split(' ')
+            processors[processor] = stanza
         else:
-            iface = None
-        if not iface is None:
-            for ifc in iface:
-                self.address = ifc.address
-                return
-        self.address = None    
+            stanza['processors'] = len(processors)
+            info['cpu'] = stanza
+    info['processors'] = processors
+    return info
+
+
+def getOSInfo() -> Dict[str, Any]:
+    """ get Raspberry Pi OS operating system release information
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    a dict containing the information retrieved from /etc/os-release
+
+    Example
+    ------
+    >>> from environ import getOSInfo
+    >>> print(f'The OS release information is:\n{getOSInfo()}')
+    The OS release information is:
+    {'PRETTY_NAME': '"Debian GNU/Linux 12 (bookworm)"', 'NAME': '"Debian GNU/Linux"', 'VERSION_ID': '"12"', 'VERSION': '"12 (bookworm)"', 'VERSION_CODENAME': 'bookworm', 'ID': 'debian', 'HOME_URL': '"https://www.debian.org/"', 'SUPPORT_URL': '"https://www.debian.org/support"', 'BUG_REPORT_URL': '"https://bugs.debian.org/"'}
+    >>>
+    """
+    info = {}
+    with open('/etc/os-release','r') as f:
+        content = f.read()
+    for line in content.split("\n"):
+        token = line.split("=")
+        if len(token) == 2:
+            info[token[0].strip()] = token[1].strip()
+    return info        

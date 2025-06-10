@@ -11,7 +11,7 @@ import paho
 
 from smbus_device import SMBusDevice
 from ha_device import HADevice
-from environ import MacAddress
+from environ import getObjectId
 
 class MQTT_Publisher_Thread(threading.Thread):
     def __init__(self, client:"MQTTClient", device: HADevice, smbus_device:SMBusDevice):
@@ -56,7 +56,7 @@ class MQTTClient(paho.mqtt.client.Client):
     def __init__(self, client_prefix:str, device:HADevice, smbus_device:SMBusDevice, mqtt_config:Dict[str, Any] = None):
         super().__init__(
                 paho.mqtt.enums.CallbackAPIVersion.VERSION2, 
-                f'{client_prefix}-{MacAddress.getObjectId()}-{str(random.randint(0,1000)).zfill(3)}',
+                f'{client_prefix}-{getObjectId()}-{str(random.randint(0,1000)).zfill(3)}',
                 True, None)
         self.broker_address = mqtt_config['broker']
         self.port = mqtt_config['port']

@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, List
 
-from environ import CpuInfo, OSInfo, MacAddress
+from environ import getCpuInfo, getOSInfo, getMacAddress
 
 class HASensor:
     def __init__(self, name:str, units:str, state_topic:str, manufacturer:str, model:str, base_name:str=None):
@@ -9,11 +9,11 @@ class HASensor:
         basename = base_name
         if basename == None:
             basename = 'homeassistant'
-        cpu = CpuInfo().info['cpu']
-        osinfo = OSInfo().info
+        cpu = getCpuInfo()['cpu']
+        osinfo = getOSInfo()
         device_class = type(self).__name__.lower()
         value_name = name.lower()
-        mac_address = MacAddress.get()
+        mac_address = getMacAddress()
         serial = mac_address.replace(":", "")
         unique_id = f'{serial[-6:]}-{value_name}'
         hardware = cpu['Model']
@@ -54,7 +54,7 @@ class HASensor:
 
 class HADevice:
     def __init__(self, sensors:List[Dict[str, Any]]):
-        mac_address = MacAddress.get()
+        mac_address = getMacAddress()
         self.sensors = {}
         _sensor = None
         for sensor in sensors:

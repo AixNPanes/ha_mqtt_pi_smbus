@@ -3,7 +3,6 @@ from typing import Any, Dict
 
 import bme280
 
-from environ import CpuInfo, OSInfo, MacAddress
 from ha_device import HADevice, HASensor
 from smbus_device import SMBusDevice, SMBusDevice_Sampler_Thread
 
@@ -60,7 +59,7 @@ class BME280(SMBusDevice):
                 "pressure": round(self.pressure, 1),
                 "pressure_units": "mbar",
                 "humidity": round(self.humidity, 1),
-                "humidity": "%",
+                "humidity_units": "%",
                 }
 
 if __name__ == '__main__':
