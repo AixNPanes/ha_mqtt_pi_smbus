@@ -9,15 +9,15 @@ from smbus_device import SMBusDevice, SMBusDevice_Sampler_Thread
 
 class Temperature(HASensor):
     def __init__(self, sensor_name:str):
-        super().__init__(sensor_name, f'{chr(176)}C', "tph280/state", "Bosch", "BME280")
+        super().__init__(sensor_name, f'{chr(176)}C', "bme280/state", "Bosch", "BME280")
 
 class Pressure(HASensor):
     def __init__(self, sensor_name:str):
-        super().__init__(sensor_name, "mbar", "tph280/state", "Bosch", "BME280")
+        super().__init__(sensor_name, "mbar", "bme280/state", "Bosch", "BME280")
 
 class Humidity(HASensor):
     def __init__(self, sensor_name:str):
-        super().__init__(sensor_name, "%", "tph280/state", "Bosch", "BME280")
+        super().__init__(sensor_name, "%", "bme280/state", "Bosch", "BME280")
 
 class BME280_Device(HADevice):
     def __init__(self, logger:logging.Logger, name:str, smbus_device:SMBusDevice, polling_interval:int):
