@@ -134,7 +134,7 @@ To get a local copy up and running follow these simple example steps.
 
 6. Run the example
    ```
-   python -m example.ha_mqtt_pi_tph280
+   python -m example.pi_bme280
    ```
 7. Start a web browser
    a. Connect to port 8088 on the server running the sample program
@@ -148,7 +148,7 @@ To get a local copy up and running follow these simple example steps.
 
 10. You can click the UnDiscovery and Disconnect buttons to remove the device from Home Assistant.
 
-11. When you are finished, hit Ctrl-C on the terminal session running the example.ha_mqtt_pi_tph280 python module. If the device has not yet been disconnected, UnDiscovery will be initiated and MQTT will be disconnected and the application will shut down normally.
+11. When you are finished, hit Ctrl-C on the terminal session running the example.pi_bme280 python module. If the device has not yet been disconnected, UnDiscovery will be initiated and MQTT will be disconnected and the application will shut down normally.
 
 12. You should not just kill the python program as this will not properly clean the device and sensors in Home Assistant. If this happens, just start the module again, connect, and discover as before, then hit Ctrl-C and cleanup should happen. Wait until discovery is complete. In the Home Assistant GUI, go to Settings -> Devices and services -> Devices
 
@@ -169,7 +169,7 @@ Additionally, other sensors utilizing SMBus support of the I2C bus should be fai
 4. Replace the class BME280 which implements the actual device interface. In the __init__ method, change the default bus and address defaults as required. Also, my device requires calibration, so I put that code in __init__. The sample method reads the data from the physical sensor and saves in in the object. The data method takes the data from the object and forms a dictionary which will be formatted with json and sent to Home Assistant as a data message.
 5. The sensor data will be sampled every minute and will be used by MQTT shortly after it is sampled.
 6. In myproject/parsing.py format any yaml/cmdline configuration you need to change.
-7. In myproject/ha_mqtt_pi_tph280.py, change the imports to point to myproject rather than exmple. Change the bme280 and device variable initializations to match your changes in myproject/device.py. Change the MQTTClient initialization to have your device name and the device and bme280 variables if you changed the names of the variables earlier in the module.
+7. In myproject/pi_bme280.py, change the imports to point to myproject rather than exmple. Change the bme280 and device variable initializations to match your changes in myproject/device.py. Change the MQTTClient initialization to have your device name and the device and bme280 variables if you changed the names of the variables earlier in the module.
 8. Note: the route variable in each method is used only in logging. It probably doesn't need to be changed except in myproject/device.py if you change a method name.
 
 _For more examples, please refer to the [Documentation](https://example.com)_
