@@ -1,15 +1,75 @@
+:root {
+  --gray-50: #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --dark-gray: #111827;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --blue-200: #BFDBFE;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+  --blue-800: #1E40AF;
+
+  /*--main-background-color: var(--gray-50);
+  --alternate-backgraound-color: var(--gray-100);
+  --primary-title-color: var(--gray-900);
+  --secondary-title-color: var(--gray-700);
+  --accent-title-color: var(--blue-700);
+  --inactive-background-color: var(--gray-200);
+  --inactive-text-color: var(--dark-gray);
+  --inactive-background-color-hover: var(--gray-300);
+  --inactive-text-color-hover: var(--dark-gray);
+  --processing-background-color: var(--blue-200);
+  --processing-text-color: var(--blue-800);
+  --disabled-background-color-hover: var(--gray-100);
+  --disabled-text-color-hover: var(--gray-400);
+  --active-background-color: var(--gray-200);
+  --active-text-color: var(--dark-gray);
+  --active-background-color-hover: var(--gray-300);
+  --active-text-color-hover: var(--dark-gray);*/
+
+  --main-background-color: white;
+  --alternate-backgraound-color: var(--gray-100);
+  --primary-title-color: black;
+  --secondary-title-color: var(--gray-800);
+  --accent-title-color: var(--blue-600);
+  --inactive-background-color: LightSlateGray;
+  --inactive-text-color: Black;
+  --inactive-background-color-hover: DarkSlateGray;
+  --inactive-text-color-hover: white;
+  --processing-background-color: GoldenRod;
+  --processing-text-color: Black);
+  --disabled-background-color-hover: var(--gray-100);
+  --disabled-text-color-hover: var(--gray-400);
+  --active-background-color: SkyBlue;
+  --active-text-color: Black;
+  --active-background-color-hover: DeepSkyBlue;
+  --active-text-color-hover: Black;
+}
+
 body {
+  background-color: var(--main-background-color);	
   font-family: Arial, sans-serif;
-  padding: 2em  
+  padding: 2em;
 }
 
 h1 {
+  color: var(--primary-title-color);
   text-align: center;
 }
 
 h2 {
+  color: var(--secondary-title-color);
   text-align: center;
+}
+
+h3 {
+  color: var(--accent-title-color);
   margin-bottom: 40px;
+  text-align: center;
 }
 
 .lozenge-group {
@@ -40,28 +100,28 @@ h2 {
 }
 
 .notactive {
-  background-color: LightSlateGray;
-  color: black;
+  background-color: var(--inactive-background-color);
+  color: var(--inactive-text-color);
 }
 
 .notactive:hover {
-  background-color: DarkSlateGray;
-  color: white;
+  background-color: var(--inactive-background-color-hover);
+  color: var(--inactive-text-color-hover);
 }
 
 .processing {
-  background-color: GoldenRod;
-  color: black;
+  background-color: var(--processing-background-color);
+  color: var(--processing-text-color);
 }
 
 .isactive {
-  background-color: SkyBlue;
-  color: black;
+  background-color: var(--active-background-color);
+  color: var(--active-text-color);
 }
 
 .isactive:hover {
-  background-color: DeepSkyBlue;
-  color: black;
+  background-color: var(--active-background-color-hover);
+  color: var(--active-text-color-hover);
 }
 
 .no-hover {
