@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>MQTT Slide Switch</title>
-  <script src="{{ url_for('static', filename='js/myscripts.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/myscripts2.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles2.css') }}"/>
 </head>
 <body>
   {% with messages = get_flashed_messages() %}
@@ -18,7 +16,8 @@
       </ul>
     {% endif %}
   {% endwith %}
-  <h1 class="title">{{ variable_title }}</h1>
+  <h1>Maintenance Interface</h1>
+  <h2>{{ title }}</h2>
 
   <div class="lozenge-group">
     <div class="lozenge notactive" id="mqtt-toggle">

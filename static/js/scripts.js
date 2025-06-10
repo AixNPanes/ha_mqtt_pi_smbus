@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const discoveryStatus = document.getElementById('discovery-status');
   const discoveryDescription = document.getElementById('discovery-description')
 
+  console.log('myscripts2.js')	
   const Status = {
     INACTIVE: 'notactive',
     PROCESSING: 'processing',
