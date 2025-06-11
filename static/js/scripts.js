@@ -69,18 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
     toggle.classList.add('no-hover');
   }
 
-  console.log('jscript start');
-
-  fetch('/mqtt-toggle', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({Connected: false, Discovered: false, error:''})
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log('initial data:'+JSON.stringify(data));
-  });
-
   mqttToggle.addEventListener('click', function () {
     mqttState = getStatus(mqttToggle);
     discoveryState = getStatus(discoveryToggle);
