@@ -29,7 +29,8 @@ def getMacAddressByInterface(interface) -> str:
 
     Parameters
     ----------
-    a str containing the name of the interface
+    interface : str
+        a str containing the name of the interface
 
     Returns
     -------
