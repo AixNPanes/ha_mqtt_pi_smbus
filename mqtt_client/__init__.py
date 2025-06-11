@@ -9,8 +9,7 @@ from typing import Any, Dict
 
 import paho
 
-from smbus_device import SMBusDevice
-from ha_device import HADevice
+from device import HADevice, SMBusDevice
 from environ import getObjectId
 
 class MQTT_Publisher_Thread(threading.Thread):

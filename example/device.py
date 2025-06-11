@@ -1,10 +1,10 @@
+import datetime
 import logging
 from typing import Any, Dict
 
 import bme280
 
-from ha_device import HADevice, HASensor
-from smbus_device import SMBusDevice, SMBusDevice_Sampler_Thread
+from device import HADevice, HASensor, SMBusDevice, SMBusDevice_Sampler_Thread
 
 class Temperature(HASensor):
     def __init__(self, sensor_name:str):
@@ -32,6 +32,7 @@ class BME280_Device(HADevice):
         return self.smbus_device.data()
 
 class BME280(SMBusDevice):
+    last_update:datetime = datetime.datetime.now()
     temperature:float = -32.0 * 5 / 9
     pressure:float = 0.0
     humidity:float = 0.0
@@ -45,6 +46,7 @@ class BME280(SMBusDevice):
     def sample(self) -> None:
         super().sample()
         data = bme280.sample(self, self.address, self._calibration_params)
+        self.last_update = datetime.datetime.now()
         self.temperature = data.temperature
         self.pressure = data.pressure
         self.humidity = data.humidity
