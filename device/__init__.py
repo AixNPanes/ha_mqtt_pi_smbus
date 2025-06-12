@@ -15,17 +15,27 @@ class HASensor:
     Parameters
     ----------
     units : str
-        The string representing the default units for the device. This must be a valid unit type for the associated Home Assistant sensor type.
-
+        The string representing the default units for the device. This
+        must be a valid unit type for the associated Home Assistant
+        sensor type.
     name : str
-        The name of the device. This name will be displayed in Home Assistant as the device name. The default is the class name converted to lower case, ie. class Temperature(HASensor) has a device name of temperature by default.
-
+        The name of the device. This name will be displayed in Home
+        Assistant as the device name. The default is the class name
+        converted to lower case, ie. class Temperature(HASensor) has a
+        device name of temperature by default.
     device_class : str
-        The Home Assistant class of the device. This device class describes the type of sensor. The default is the class name converted to lower case, ie. class Temperature(HASensor) has a device class of temperature by default.
+        The Home Assistant class of the device. This device class
+        describes the type of sensor. The default is the class name
+        converted to lower case, ie. class Temperature(HASensor) has a
+        device class of temperature by default.
 
     Note
     ----
-    This class should be subclassed and not used directly. The subclass name, converted to lower case becomes the device class of the sensor, ie. the 'Temperature' class would represent a 'temperature' sensor. This name must be a valid Home Assistant sensor class.
+    This class should be subclassed and not used directly. The
+    subclass name, converted to lower case becomes the device class of
+    the sensor, ie. the 'Temperature' class would represent a
+    'temperature' sensor. This name must be a valid Home Assistant
+    sensor class.
 
     Example
     -------
@@ -96,20 +106,28 @@ class HADevice:
         The list of sensors defined for the device.
 
     state_topic : str
-        The state topic that will be used in the message to send data to Home Assistant. Note that this state topic should be unique for each device.
-
+        The state topic that will be used in the message to send data to
+        Home Assistant. Note that this state topic should be unique for
+        each device.
     manufacturer : str
-        The name of the manufacturer of the sensor. This will be displayed in the Home Assistant detail for the device. For the Bosch BME280 sensor, this would be 'Bosch'.
-
+        The name of the manufacturer of the sensor. This will be
+        displayed in the Home Assistant detail for the device. For the
+        Bosch BME280 sensor, this would be 'Bosch'.
     model : str
-        The name of the model of the sensor. This will be displayed in the Home Assistant detail for the device. For the Bosch BME280 sensor, this would be 'BME280'.
-
+        The name of the model of the sensor. This will be displayed in
+        the Home Assistant detail for the device. For the Bosch BME280
+        sensor, this would be 'BME280'.
     base_name : str
-        The base part of the discovery message. This field must match the setting in Home Assistant Settings -> Devices and services -> Integrations -> MQTT consiguration section Configure -> CONFIGURE MQTT OPTIONS -> Enable discovery [Discovery prefix]
+        The base part of the discovery message. This field must match
+        the setting in Home Assistant Settings -> Devices and services
+        -> Integrations -> MQTT consiguration section Configure
+        -> CONFIGURE MQTT OPTIONS -> Enable discovery [Discovery prefix]
 
     Note
     ----
-    This class is designed to be subclassed and not used directly. The subclass must override the data() method in order to retrieve data from the physical device.
+    This class is designed to be subclassed and not used directly. The
+    subclass must override the data() method in order to retrieve data
+    from the physical device.
 
     Example
     -------
@@ -173,21 +191,22 @@ class SMBusDevice(SMBus):
     last_update:datetime.datetime = datetime.datetime.now()
 
     def __init__(self, bus:int = 1, address:int = 0x76):
-        """ Definition for a SMBus device generalization specific to sensors
+        """ Definition for SMBus device specific to sensors
     
         Parameters
         ----------
         bus : int
-    
             The number of the SMBus (I2C) bus (1 or 2). The default is 1
-    
         address : int
-    
-            The address of the device on the I2C bus. The default is 118 (0x76).
+            The address of the device on the I2C bus. The default is
+            118 (0x76).
     
         Note
         ----
-        This class is designed to be subclassed and not used directly. The subclass must override the sample() and data() methods in order to sample the device data adn return the data to the application, respectively.
+        This class is designed to be subclassed and not used directly.
+        The subclass must override the sample() and data() methods in
+        order to sample the device data adn return the data to the
+        application, respectively.
     
         Example
         -------
@@ -235,7 +254,7 @@ class SMBusDevice(SMBus):
 
     # Override this method
     def sample(self) -> None:
-        """ sample the SMBus device and save the data in the object's 'data' variable
+        """ sample device, save the data in the object's 'data' variable
     
         Parameters
         ----------
@@ -259,12 +278,15 @@ class SMBusDevice(SMBus):
 
         Return : Dict[str, Any]
         ------
-        The dictionay containing the data for all the sensors for the device.
+        The dictionay containing the data for all the sensors for the
+        device.
 
         Note
         ----
 
-        This method should be overriden as the provided data only provides SMBus parameters and a time stamp but no actual sensor data.
+        This method should be overriden as the provided data only
+        provides SMBus parameters and a time stamp but no actual
+        sensor data.
     
         Example
         -------
@@ -294,26 +316,20 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         Parameters
         ----------
         logger: logging.Logger
-    
             The python logger created similarly to:
             logger = logging.Logger("logger name")
-
         smbus_device : SMBusDevice
-
             The SMBusDevice which is going to be sampled
-
         polling_interval : in
-            
             The interval at which polling is to take place
 
         Note
         ----
-
-        This class is designed to be used in the class which implements the HADevice interface. It need not be overriden.
+        This class is designed to be used in the class which implements
+        the HADevice interface. It need not be overriden.
     
         Example
         -------
-
         class BME280_Device(HASensor)
             def __init__(self, logger:logging.Logger, name:str, smbus_device: SMBusDevice, polling_interval:int)
                 super().__init((Temperature(name), Pressure(name), Humidity(name)))
@@ -337,7 +353,9 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         Note
         ----
 
-        This method need not be overridden in normal use. It is called when the thread is started with the thread.start() method. (See class example, above.)
+        This method need not be overridden in normal use. It is called
+        when the thread is started with the thread.start() method.
+        (See class example, above.)
         """
         route = 'SMBusDevice_Sampler_Thread'
         while True:
