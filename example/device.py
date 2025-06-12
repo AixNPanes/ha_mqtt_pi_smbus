@@ -11,34 +11,27 @@ class BME280_Device(HADevice):
 
     Parameters
     ----------
-
     logger : logginRg.Logger
-
         The logger that will be used to perform any logging operations.
-
     sensor_name : str
-
-        The name of the device containing the sensor. This name is the display name for the device in Home Assistant.
-
+        The name of the device containing the sensor. This name is the
+        display name for the device in Home Assistant.
     state_topic : str
-
-        The MQTT state topic that accompanies the sensor data that is sent to Home Assistant. The state topic must be unique for each device.
-
+        The MQTT state topic that accompanies the sensor data that is
+        sent to Home Assistant. The state topic must be unique for each
+        device.
     manufacturer : str
-
-        The sensor device's manufacturer name. This name will be displayed in the device detail in Home Assistant.
-
+        The sensor device's manufacturer name. This name will be
+        displayed in the device detail in Home Assistant.
     model : str
-
-        The sensor device's model name. This name will be displayed in the device detail in Home Assistant.
-
+        The sensor device's model name. This name will be displayed in
+        the device detail in Home Assistant.
     smbus_device : SMBusDivice
-
-        The sensor device's interface object. This object communicates with the physical device to retrieve the sensor data.
-
+        The sensor device's interface object. This object communicates
+        with the physical device to retrieve the sensor data.
     polling_interval : int
-
-        The interval at which data will be sampled from the device and placed in the device object.
+        The interval at which data will be sampled from the device and
+        placed in the device object.
 
     Example
     -------
@@ -85,14 +78,12 @@ class BME280(SMBusDevice):
 
     Parameters
     ----------
-
     bus : int
-
-        The I2C bus number which is used to connect to the sensor device (1 or 2)
-
+        The I2C bus number which is used to connect to the sensor device
+        (1 or 2)
     address : int
-
-        The address of the sensor device on the I2C bus. For a BME280 this is either 0x76(118) or 0x77(119).
+        The address of the sensor device on the I2C bus. For a BME280
+        this is either 0x76(118) or 0x77(119).
 
     Example
     -------
@@ -114,7 +105,8 @@ class BME280(SMBusDevice):
     def sample(self) -> None:
         """ makes one sample of the device
 
-        The sampled data is retained in the device for later collection with the data() method.
+        The sampled data is retained in the device for later collection
+        with the data() method.
 
         Parameters
         ----------
@@ -135,7 +127,9 @@ class BME280(SMBusDevice):
     def data(self) -> Dict[str, Any]:
         """ returns sampled data
 
-        The data was either sampled previously by the saple() method or, alternatively, the initial data stored in the object will be returned.
+        The data was either sampled previously by the saple() method
+        or, alternatively, the initial data stored in the object will
+        be returned.
 
         Parameters
         ----------
@@ -143,7 +137,6 @@ class BME280(SMBusDevice):
 
         Return
         ------
-
         A dict structure containing pertinent data.
 
         """

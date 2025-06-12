@@ -10,22 +10,21 @@ from typing import Any, Dict
 import yaml
 
 def deep_merge_dicts(dict1:Dict[str, Any], dict2:Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Recursively merges two dictionaries.
+    """ Recursively merges two dictionaries.
+
+    Two dict structures will be merged.  Values from dict2 will
+    overwrite values from dict1 in case of conflicts, except for
+    nested dictionaries, which are recursively merged.
 
     Parameters
     ----------
-
     dict1 ; Dict[atr, Any]
-
     dict2 ; Dict[atr, Any]
 
     Returns
     -------
-
     dict
 
-    Two dict structures will be merged.  Values from dict2 will overwrite values from dict1 in case of conflicts, except for nested dictionaries, which are recursively merged.
     """
     merged_dict:Dict[str, Any] = dict1.copy()  # Start with a copy to avoid modifying original dict1
 
@@ -92,9 +91,9 @@ def configOrCmdParm(arg, config:Dict[str, Any], secrets:Dict[str, Any], cfg_name
 class Parser:
     def __init__(self):
         parser = argparse.ArgumentParser(
-                description="Raspberry Pi BME280 Home Assistant MQTT client for temperature, pressure and humidity",
-                epilog = "This  program starts a simple web server which can be used to connect /disconnect the MQTT client and enable/disable device discovery. Without these 2 operations, the device wil not appear in Home Assistant."
-                )
+            description="Raspberry Pi BME280 Home Assistant MQTT client for temperature, pressure and humidity",
+            epilog = "This  program starts a simple web server which can be used to connect /disconnect the MQTT client and enable/disable device discovery. Without these 2 operations, the device wil not appear in Home Assistant."
+            )
         parser.add_argument("-t", "--title", help=f"the title for the web management interface")
         parser.add_argument("--subtitle", help=f"the subtitle for the web management interface")
         parser.add_argument("-l", "--loglevel", help=f"logging level ({lognames})")
