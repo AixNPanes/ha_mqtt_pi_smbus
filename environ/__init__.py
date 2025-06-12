@@ -34,7 +34,9 @@ def getMacAddressByInterface(interface) -> str:
 
     Returns
     -------
-    a str containing 6 pairs of hexadecimal digits separated by semicolongs (:) which is the encoding of the 48-bit mac address of the specified interface 
+    a str containing 6 pairs of hexadecimal digits separated by
+    semicolongs (:) which is the encoding of the 48-bit mac address of
+    the specified interface 
 
     Example
     ------
@@ -55,7 +57,8 @@ def getMacAddressByInterface(interface) -> str:
 def getMacAddress() -> str:
     """ get the 'primary' iac address of the Raspberry pi
 
-    The Mac address for eth0 is returned, if no eth0, then for wlan0, if no wlan0, then None is returned
+    The Mac address for eth0 is returned, if no eth0, then for wlan0,
+    if no wlan0, then None is returned
 
     Parameters
     ----------
@@ -63,7 +66,10 @@ def getMacAddress() -> str:
 
     Returns
     -------
-    a str containing 6 pairs of hexadecimal digits separated by semicolongs (:) which is the encoding of the 48-bit mac address of the 'primary' interface or None if the 'primary' interface cannot be determined
+    a str containing 6 pairs of hexadecimal digits separated by
+    semicolongs (:) which is the encoding of the 48-bit mac address
+    of the 'primary' interface or None if the 'primary' interface
+    cannot be determined
 
     Example
     ------
@@ -80,7 +86,9 @@ def getMacAddress() -> str:
 def getObjectId() -> str:
     """ get a unique object id representing the Raspberry Pi system
 
-    The object id returned is a str containing the Mac Address for the 'primary' interface with the semicolons(:) removed. If no 'primary' interface can be determined, None is returned.
+    The object id returned is a str containing the Mac Address for the
+    'primary' interface with the semicolons(:) removed. If no 'primary'
+    interface can be determined, None is returned.
 
     Parameters
     ----------
@@ -88,7 +96,9 @@ def getObjectId() -> str:
 
     Returns
     -------
-    a str containing 6 pairs of hexadecimal digits which is the encoding of the 48-bit mac address of the 'primary' interface or None if the 'primary' interface cannot be determined
+    a str containing 6 pairs of hexadecimal digits which is the encoding
+    of the 48-bit mac address of the 'primary' interface or None if the
+    'primary' interface cannot be determined
 
     Example
     ------
