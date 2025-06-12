@@ -6,21 +6,70 @@ import bme280
 
 from device import HADevice, HASensor, SMBusDevice, SMBusDevice_Sampler_Thread
 
-class Temperature(HASensor):
-    def __init__(self, sensor_name:str):
-        super().__init__(sensor_name, f'{chr(176)}C', "bme280/state", "Bosch", "BME280")
-
-class Pressure(HASensor):
-    def __init__(self, sensor_name:str):
-        super().__init__(sensor_name, "mbar", "bme280/state", "Bosch", "BME280")
-
-class Humidity(HASensor):
-    def __init__(self, sensor_name:str):
-        super().__init__(sensor_name, "%", "bme280/state", "Bosch", "BME280")
-
 class BME280_Device(HADevice):
-    def __init__(self, logger:logging.Logger, name:str, smbus_device:SMBusDevice, polling_interval:int):
-        super().__init__((Temperature(name), Pressure(name), Humidity(name)))
+    """ Definition for a Home Assistant dicscoverable sensor device
+
+    Parameters
+    ----------
+
+    logger : logginRg.Logger
+
+        The logger that will be used to perform any logging operations.
+
+    sensor_name : str
+
+        The name of the device containing the sensor. This name is the display name for the device in Home Assistant.
+
+    state_topic : str
+
+        The MQTT state topic that accompanies the sensor data that is sent to Home Assistant. The state topic must be unique for each device.
+
+    manufacturer : str
+
+        The sensor device's manufacturer name. This name will be displayed in the device detail in Home Assistant.
+
+    model : str
+
+        The sensor device's model name. This name will be displayed in the device detail in Home Assistant.
+
+    smbus_device : SMBusDivice
+
+        The sensor device's interface object. This object communicates with the physical device to retrieve the sensor data.
+
+    polling_interval : int
+
+        The interval at which data will be sampled from the device and placed in the device object.
+
+    Example
+    -------
+
+    bme280_device = BME280_Device('Living Room TPH')
+
+    """
+    class Temperature(HASensor):
+        units:str = f'{chr(176)}C'
+        device_class = 'temperature'
+        def __init__(self, sensor_name:str = None):
+            super().__init__(self.units, name = sensor_name, device_class = self.device_class)
+
+    class Pressure(HASensor):
+        units:str = 'mbar'
+        device_class = 'pressure'
+        def __init__(self, sensor_name:str = None):
+            super().__init__(self.units, name = sensor_name, device_class = self.device_class)
+
+    class Humidity(HASensor):
+        units:str = '%'
+        device_class = 'humidity'
+        def __init__(self, sensor_name:str = None):
+            super().__init__(self.units, name = sensor_name, device_class = self.device_class)
+            
+    def __init__(self, logger:logging.Logger, name:str, state_topic:str, manufacturer:str, model:str, smbus_device:SMBusDevice, polling_interval:int):
+        super().__init__((
+            BME280_Device.Temperature(),
+            BME280_Device.Pressure(),
+            BME280_Device.Humidity()
+            ), name, state_topic, manufacturer, model)
         route = 'BME280_Sensor'
         self.__logger = logger
         self.smbus_device = smbus_device
@@ -32,6 +81,25 @@ class BME280_Device(HADevice):
         return self.smbus_device.data()
 
 class BME280(SMBusDevice):
+    """ Definition for a SMBus device which communicated over I2C
+
+    Parameters
+    ----------
+
+    bus : int
+
+        The I2C bus number which is used to connect to the sensor device (1 or 2)
+
+    address : int
+
+        The address of the sensor device on the I2C bus. For a BME280 this is either 0x76(118) or 0x77(119).
+
+    Example
+    -------
+
+    bme280 = BME280(bus = 1, address = 0x76)
+
+    """
     last_update:datetime = datetime.datetime.now()
     temperature:float = -32.0 * 5 / 9
     pressure:float = 0.0
@@ -44,6 +112,19 @@ class BME280(SMBusDevice):
         self._calibration_params = bme280.load_calibration_params(self, self.address)
 
     def sample(self) -> None:
+        """ makes one sample of the device
+
+        The sampled data is retained in the device for later collection with the data() method.
+
+        Parameters
+        ----------
+        None
+
+        Example
+        -------
+        bme280.sample()
+
+        """
         super().sample()
         data = bme280.sample(self, self.address, self._calibration_params)
         self.last_update = datetime.datetime.now()
@@ -52,6 +133,20 @@ class BME280(SMBusDevice):
         self.humidity = data.humidity
 
     def data(self) -> Dict[str, Any]:
+        """ returns sampled data
+
+        The data was either sampled previously by the saple() method or, alternatively, the initial data stored in the object will be returned.
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+
+        A dict structure containing pertinent data.
+
+        """
         return {
                 "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
                 "bus": self.bus,

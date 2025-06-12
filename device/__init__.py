@@ -7,30 +7,21 @@ from typing import Any, Dict, List
 
 from smbus2 import SMBus
 
-from environ import getCpuInfo, getOSInfo, getMacAddress
+from environ import getCpuInfo, getOSInfo, getMacAddress, getObjectId
 
 class HASensor:
     """ Definition for a Home Assistant discoverable sensor
 
     Parameters
     ----------
-    name : str
-        The name of the device. This name will be displayed in Home Assistant as the device name.
-
     units : str
         The string representing the default units for the device. This must be a valid unit type for the associated Home Assistant sensor type.
 
-    state_topic : str
-        The state topic which will be used to send state messaged to Home Assisitant. It generally will look something like 'bme280/state'.
+    name : str
+        The name of the device. This name will be displayed in Home Assistant as the device name. The default is the class name converted to lower case, ie. class Temperature(HASensor) has a device name of temperature by default.
 
-    manufacturer : str
-        The name of the manufacturer of the sensor. This will be displayed in the Home Assistant detail for the device. For the Bosch BME280 sensor, this would be 'Bosch'.
-
-    model : str
-        The name of the model of the sensor. This will be displayed in the Home Assistant detail for the device. For the Bosch BME280 sensor, this would be 'BME280'.
-
-    base_name : str
-        The base part of the discovery message. This field must match the setting in Home Assistant Settings -> Devices and services -> Integrations -> MQTT consiguration section Configure -> CONFIGURE MQTT OPTIONS -> Enable discovery [Discovery prefix]
+    device_class : str
+        The Home Assistant class of the device. This device class describes the type of sensor. The default is the class name converted to lower case, ie. class Temperature(HASensor) has a device class of temperature by default.
 
     Note
     ----
@@ -41,55 +32,48 @@ class HASensor:
     from ha_device import HASensor
 
     class Temperature(HASensor):
+        units = f'{chr(176)}C'
+        device_class = 'temperature'
         def __init(self, name:str):
-            super.__init(name, f'{chr(176)}C', 'lvr280/state', 'Bosch', 'BME280')
+            super.__init(self.units, name = name, device_class = self.device_class)
 
     class Pressure(HASensor):
+        units = 'mbar'
+        device_class = 'pressure'
         def __init(self, name:str):
-            super.__init(name, f'mbar', 'lvr280/state', 'Bosch', 'BME280')
+            super.__init(self.units, name = name, device_class = self.device_class)
 
     class Humidity(HASensor):
+        units = '%'
+        device_class = 'humidity'
         def __init(self, name:str):
-            super.__init(name, f'%', 'lvr280/state', 'Bosch', 'BME280')
+            super.__init(self.units, name = name, device_class = self.device_class)
 
-    In this example the 3 sensors for a Bosch BME280 are defined. Note that for these 3 sensors in one device, the name, state_topic, manufacturer and model are identical for the three sensors, only the class names and the units are different. For another BME280 sensor, you would choose a different state topic. 
+    In this example the 3 sensors for a Bosch BME280 are defined. 
 
     """
-    def __init__(self, name:str, units:str, state_topic:str, manufacturer:str, model:str, base_name:str=None):
+    def __init__(self, units:str, name:str = None, device_class:str = None):
         self.name = name
-        basename = base_name
-        if basename == None:
-            basename = 'homeassistant'
-        cpu = getCpuInfo()['cpu']
-        osinfo = getOSInfo()
-        device_class = type(self).__name__.lower()
-        value_name = name.lower()
-        mac_address = getMacAddress()
-        serial = mac_address.replace(":", "")
-        unique_id = f'{serial[-6:]}-{value_name}'
-        hardware = cpu['Model']
-        software = osinfo['PRETTY_NAME']
-        self.manufacturer = manufacturer
-        self.model = model
-        self.state_topic = state_topic
+        if self.name is None:
+            self.name = type(self).__name__.lower()
+        self.device_class = device_class
+        if self.device_class is None:
+            self.device_class = type(self).__name__.lower()
         self.discovery_payload = {
-                "name": f'{device_class}',
-                "stat_t": self.state_topic,
-                "device_class": f'{device_class}',
-                "val_tpl": f'{{{{ value_json.{device_class} }}}}',
+                "name": f'{self.name}',
+                "stat_t": '', # this is set with setDevice() by the HADevice
+                "device_class": f'{self.device_class}',
+                "val_tpl": f'{{{{ value_json.{self.device_class} }}}}',
                 "unit_of_meas": f'{units}',
-                "uniq_id": f'{unique_id}-{device_class}',
-                "dev": {
-                    "ids":[f'{name}'],
-                    "name": f'{name}',
-                    "mf": f'{manufacturer}',
-                    "mdl": f'{model}',
-                    "sw": f'{software}',
-                    "hw": f'{hardware}',
-                    "sn": f'{serial}',
-                }
+                "uniq_id": f'{getObjectId()}-{self.device_class}',
+                "dev": { } # this is set with setDevice() by the HADevice
             }
-        self.discovery_topic = f'{basename}/sensor/{unique_id}-{device_class}/config'
+        self.discovery_topic = None # this is set with setDevice() by the HADevice
+
+    def setDevice(self, base_name:str, state_topic:str, device_payload:Dict[str, str]) -> None:
+        self.discovery_topic = f'{base_name}/sensor/{getObjectId()}-{self.device_class}/config'
+        self.discovery_payload['stat_t'] = state_topic
+        self.discovery_payload['dev'] = device_payload
 
     def topic(self) -> Dict[str, Any]:
         return self.config_topic
@@ -103,11 +87,25 @@ class HASensor:
 class HADevice:
     """ Definition for a Home Assistant device with discoverable sensors
 
+    This device with its sensors defines that data that is used to see
+
     Parameters
     ----------
     sensors : List[HASensor]
 
         The list of sensors defined for the device.
+
+    state_topic : str
+        The state topic that will be used in the message to send data to Home Assistant. Note that this state topic should be unique for each device.
+
+    manufacturer : str
+        The name of the manufacturer of the sensor. This will be displayed in the Home Assistant detail for the device. For the Bosch BME280 sensor, this would be 'Bosch'.
+
+    model : str
+        The name of the model of the sensor. This will be displayed in the Home Assistant detail for the device. For the Bosch BME280 sensor, this would be 'BME280'.
+
+    base_name : str
+        The base part of the discovery message. This field must match the setting in Home Assistant Settings -> Devices and services -> Integrations -> MQTT consiguration section Configure -> CONFIGURE MQTT OPTIONS -> Enable discovery [Discovery prefix]
 
     Note
     ----
@@ -115,8 +113,8 @@ class HADevice:
 
     Example
     -------
-    import loggin
-    from ha_device import HADevice
+    import logging
+    from ha_device import HADevice, HASensor
     from smbus_device import SMBusDevice, SMBusDevice_Sampler_Thread
 
     class Temperature(HASensor):
@@ -141,17 +139,30 @@ class HADevice:
             return self.smbus_device.data()
 
     """
-    def __init__(self, sensors:List[Dict[str, Any]]):
+    def __init__(self, sensors:List[Dict[str, Any]], name:str, state_topic:str, manufacturer:str, model:str, base_name:str = None):
         mac_address = getMacAddress()
+        basename = base_name
+        if basename == None:
+            basename = 'homeassistant'
         self.sensors = {}
         _sensor = None
+        device_payload = {
+            "ids":[f'{name}'],
+            "name": f'{name}',
+            "mf": f'{manufacturer}',
+            "mdl": f'{model}',
+            "hw": f'{getCpuInfo()["cpu"]["Model"]}',
+            "sw": f'{getOSInfo()["PRETTY_NAME"]}',
+            "sn": f'{getObjectId()}',
+        }
         for sensor in sensors:
+            sensor.setDevice(basename, state_topic, device_payload)
             self.sensors[sensor.discovery_payload['name'].lower()] = sensor
             _sensor = sensor
         self.sensor_names = list(self.sensors.keys())
         self.discovery_topics = {k: v.discovery_topic for k, v in self.sensors.items()}
         self.discovery_payload = {k: v.discovery_payload for k, v in self.sensors.items()}
-        self.state_topic = self.sensors[self.sensor_names[0]].state_topic
+        self.state_topic = state_topic
 
     def data(self) -> Dict[str, Any]:
         raise Exception('Class needs data(self) definition')
@@ -224,7 +235,7 @@ class SMBusDevice(SMBus):
 
     # Override this method
     def sample(self) -> None:
-        """ sample the SMBus device and save the data in the objects
+        """ sample the SMBus device and save the data in the object's 'data' variable
     
         Parameters
         ----------
@@ -238,7 +249,7 @@ class SMBusDevice(SMBus):
         """
         self.last_update = datetime.datetime.now()
 
-    # Override this method
+    # Override this method return any desired data stored in the 'data' variable as a dict
     def data(self) -> Dict[str, Any]:
         """ return the previously sampled data to the application
     

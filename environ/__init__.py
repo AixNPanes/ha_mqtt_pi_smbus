@@ -173,4 +173,13 @@ def getOSInfo() -> Dict[str, Any]:
         token = line.split("=")
         if len(token) == 2:
             info[token[0].strip()] = token[1].strip()
-    return info        
+    return info
+
+if __name__ == '__main__':
+    print(f'getOSInfo(): {getOSInfo()}\n')
+    print(f'getCpuInfo(): {getCpuInfo()}\n')
+    print(f'getObjectId(): {getObjectId()}\n')
+    print(f'getMacAddressByInterface("eth0"): {getMacAddressByInterface("eth0")}\n')
+    print(f'getMacAddressByInterface("wlan0"): {getMacAddressByInterface("wlan0")}\n')
+    print(f'getMacAddress(): {getMacAddress()}\n')
+    print(f'getTemperature(): {getTemperature()}\n')

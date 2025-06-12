@@ -12,8 +12,20 @@ import yaml
 def deep_merge_dicts(dict1:Dict[str, Any], dict2:Dict[str, Any]) -> Dict[str, Any]:
     """
     Recursively merges two dictionaries.
-    Values from dict2 will overwrite values from dict1 in case of conflicts,
-    except for nested dictionaries, which are recursively merged.
+
+    Parameters
+    ----------
+
+    dict1 ; Dict[atr, Any]
+
+    dict2 ; Dict[atr, Any]
+
+    Returns
+    -------
+
+    dict
+
+    Two dict structures will be merged.  Values from dict2 will overwrite values from dict1 in case of conflicts, except for nested dictionaries, which are recursively merged.
     """
     merged_dict:Dict[str, Any] = dict1.copy()  # Start with a copy to avoid modifying original dict1
 
@@ -28,6 +40,9 @@ def deep_merge_dicts(dict1:Dict[str, Any], dict2:Dict[str, Any]) -> Dict[str, An
 
 
 def read_yaml(file_path) -> Dict[str, Any]:
+    """
+    Read yaml from the file specified by file_path
+    """
     try:
         with open(file_path, 'r') as file:
             data = yaml.safe_load(file)
@@ -43,9 +58,15 @@ loglevels = logging.getLevelNamesMapping()
 lognames = ', '.join(list(loglevels.keys()))
 
 def auto_int(x) -> int:
+    """
+    convert a value to an int
+    """
     return int(x,0)
 
 def ipaddress(ip:str):
+    """
+    convert an ip address to its 32-bit value
+    """
     try:
         socket.inet_aton(ip)
         return ip
@@ -53,6 +74,9 @@ def ipaddress(ip:str):
         print(f'Invalid ipaddress ({ip}): {e}')
 
 def configOrCmdParm(arg, config:Dict[str, Any], secrets:Dict[str, Any], cfg_name:list, default:str = None, required: bool = False) -> str:
+    """
+    Read yaml from the file specified by file_path
+    """
     if arg:
         return arg
     cfg = deep_merge_dicts(config, secrets)

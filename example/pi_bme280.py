@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 bme280 = BME280(bus=parser.bme280['bus'], address=parser.bme280['address'])
 
 # Device setup
-device = BME280_Device(logger, parser.bme280['sensor_name'], bme280, parser.bme280['polling_interval'])
+device = BME280_Device(logger, parser.bme280['sensor_name'], 'bme280/state', 'Bosch', 'BME280', bme280, parser.bme280['polling_interval'])
 
 # MQTT Setup
 client = MQTTClient('bme280', device, bme280, parser.mqtt)
