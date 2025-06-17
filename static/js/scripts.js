@@ -1,165 +1,289 @@
+const MQTTStatus = {
+  DISCONNECTED: 'disconnected',
+  PROCESSING: 'processing',
+  CONNECTED: 'connected'
+};
+
+const DiscoveryStatus = {
+  UNDISCOVERED: 'undiscovered',
+  PROCESSING: 'processing',
+  DISCOVERED: 'discovered'
+};
+
+function mqttToggle() {
+  return document.getElementById('mqtt-toggle');
+}
+
+function mqttStatus() {
+  return document.getElementById('mqtt-status');
+}
+
+function mqttDescription() {
+  return document.getElementById('mqtt-description');
+}
+
+function discoveryToggle() {
+  return document.getElementById('discovery-toggle');
+}
+
+function discoveryStatus() {
+  return document.getElementById('discovery-status');
+}
+
+function discoveryDescription() {
+  return document.getElementById('discovery-description');
+}
+
+function errorMsg() {
+  return document.getElementById('error-msg');
+}
+
+function isMQTTConnected() {
+  return mqttToggle().classList.contains(MQTTStatus.CONNECTED);
+}
+
+function isDiscoveryDiscovered() {
+  return discoveryToggle().classList.contains(DiscoveryStatus.DISCOVERED);
+}
+
+function isMQTTProcessing() {
+  return mqttToggle().classList.contains(MQTTStatus.PROCESSING);
+}
+
+function isDiscoveryProcessing() {
+  return discoveryToggle().classList.contains(DiscoveryStatus.PROCESSING);
+}
+
+function isMQTTDisconnected() {
+  return mqttToggle().classList.contains(MQTTStatus.DISCONNECTED);
+}
+
+function isDiscoveryUndiscovered() {
+  return discoveryToggle().classList.contains(DiscoeryStatus.UNDISCOVERED);
+}
+
+function getState(error) {
+  return {
+      Connected: isMQTTConnected(),
+      Discovered: isDiscoveryDiscovered(),
+      Error: error
+    };
+}
+
+function getStatus(toggle) {
+  const cList = toggle.classList;
+  const isMqtt = toggle == mqttToggle();
+  const toggleName = isMqtt ? 'mqttToggle' : 'discoveryToggle';
+  const stat = isMqtt ? MQTTStatus : DiscoveryStatus;
+  const defaultStatus = isMqtt ? MQTTStatus.DISCONNECTED : DiscoveryStatus.UNDISCOVERED;
+  let list = [];
+  for(let key in stat) {
+    if (cList.contains(stat[key])) {
+      list.push(stat[key]);
+    }
+  }
+  if (list.length > 1) {
+    throw new Error("Invalid status for toggle");
+  }
+  if (list.length == 0) {
+    list.push(defaultStatus);
+  }
+  return list[0];
+}
+
+function setMQTTState(state) {
+  for(let key in MQTTStatus) {
+    mqttToggle().classList.remove(MQTTStatus[key]);
+  }
+  mqttToggle().classList.add(state);
+}
+
+function setDiscoveryState(state) {
+  for(let key in DiscoveryStatus) {
+    discoveryToggle().classList.remove(DiscoveryStatus[key]);
+  }
+  discoveryToggle().classList.add(state);
+}
+
+function setDisabled(toggle) {
+  toggle.classList.add('disabled');
+}
+
+function setEnabled(toggle) {
+  toggle.classList.remove('disabled');
+}
+
+function setConnected() {
+  setEnabled(mqttToggle());
+  setEnabled(discoveryToggle());
+  setMQTTState(MQTTStatus.CONNECTED);
+  mqttStatus().textContent = 'Connected';
+  mqttDescription().textContent = 'Start Discovery or Click To Disconnect';
+  discoveryDescription().textContent = 'Click to start Discovery';
+}
+
+function setDisconnected() {
+  setEnabled(mqttToggle());
+  setMQTTState(MQTTStatus.DISCONNECTED);
+  mqttStatus().textContent = 'Not Connected';
+  mqttDescription().textContent = 'Click to Connect';
+}
+
+function setMQTTConnectProcessing() {
+  mqttStatus().textContent = "Connection in process";
+  mqttDescription().textContent = "Wait for completion";
+  setMQTTState(MQTTStatus.PROCESSING);
+  setDisabled(mqttToggle());
+  setDisabled(discoveryToggle());
+}
+
+function setMQTTDisconnectProcessing() {
+  mqttStatus().textContent = "Disconnection in process";
+  mqttDescription().textContent = "Wait for completion";
+  setMQTTState(MQTTStatus.PROCESSING);
+  setDisabled(discoveryToggle());
+}
+
+function setDiscovered() {
+  discoveryStatus().textContent = "Discovery complete";
+  discoveryDescription().textContent = "Click to Undiscover";
+  setDiscoveryState(DiscoveryStatus.DISCOVERED);
+  setEnabled(discoveryToggle());
+  setDisabled(mqttToggle());
+}
+
+function setUndiscovered() {
+  discoveryStatus().textContent = "Undiscovery complete";
+  discoveryDescription().textContent = "Click to Discover";
+  setDiscoveryState(DiscoveryStatus.UNDISCOVERED);
+  setDisabled(discoveryToggle());
+}
+
+function setDiscoveryProcessing() {
+  discoveryStatus().textContent = "Discovery in process";
+  discoveryDescription().textContent = "Wait for completion";
+  setDiscoveryState(DiscoveryStatus.PROCESSING);
+  setDisabled(discoveryToggle());
+  setDisabled(mqttToggle());
+}
+
+function setUndiscoveryProcessing() {
+  discoveryStatus().textContent = "Un-Discovery in process";
+  discoveryDescription().textContent = "Wait for completion";
+  setDiscoveryState(DiscoveryStatus.PROCESSING);
+  setDisabled(discoveryToggle());
+  setDisabled(mqttToggle());
+}
+
+function setUndiscovered() {
+}
+
+function formatError(msg, error) {
+  return "Error toggling MQTT: " + error + "\n"
+    "\tname: " + error.name; + "\n"
+    "\tlineNumber: " + error.lineNumber + "\n"
+    "\tcolumnNumber: " + error.columnNumber + "\n"
+    "\tmessage: " + error.message | "\n"
+    "\tcause: " + error.causex;
+}
+
+async function updateButtonsFromStatus() {
+  const response = await fetch('/status');
+  const state = await response.json();
+
+  if (state.Error || (state.Discovered && !state.Connected)) {
+    setDisabled(mqttToggle().disabled);
+  }
+  if (!state.Connected || state.Error) {
+    setDisabled(discoveryToggle());
+  }
+
+  // Optionally show error
+  if (state.Error) {
+    errorMsg().textContent = state.Error;
+  }
+  if (state.Error) {
+    errorMsg().textContent = state.Error;
+    errorMsg().style.display = 'block';
+  } else {
+    errorMsg().textContent = '';
+    errorMsg().style.display = 'none';
+  }
+
+}
+
+document.addEventListener('DOMContentLoaded', updateButtonsFromStatus);
+
 document.addEventListener('DOMContentLoaded', function () {
-  const mqttToggle = document.getElementById('mqtt-toggle');
-  const mqttStatus = document.getElementById('mqtt-status');
-  const mqttDescription = document.getElementById('mqtt-description');
-  const discoveryToggle = document.getElementById('discovery-toggle');
-  const discoveryStatus = document.getElementById('discovery-status');
-  const discoveryDescription = document.getElementById('discovery-description')
 
-  console.log('myscripts2.js')	
-  const Status = {
-    INACTIVE: 'notactive',
-    PROCESSING: 'processing',
-    ACTIVE: 'isactive'
-  };
-
-  function getState(error) {
-    return { Connected: isActive(mqttToggle), Discovered: isActive(discoveryToggle), error: error };
-  }
-
-  function getStatus(toggle) {
-    toggleName = toggle == mqttToggle ? 'mqttToggle' : 'discoveryToggle';
-    cList = toggle.classList;
-    var list = [];
-    for(let key in Status) {
-      if (cList.contains(Status[key])) {
-        list.push(Status[key]);
-      }
-    }
-    if (list.length > 1) {
-      throw new Error("Invalid status for a toggle");
-    }
-    if (list.length == 0) {
-      list.push(Status.INACTIVE);
-    }
-    return list[0];
-  }
-
-  function isActive(toggle) {
-    return toggle.classList.contains(Status.ACTIVE);
-  }
-
-  function isProcessing(toggle) {
-    return toggle.classList.contains(Status.PROCESSING);
-  }
-
-  function isInactive(toggle) {
-    return toggle.classList.contains(Status.INACTIVE);
-  }
-
-  function setMqttState(state) {
-    for(let key in Status) {
-      mqttToggle.classList.remove(Status[key]);
-    }
-    mqttToggle.classList.add(state);
-  }
-
-  function setDiscoveryState(state) {
-    for(let key in Status) {
-      discoveryToggle.classList.remove(Status[key]);
-    }
-    discoveryToggle.classList.add(state);
-  }
-
-  function setHover(toggle) {
-    toggle.classList.remove('no-hover');
-  }
-
-  function setNoHover(toggle) {
-    toggle.classList.add('no-hover');
-  }
-
-  mqttToggle.addEventListener('click', function () {
-    mqttState = getStatus(mqttToggle);
-    discoveryState = getStatus(discoveryToggle);
-    if (mqttState == Status.Processing) {
-      mqttDescription.textContent = 'Wait until Discovery turned off';
+  mqttToggle().addEventListener('click', function () {
+    const mqttState = getStatus(mqttToggle());
+    const discoveryState = getStatus(discoveryToggle());
+    if (isMQTTProcessing()) {
+      mqttDescription().textContent = 'Wait until Discovery turned off';
       return;
     }
-    if (mqttState == Status.INACTIVE) {
-      mqttDescription.textContent = 'Wait for Connect';
+    if (isMQTTConnected()) {
+      setMQTTDisconnectProcessing();
     } else {
-      mqttDescription.textContent = 'Wait for Disconnection';
+      setMQTTConnectProcessing();
     }
-    var state = getState('');
-    setMqttState(Status.PROCESSING)
-    setHover(mqttToggle);
-    mqttStatus.textContent = 'Processing...';
 
     fetch('/mqtt-toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state)
+      body: JSON.stringify(getState(""))
     })
     .then(response => response.json())
     .then(data => {
-      if (data.error != '') {
-        console.error('Error: '+data.error);
+      console.log("data: "+JSON.stringify(data));
+      if (data.Error != '') {
+        console.error('Error: '+data.Error);
       }
       if (data.Connected) {
-        setHover(discoveryToggle);
-        setMqttState(Status.ACTIVE);
-        mqttStatus.textContent = 'Connected';
-        mqttDescription.textContent = '\u00a0';
-        discoveryDescription.textContent = 'Click to start Discovery';
+        setConnected();
       } else {
-        setMqttState(Status.INACTIVE);
-        mqttStatus.textContent = 'Not Connected';
-        mqttDescription.textContent = 'Click to Connect';
+        setDisconnected();
       }
     })
     .catch(error => {
-        console.error("Error toggling MQTT:", error);
-        console.error("\tname:", error.name);
-        console.error("\tlineNumber:", error.lineNumber);
-        console.error("\tcolumnNumber:", error.columnNumber);
-        console.error("\tmessage:", error.message);
-        console.error("\tcause:", error.cause);
+      console.error(formatError("Error Toggling MQTT", error));
     });
   });
 
-  discoveryToggle.addEventListener('click', function () {
-    mqttState = getStatus(mqttToggle);
-    discoveryState = getStatus(discoveryToggle);
-    initialState = getState('');
-    if (mqttState != Status.ACTIVE) {
-      discoveryDescription.textContent = 'MQTT must be connected first';
+  discoveryToggle().addEventListener('click', function () {
+    console.log((new Date).toISOString()+" - getState(): "+JSON.stringify(getState()));
+    const mqttState = getStatus(mqttToggle());
+    const discoveryState = getStatus(discoveryToggle());
+    if (!isMQTTConnected()) {
+      discoveryDescription().textContent = 'MQTT must be connected first';
       return;
     }
-    if (discoveryState == Status.ACTIVE) {
-      discoveryStatus.textContent = "Un-Discovery in process";
-      discoveryDescription.textContent = "Wait for completion";
-      setDiscoveryState(Status.PROCESSING);
-      setHover(discoveryToggle);
+    if (isDiscoveryDiscovered()) {
+      setUndiscoveryProcessing();
     } else {
-      discoveryStatus.textContent = "Discovery in process";
-      discoveryDescription.textContent = "Wait for completion";
-      setNoHover(mqttToggle);
-      setDiscoveryState(Status.PROCESSING);
-      setNoHover(discoveryToggle);
+      setDiscoveryProcessing();
     }
+    console.log("sending getState(): "+JSON.stringify(getState()));
     fetch('/discovery-toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(initialState)
+      body: JSON.stringify(getState())
     })
     .then(response => response.json())
     .then(data => {
-      if (discoveryState == Status.ACTIVE) {
-        discoveryStatus.textContent = "Un-Discovery complete";
-        discoveryDescription.textContent = "Click to Discover";
-        setDiscoveryState(Status.INACTIVE);
-        setHover(discoveryToggle);
-        setHover(mqttToggle);
+      console.log("data: "+JSON.stringify(data));
+      if (isDiscoveryDiscovered()) {
+        console.log('setUndiscovered()');
+        setUndiscovered();
       } else {
-        discoveryStatus.textContent = "Discovery complete";
-        discoveryDescription.textContent = "Click to Un-Discover";
-        setDiscoveryState(Status.ACTIVE);
-        setHover(discoveryToggle);
+        console.log('setDiscovered()');
+        setDiscovered();
       }
+      console.log((new Date()).toISOString());
     })
     .catch(error => {
-      console.error("Error toggling MQTT:", error);
+      console.error(formatError("Error toggling Discovery:", error));
     });
   });
 });

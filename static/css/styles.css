@@ -36,17 +36,17 @@
   --primary-title-color: black;
   --secondary-title-color: var(--gray-800);
   --accent-title-color: var(--blue-600);
-  --inactive-background-color: LightSlateGray;
+  --inactive-background-color: LightSlateGray;  /* #778899  */
   --inactive-text-color: Black;
-  --inactive-background-color-hover: DarkSlateGray;
+  --inactive-background-color-hover: DarkSlateGray; /* #2f4f4f */
   --inactive-text-color-hover: white;
-  --processing-background-color: GoldenRod;
+  --processing-background-color: GoldenRod; /* #daa520 */
   --processing-text-color: Black);
-  --disabled-background-color-hover: var(--gray-100);
+  --disabled-background-color: var(--gray-100);
   --disabled-text-color-hover: var(--gray-400);
-  --active-background-color: SkyBlue;
+  --active-background-color: SkyBlue;   /* #87ceeb */
   --active-text-color: Black;
-  --active-background-color-hover: DeepSkyBlue;
+  --active-background-color-hover: DeepSkyBlue; /* #00bfff */
   --active-text-color-hover: Black;
 }
 
@@ -72,6 +72,10 @@ h3 {
   text-align: center;
 }
 
+ul {
+  margin-bottom: 10px;
+}
+
 .lozenge-group {
   display: flex;
   gap: 1rem;
@@ -89,6 +93,8 @@ h3 {
   text-align: center;
   font-size: 1.2em;
   cursor: pointer;
+  border-style: solid;
+  border-color: black;
   user-select: none;
   width: 350px;
   margin-bottom:10px;
@@ -99,12 +105,12 @@ h3 {
   margin: 2px 0;
 }
 
-.notactive {
+.disconnected {
   background-color: var(--inactive-background-color);
   color: var(--inactive-text-color);
 }
 
-.notactive:hover {
+.disconnected:hover {
   background-color: var(--inactive-background-color-hover);
   color: var(--inactive-text-color-hover);
 }
@@ -114,16 +120,38 @@ h3 {
   color: var(--processing-text-color);
 }
 
-.isactive {
+.connected {
   background-color: var(--active-background-color);
   color: var(--active-text-color);
 }
 
-.isactive:hover {
+.connected:hover {
   background-color: var(--active-background-color-hover);
   color: var(--active-text-color-hover);
 }
 
-.no-hover {
+.undiscovered {
+  background-color: var(--inactive-background-color);
+  color: var(--inactive-text-color);
+}
+
+.undiscovered:hover {
+  background-color: var(--inactive-background-color-hover);
+  color: var(--inactive-text-color-hover);
+}
+
+.discovered {
+  background-color: var(--active-background-color);
+  color: var(--active-text-color);
+}
+
+.discovered:hover {
+  background-color: var(--active-background-color-hover);
+  color: var(--active-text-color-hover);
+}
+
+.disabled {
+  /*background-color: var(--disabled-background-color-hover);
+  color: var(--disabled-text-color-hover);*/
   pointer-events: none;
 }

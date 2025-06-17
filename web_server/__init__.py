@@ -34,25 +34,44 @@ class HAFlask(Flask):
                 'Error': '',}
 
     def _register_routes(self):
-        @self.route('/', methods=['GET','POST'])
+        @self.route('/', methods=['GET'])
         def index():
             route = f'{request.path} [{request.method}]'
-            if request.method == 'POST':
-                self.state = request.get_json()
-            else:
-                self.state = {'Connected': False, 'Discovered': False, 'Error': ''}
             self.logger_.debug(f'{route} state: {self.state}')
             self.logger_.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
+    
             if self.state['Connected'] != self.client.is_connected():
-                self.state['Error'] = f'state[\'Connected\']({self.state["Connected"]}) does not match client.is_connected()({self.client.is_connected()})'
-                return render_template('index.html', state=jsonify(self.state), title=self.title, subtitle=self.subtitle)
-                #return jsonify(self.state)
-            return render_template('index.html', state=self.state, title=self.title, subtitle=self.subtitle)
+                self.state['Error'] = (
+                    f"state['Connected']({self.state['Connected']}) does not match "
+                    f"client.is_connected()({self.client.is_connected()})"
+                )
+                return render_template(
+                    'index.html',
+                    state=self.state,
+                    title=self.title,
+                    subtitle=self.subtitle
+                )
+    
+            return render_template(
+                'index.html',
+                state=self.state,
+                title=self.title,
+                subtitle=self.subtitle
+            )
+
+        @self.route('/status', methods=['GET'])
+        def status():
+            route = f'{request.path} [{request.method}]'
+            self.logger_.debug(f'{route} - returning current state')
+            return jsonify(self.state)
         
         @self.route('/mqtt-toggle', methods=['POST'])
         def mqtt_toggle():
             route = f'{request.path} [{request.method}]'
-            self.state = request.get_json()
+            client_state = request.get_json()
+            self.state['Connected'] = self.client.is_connected()
+            self.state['Discovered'] = client_state.get('Discovered', self.state['Discovered'])
+            self.state['Error'] = ''
             self.logger_.debug(f'{route} mqtt_toggle() state: {self.state} -------------------')
             self.logger_.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
             if self.state['Connected'] != self.client.is_connected():
@@ -95,8 +114,13 @@ class HAFlask(Flask):
         def discovery_toggle():
             route = f'{request.path} [{request.method}]'
         
-            self.state = request.get_json()
-            self.logger_.debug(f'{route} state: {self.state}------------------------------------------------------------------------------------------------')
+            client_state = request.get_json()
+            self.logger_.debug(f'{route} ------------------------------------------------------------------------------------------------')
+            self.logger_.debug(f'{route} client_state: {client_state}')
+            self.state['Connected'] = self.client.is_connected()
+            self.state['Discovered'] = client_state.get('Discovered', self.state['Discovered'])
+            self.state['Error'] = ''
+            self.logger_.debug(f'{route} state: {self.state}')
         
             self.logger_.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
             if self.state['Connected'] != self.client.is_connected():
@@ -126,7 +150,7 @@ class HAFlask(Flask):
                 self.client.loop_stop()
                 self.state['Discovered'] = False
         
-            self.logger_.debug(f'{route} return jsoinfy(state): {self.state}');
+            self.logger_.debug(f'{route} return self.state: {self.state}');
             return jsonify(self.state)
         
     # to handle ctrl-c, clear discoveries, and shut things down
