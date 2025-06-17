@@ -13,7 +13,7 @@ from web_server import HAFlask
 parser = Parser()
 
 # logger Setup
-loggerConfig(parser.logginglevelname)
+loggerConfig()
 logger = logging.getLogger(__name__)
 
 # BME280 Setup
@@ -23,7 +23,6 @@ bme280 = BME280(
 
 # Device setup
 device = BME280_Device(
-    logger,
     parser.bme280['sensor_name'],
     'bme280/state',             # state topic
     'Bosch',                    # manufacturer name
@@ -39,7 +38,7 @@ client = MQTTClient(
     parser.mqtt)
 
 # define the Flask web server
-app = HAFlask(__name__, parser, logger, client, device)
+app = HAFlask(__name__, parser, client, device)
 
 # shutdown callback
 def shutdown_server():
@@ -48,9 +47,7 @@ def shutdown_server():
 
 if __name__ == '__main__':
     atexit.register(shutdown_server)            # register shutdown
-    debug:bool = parser.logginglevel == 'DEBUG' # handle Flask debug
     app.run(
-        debug=debug,
         host=parser.web['address'],
         port=parser.web['port'],
         use_reloader=False)

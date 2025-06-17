@@ -148,10 +148,10 @@ class HADevice:
             super.__init(name, f'%', 'lvr280/state', 'Bosch', 'BME280')
 
     class BME280_Device(HADevice)
-        def __init(self, logger:logging.Logger, name:str, smbus_device:SMBusDevice, polling_interval:int):
+        def __init(self, name:str, smbus_device:SMBusDevice, polling_interval:int):
             super().__init__(name, (Temperature(name), Pressure(name), Humidity(name))
             self.smbus_device = smbus_device
-            self.sampler_thread = SMBus_Sampler_Thread(logger, smbus_device, polling_interval)
+            self.sampler_thread = SMBus_Sampler_Thread(smbus_device, polling_interval)
             self.sampler_thread.start()
         def data(self) -> Dict[str, Any]:
             return self.smbus_device.data()
@@ -310,14 +310,11 @@ class SMBusDevice(SMBus):
         return f"bus: {self.bus}, address: {self.address}"
 
 class SMBusDevice_Sampler_Thread(threading.Thread):
-    def __init__(self, logger:logging.Logger, smbus_device:SMBusDevice, polling_interval:int):
+    def __init__(self, smbus_device:SMBusDevice, polling_interval:int):
         """ Definition of a sampler thread for an SMBusDevice
     
         Parameters
         ----------
-        logger: logging.Logger
-            The python logger created similarly to:
-            logger = logging.Logger("logger name")
         smbus_device : SMBusDevice
             The SMBusDevice which is going to be sampled
         polling_interval : in
@@ -331,14 +328,14 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         Example
         -------
         class BME280_Device(HASensor)
-            def __init__(self, logger:logging.Logger, name:str, smbus_device: SMBusDevice, polling_interval:int)
+            def __init__(self, name:str, smbus_device: SMBusDevice, polling_interval:int)
                 super().__init((Temperature(name), Pressure(name), Humidity(name)))
                 self.smbus_device = smbus_device
                 self.sampler_thread = SMBussDevice_Sampler_Thread(logger, smbus_device, polling_interval)
                 self.sampler_thread.start()
         """
         super().__init__(name='SMBusDevice', daemon=True)
-        self.__logger = logger
+        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
         self.smbus_device = smbus_device
         self.polling_interval = polling_interval
         self.do_run = True

@@ -61,7 +61,7 @@ class MQTT_Publisher_Thread(threading.Thread):
         self.client = client
         self.device = device
         self.smbus_device = smbus_device
-        self.__logger = logging.getLogger('MQTT_Publisher_Thread')
+        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
         self.do_run = True
         self.data = self.smbus_device.data()
 
@@ -181,7 +181,7 @@ class MQTTClient(paho.mqtt.client.Client):
         self.publisher_thread = None
         super().enable_logger(self.logger)
         super().user_data_set(self)
-        self.__logger = logging.getLogger('MQTTClient')
+        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
 
     def connect_mqtt(self) -> None:
         """ Initiate a connection to the MQTT broker"""

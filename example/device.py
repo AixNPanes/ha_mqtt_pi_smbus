@@ -11,8 +11,6 @@ class BME280_Device(HADevice):
 
     Parameters
     ----------
-    logger : logginRg.Logger
-        The logger that will be used to perform any logging operations.
     sensor_name : str
         The name of the device containing the sensor. This name is the
         display name for the device in Home Assistant.
@@ -57,16 +55,16 @@ class BME280_Device(HADevice):
         def __init__(self, sensor_name:str = None):
             super().__init__(self.units, name = sensor_name, device_class = self.device_class)
             
-    def __init__(self, logger:logging.Logger, name:str, state_topic:str, manufacturer:str, model:str, smbus_device:SMBusDevice, polling_interval:int):
+    def __init__(self, name:str, state_topic:str, manufacturer:str, model:str, smbus_device:SMBusDevice, polling_interval:int):
         super().__init__((
             BME280_Device.Temperature(),
             BME280_Device.Pressure(),
             BME280_Device.Humidity()
             ), name, state_topic, manufacturer, model)
         route = 'BME280_Sensor'
-        self.__logger = logger
+        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
         self.smbus_device = smbus_device
-        self.sampler_thread = SMBusDevice_Sampler_Thread(logger, smbus_device, polling_interval)
+        self.sampler_thread = SMBusDevice_Sampler_Thread(smbus_device, polling_interval)
         self.sampler_thread.start()
 
     def data(self) -> Dict[str, Any]:

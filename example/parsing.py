@@ -42,6 +42,7 @@ def read_yaml(file_path) -> Dict[str, Any]:
     """
     Read yaml from the file specified by file_path
     """
+    logger = logging.getLogger(__name__)
     try:
         with open(file_path, 'r') as file:
             data = yaml.safe_load(file)
@@ -52,9 +53,6 @@ def read_yaml(file_path) -> Dict[str, Any]:
     except yaml.YAMLError as e:
         logger.error(f"Error parsing YAML: {e}")
         return None
-
-loglevels = logging.getLevelNamesMapping()
-lognames = ', '.join(list(loglevels.keys()))
 
 def auto_int(x) -> int:
     """
@@ -96,7 +94,6 @@ class Parser:
             )
         parser.add_argument("-t", "--title", help=f"the title for the web management interface")
         parser.add_argument("--subtitle", help=f"the subtitle for the web management interface")
-        parser.add_argument("-l", "--loglevel", help=f"logging level ({lognames})")
         parser.add_argument("-w", "--web_address", help="The address the web server listens on, default(0.0.0.0)", type=ipaddress)
         parser.add_argument("-o", "--web_port", help="The port the web server listens on, default(8088)", type=int)
         parser.add_argument("-b", "--mqtt_broker", help="MQTT Broker hostname or address")
@@ -139,19 +136,6 @@ class Parser:
             self.subtitle = config['subtitle']
         else:
             self.subtitle = ''
-
-        # determine logging level from command, if supplied, otherwise config
-        if args.loglevel:
-            loglevel = args.loglevel.upper()
-        elif 'logging' in config and 'level' in config['logging']:
-            loglevel = config['logging']['level']
-        else:
-            loglevel = "WARN"
-        if not loglevel in loglevels:
-            print(f"logging level({loglevel}) must be one of ({lognames})")
-            sys.exit()
-        self.logginglevelname = loglevel    
-        self.logginglevel = loglevels[loglevel]
 
         # get MQTT parameters
         self.mqtt = {}

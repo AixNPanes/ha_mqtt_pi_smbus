@@ -1,7 +1,11 @@
+import json
+from json.decoder import JSONDecodeError
 import logging
+import logging.config
+
 import flask.logging
 
-def loggerConfig(logginglevel:int):
+def loggerConfig():
     """ logging configuration
 
     Parameters
@@ -16,12 +20,77 @@ def loggerConfig(logginglevel:int):
             30 : WARN
             20 : INFO
             10 : DEBUG
-            0 : NOTSET
+            0 : NOTSET # logs all levels
 
     """
-    logging.basicConfig(
-        level=logginglevel,
-        format='[%(asctime)s] - %(levelname)s in %(name)s: %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[logging.StreamHandler(flask.logging.wsgi_errors_stream)]
-    )
+
+    LOGGING_CONFIG = {
+        'version': 1,
+        'disable_existing_loggers': False,  # Keeps existing loggers active
+        'formatters': {
+            'default': {
+                'format': '[%(asctime)s] - %(levelname)s in %(name)s: %(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S',
+            },
+        },
+        'handlers': {
+            'wsgi': {
+                'class': 'logging.StreamHandler',
+                'stream': 'ext://flask.logging.wsgi_errors_stream',
+                'formatter': 'default',
+            },
+        },
+        'root': {
+            'level': 'WARNING',  # Default root level
+            'handlers': ['wsgi'],
+        },
+        'loggers': {
+            'mqtt_client': {
+                'level': 'WARNING',
+                'handlers': ['wsgi'],
+                'propagate': False,
+            },
+            'web_server': {
+                'level': 'DEBUG',
+                'handlers': ['wsgi'],
+                'propagate': False,
+            },
+            'example.pi_bme280': {
+                'level': 'ERROR',
+                'handlers': ['wsgi'],
+                'propagate': False,
+            },
+            'paho.mqtt.client': {
+                'level': 'ERROR',
+                'handlers': ['wsgi'],
+                'propagate': False,
+            },
+            'flask.app': {
+                'level': 'ERROR',
+                'handlers': ['wsgi'],
+                'propagate': False,
+            },
+            'werkzeug': {
+                'level': 'ERROR',
+                'handlers': ['wsgi'],
+                'propagate': False,
+            },
+        },
+    }
+
+    try:
+        with open('logging.config', 'r') as f:
+            logging_config = json.load(f) # For JSON
+            # config = yaml.safe_load(f) # For YAML
+        if not 'disable_existing_loggers' in config:
+            logging_config['disable_existing_loggers'] = False
+    except FileNotFoundError as e:
+        logging_config = LOGGING_CONFIG
+    except JSONDecodeError as e:
+        logging_config = LOGGING_CONFIG
+    except Exception as e:
+        print(e.__class__)
+        logging_config = LOGGING_CONFIG
+    
+    # Apply the logging config
+    logging.config.dictConfig(logging_config)
