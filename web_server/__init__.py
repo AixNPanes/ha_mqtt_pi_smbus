@@ -124,7 +124,7 @@ class HAFlask(Flask):
             if self.state['Connected'] != self.client.is_connected():
                 self.state['Error'] = f'state[\'Connected\']({self.state["Connected"]}) does not match client.is_connected()({self.client.is_connected()})'
                 return jsonify(self.state)
-            if not self.state['Discovered']:
+            if self.state['Discovered']:
                 # Turn ON
                 self.__logger.debug(f'{route} turning on discovery')
                 if not self.client.is_connected():

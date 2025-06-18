@@ -289,10 +289,12 @@ class MQTTClient(paho.mqtt.client.Client):
             a set of sensor_name, sensor pairs
 
         """
+        route = "publish_discoveries"
         self.publisher_thread = MQTT_Publisher_Thread(self, self.device, self.smbus_device)
         self.publisher_thread.start()
         for key, sensor in sensors.items():
             self.publish_discovery(key, sensor)
+        self.__logger.debug('{} publisher_thread: {}', route, self.publisher_thread)
 
     def clear_discoveries(self, sensors:Dict[str, Any]) -> None:
         """ Publish a clear discovery message for each sensor in the device
@@ -303,8 +305,11 @@ class MQTTClient(paho.mqtt.client.Client):
             a set of sensor_name, sensor pairs
 
         """
+        route = "clear_discoveries"
+        self.__logger.debug('{} publisher_thread: {}', route, self.publisher_thread)
         for key, sensor in sensors.items():
             self.clear_discovery(key, sensor)
+        self.__logger.debug('{} publisher_thread: {}', route, self.publisher_thread)
         self.publisher_thread.clear_do_run()
         self.publisher_thread.join()
         self.publisher_thread = None
