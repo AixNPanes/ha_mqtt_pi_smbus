@@ -41,7 +41,7 @@
   --inactive-background-color-hover: DarkSlateGray; /* #2f4f4f */
   --inactive-text-color-hover: white;
   --processing-background-color: GoldenRod; /* #daa520 */
-  --processing-text-color: Black);
+  --processing-text-color: black;
   --disabled-background-color: var(--gray-100);
   --disabled-text-color-hover: var(--gray-400);
   --active-background-color: SkyBlue;   /* #87ceeb */
@@ -105,19 +105,36 @@ ul {
   margin: 2px 0;
 }
 
-.disconnected {
+.disconnected:not(.disabled) {
   background-color: var(--inactive-background-color);
   color: var(--inactive-text-color);
+  pointer-events: auto;
 }
 
-.disconnected:hover {
+.disconnected:not(.disabled):hover {
   background-color: var(--inactive-background-color-hover);
   color: var(--inactive-text-color-hover);
+  pointer-events: auto;
+}
+
+.disconnected.disabled {
+  background-color: var(--disabled-background-color-hover);
+  color: var(--disabled-text-color-hover);
+  /*background-color: var(--inactive-background-color);
+  color: var(--inactive-text-color);*/
+  pointer-events: none;
+}
+
+.disconnected:not(.disabled):hover {
+  background-color: var(--inactive-background-color-hover);
+  color: var(--inactive-text-color-hover);
+  pointer-events: auto;
 }
 
 .processing {
   background-color: var(--processing-background-color);
   color: var(--processing-text-color);
+  pointer-events: none;
 }
 
 .connected {
@@ -128,6 +145,22 @@ ul {
 .connected:hover {
   background-color: var(--active-background-color-hover);
   color: var(--active-text-color-hover);
+}
+
+.connected.disabled {
+  /*background-color: var(--active-background-color-hover);
+  color: var(--active-text-color-hover);*/
+  background-color: var(--disabled-background-color-hover);
+  color: var(--disabled-text-color-hover);
+  pointer-events: none;
+}
+
+.undiscovered.disabled {
+  /*background-color: var(--inactive-background-color);
+  color: var(--inactive-text-color);*/
+  background-color: var(--disabled-background-color-hover);
+  color: var(--disabled-text-color-hover);
+  pointer-events: none;
 }
 
 .undiscovered {
@@ -150,7 +183,7 @@ ul {
   color: var(--active-text-color-hover);
 }
 
-.disabled {
+.xdisabled {
   /*background-color: var(--disabled-background-color-hover);
   color: var(--disabled-text-color-hover);*/
   pointer-events: none;

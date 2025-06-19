@@ -26,7 +26,7 @@ def loggerConfig():
 
     LOGGING_CONFIG = {
         'version': 1,
-        'disable_existing_loggers': False,  # Keeps existing loggers active
+        'disable_existing_loggers': False,
         'formatters': {
             'default': {
                 'format': '[%(asctime)s] - %(levelname)s in %(name)s: %(message)s',
@@ -41,7 +41,7 @@ def loggerConfig():
             },
         },
         'root': {
-            'level': 'WARNING',  # Default root level
+            'level': 'WARNING',
             'handlers': ['wsgi'],
         },
         'loggers': {
@@ -82,14 +82,16 @@ def loggerConfig():
         with open('logging.config', 'r') as f:
             logging_config = json.load(f) # For JSON
             # config = yaml.safe_load(f) # For YAML
-        if not 'disable_existing_loggers' in config:
+        if not 'disable_existing_loggers' in logging_config:
             logging_config['disable_existing_loggers'] = False
     except FileNotFoundError as e:
+        print('FileNotFoundError')
         logging_config = LOGGING_CONFIG
     except JSONDecodeError as e:
+        print(f'\tJSONDecodeError, lineno: {e.lineno}, colno: {e.colno}\n\t{e.msg}')
         logging_config = LOGGING_CONFIG
     except Exception as e:
-        print(e.__class__)
+        print(f'\t{e.__class__}\n\t{e}')
         logging_config = LOGGING_CONFIG
     
     # Apply the logging config

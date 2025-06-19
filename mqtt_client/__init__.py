@@ -168,6 +168,7 @@ class MQTTClient(paho.mqtt.client.Client):
                 paho.mqtt.enums.CallbackAPIVersion.VERSION2, 
                 f'{client_prefix}-{getObjectId()}-{str(random.randint(0,1000)).zfill(3)}',
                 True, None)
+        route = '__init__'
         self.broker_address = mqtt_config['broker']
         self.port = mqtt_config['port']
         self.username = mqtt_config['username']
@@ -179,9 +180,9 @@ class MQTTClient(paho.mqtt.client.Client):
         self.connected_flag = False
         self.on_connect = MQTTClient.on_connect
         self.publisher_thread = None
-        super().enable_logger(self.logger)
         super().user_data_set(self)
         self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
+        self.__logger.debug('%s self.publisher_thread: %s', route, json.dumps(self.publisher_thread))
 
     def connect_mqtt(self) -> None:
         """ Initiate a connection to the MQTT broker"""
@@ -291,10 +292,11 @@ class MQTTClient(paho.mqtt.client.Client):
         """
         route = "publish_discoveries"
         self.publisher_thread = MQTT_Publisher_Thread(self, self.device, self.smbus_device)
+        self.__logger.debug('%s self.publisher_thread: %s', route, self.publisher_thread)
         self.publisher_thread.start()
         for key, sensor in sensors.items():
             self.publish_discovery(key, sensor)
-        self.__logger.debug('{} publisher_thread: {}', route, self.publisher_thread)
+        self.__logger.debug('%s publisher_thread: %s', route, self.publisher_thread)
 
     def clear_discoveries(self, sensors:Dict[str, Any]) -> None:
         """ Publish a clear discovery message for each sensor in the device
@@ -306,10 +308,11 @@ class MQTTClient(paho.mqtt.client.Client):
 
         """
         route = "clear_discoveries"
-        self.__logger.debug('{} publisher_thread: {}', route, self.publisher_thread)
+        self.__logger.debug('%s publisher_thread: %s', route, self.publisher_thread)
         for key, sensor in sensors.items():
             self.clear_discovery(key, sensor)
-        self.__logger.debug('{} publisher_thread: {}', route, self.publisher_thread)
+        self.__logger.debug('%s publisher_thread: %s', route, self.publisher_thread)
         self.publisher_thread.clear_do_run()
         self.publisher_thread.join()
         self.publisher_thread = None
+        self.__logger.debug('%s self.publisher_thread: %s', route, self.publisher_thread)

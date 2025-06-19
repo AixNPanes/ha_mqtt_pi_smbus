@@ -1,5 +1,6 @@
 import atexit
 import logging
+import os
 
 import paho.mqtt.client as mqtt
 
@@ -11,7 +12,7 @@ from web_server import HAFlask
 
 # parse config and command line args
 parser = Parser()
-
+    
 # logger Setup
 loggerConfig()
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ client = MQTTClient(
 
 # define the Flask web server
 app = HAFlask(__name__, parser, client, device)
+
 
 # shutdown callback
 def shutdown_server():
