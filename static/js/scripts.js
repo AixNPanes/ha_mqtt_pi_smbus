@@ -83,7 +83,8 @@ function getStatus(toggle) {
     }
   }
   if (list.length > 1) {
-    throw new Error("Invalid status for toggle");
+    console.error("Invalid status for toggle: "+list);
+    throw new Error("Invalid status for toggle: "+list);
   }
   if (list.length == 0) {
     list.push(defaultStatus);
@@ -193,36 +194,56 @@ function setUndiscoveryProcessing() {
   setDisabled(discoveryToggle());
 }
 
+function setErrorMessage(msg) {
+  if (msg === null) {
+    errorMsg().textContent = '\u00a0';
+  } else {
+    errorMsg().textContent = msg.join("<br>");
+    console.error("Error->: "+msg);
+  }
+}
+
+function resyncState(state) {
+  console.log(state);
+  if (state.Discovered) {
+    console.log('setDiscovered()');
+    setDiscovered();
+  } else if (state.Connected) {
+    console.log('setConnected()');
+    setConnected();
+  } else {
+    console.log('setDisconnected()');
+    setDisconnected();
+  }
+}
+
 function formatError(msg, error) {
   return "Error toggling MQTT: " + error + "\n"
     "\tname: " + error.name; + "\n"
     "\tlineNumber: " + error.lineNumber + "\n"
     "\tcolumnNumber: " + error.columnNumber + "\n"
     "\tmessage: " + error.message | "\n"
-    "\tcause: " + error.causex;
+    "\tcause: " + error.cause;
 }
 
 async function updateButtonsFromStatus() {
   const response = await fetch('/status');
   const state = await response.json();
+  console.log("updateButtonsFromStatus: "+JSON.stringify(state));
 
-  if (state.Error || (state.Discovered && !state.Connected)) {
-    setDisabled(mqttToggle().disabled);
+  if (state.Error.length !== 0 || (state.Discovered && !state.Connected)) {
+    setDisabled(mqttToggle());
   }
-  if (!state.Connected || state.Error) {
+  if (!state.Connected || state.Error.length !== 0) {
     setDisabled(discoveryToggle());
   }
 
   // Optionally show error
-  if (state.Error) {
-    errorMsg().textContent = state.Error;
-  }
-  if (state.Error) {
-    errorMsg().textContent = state.Error;
-    errorMsg().style.display = 'block';
+  if (state.Error.length !== 0) {
+    setErrorMessage(state.Error);
+    resyncState(state);
   } else {
-    errorMsg().textContent = '';
-    errorMsg().style.display = 'none';
+    setErrorMessage(null);
   }
 
 }
@@ -238,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
       mqttDescription().textContent = 'Wait until Discovery turned off';
       return;
     }
-    state = getState("");
+    state = getState([]);
     if (isMQTTConnected()) {
       setMQTTDisconnectProcessing();
     } else {
@@ -252,8 +273,9 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .then(response => response.json())
     .then(data => {
-      if (data.Error != '') {
-        console.error('Error: '+data.Error);
+      if (data.Error.length !== 0) {
+        setErrorMessage(data.Error);
+        resyncState(data);
       }
       if (data.Connected) {
         setConnected();
@@ -262,7 +284,15 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     })
     .catch(error => {
-      console.error(formatError("Error Toggling MQTT", error));
+      if (error instanceof TypeError) {
+          console.log(error instanceof TypeError); // true
+          console.log(error.message); // "null has no properties"
+          console.log(error.name); // "TypeError"
+          console.log(error.stack); // Stack of the error
+      } else {
+        console.error(error);
+        console.error(formatError("Error Toggling MQTT", error.constructor));
+      }
     });
   });
 
@@ -274,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
       discoveryDescription().textContent = 'MQTT must be connected first';
       return;
     }
-    state = getState("")
+    state = getState([])
     if (isDiscovered) {
       setUndiscoveryProcessing();
     } else {
@@ -287,8 +317,8 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .then(response => response.json())
     .then(data => {
-      if (data.Error != '') {
-        console.error('Error: '+data.Error);
+      if (data.Error.length !== 0) {
+        console.error('Error: '+data.Error.join('\n'));
       }
       if (isDiscovered) {
         setUndiscovered();

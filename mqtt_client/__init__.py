@@ -8,9 +8,58 @@ import time
 from typing import Any, Dict
 
 import paho
+from paho.mqtt.reasoncodes import ReasonCode
 
 from device import HADevice, SMBusDevice
 from environ import getObjectId
+
+class State:
+    """ A class used to cotain the state of the MQTT client
+
+    Attributes
+    ----------
+    connected:bool
+        a boolean indicating whether the client is connected to the MQTT broker
+    discovered:bool
+        a boolean indicting whether the device sensors are in a discovered state
+    rc:int
+        the return code from the MQTT client
+    error:List[str]
+        the list of error messages
+    """
+    connected:bool = False
+    discovered:bool = False
+    rc:Any = None
+    error:str = []
+
+    def __init__(self, obj:dict = None):
+        if obj is None:
+            return
+        if 'Connected' in obj:
+            self.connected = obj['Connected']
+        if 'Discovered' in obj:
+            self.discovered = obj['Discovered']
+        if 'rc' in obj:
+            self.rc = obj['rc']
+        if 'Error' in obj:
+            self.error = obj['Error']
+
+    def to_dict(self):
+        if isinstance(self.error, str):
+            traceback.print_stack()
+        if not isinstance(self.rc, ReasonCode):
+            print(type(self.rc))
+        return {
+            "Connected": self.connected,
+            "Discovered": self.discovered,
+            "RC": self.rc.json() if isinstance(self.rc, ReasonCode) else self.rc,
+            "Error": self.error}
+
+class StateException(Exception):
+        """Exception raised for invalid input values."""
+        def __init__(self, message, invalid_value):
+            super().__init__(message)  # Call the base class's __init__
+            self.invalid_value = invalid_value
 
 class MQTT_Publisher_Thread(threading.Thread):
     """
@@ -96,7 +145,7 @@ class MQTTClient(paho.mqtt.client.Client):
 
     Attributes
     ----------
-    status : dict
+    state : State
         a dict containing 3 items:
             connected:bool which indicates the connection state of the
             client
@@ -127,19 +176,18 @@ class MQTTClient(paho.mqtt.client.Client):
     """
     def on_connect(client, userdata, flags, rc, properties=None) -> None:
         """Callback function called when the client connects to the broker."""
-        client.status['rc'] = rc
+        client.state.rc = rc
         if rc == 0:
-            client.status['connected'] = True
+            client.state.connected = True
         else:
-            client.status['error'] = connack_string(rc)
-            
-    def init_status(self) -> None:
-        """Initialize the status dict"""
-        self.status = {
-             "connected": False,
-             "rc": None,
-             "error": None
-        }
+            client.state.error = [connack_string(rc)]
+
+    def on_disconnect(client, userdata, flabs, rc, Properties=None) -> None:
+        if rc == 0:
+            # client.close()
+            client.state.connected = False
+        else:
+            client.state.error = [rc]
 
     def __init__(self, client_prefix:str, device:HADevice, smbus_device:SMBusDevice, mqtt_config:Dict[str, Any] = None):
         """
@@ -175,10 +223,11 @@ class MQTTClient(paho.mqtt.client.Client):
         self.password = mqtt_config['password']
         self.device = device
         self.smbus_device = smbus_device
-        self.init_status()
+        self.state = State()
         self.connected = False
         self.connected_flag = False
         self.on_connect = MQTTClient.on_connect
+        self.on_disconnect = MQTTClient.on_disconnect
         self.publisher_thread = None
         super().user_data_set(self)
         self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
@@ -188,11 +237,17 @@ class MQTTClient(paho.mqtt.client.Client):
         """ Initiate a connection to the MQTT broker"""
         route = "connect_mqtt"
         super().username_pw_set(self.username, self.password)
-        self.init_status()
+        self.state = State()
         mqttErrorCode = super().connect(self.broker_address, self.port)
         if mqttErrorCode != 0:
             self.__logger.critical(f'{route} error {mqttErrorCode} in connect_mqtt')
         self.__logger.info(f"{route} connecting to broker at {self.broker_address}:{self.port}")
+
+    def is_connected(self) -> bool:
+        connected = super().is_connected()
+        if (connected == self.state.connected):
+            return connected
+        raise StateException(f"self.is_connected()({super().is_connected()}) != self.state.connected({self.state.connected})")
 
     def disconnect_mqtt(self) -> None:
         """ disconnect from the MQTT broker """
@@ -200,7 +255,6 @@ class MQTTClient(paho.mqtt.client.Client):
         mqttErrorCode = super().disconnect()
         if mqttErrorCode != 0:
             self.__logger.critical(f'{route} error {mqttErrorCode} in disconnect_mqtt')
-
 
     def subscribe(self, topici:str) -> None:
         """ subscribe to messages from the MQTT broker
@@ -296,6 +350,7 @@ class MQTTClient(paho.mqtt.client.Client):
         self.publisher_thread.start()
         for key, sensor in sensors.items():
             self.publish_discovery(key, sensor)
+        self.state.discovered = True
         self.__logger.debug('%s publisher_thread: %s', route, self.publisher_thread)
 
     def clear_discoveries(self, sensors:Dict[str, Any]) -> None:
@@ -311,6 +366,7 @@ class MQTTClient(paho.mqtt.client.Client):
         self.__logger.debug('%s publisher_thread: %s', route, self.publisher_thread)
         for key, sensor in sensors.items():
             self.clear_discovery(key, sensor)
+        self.state.discovered = False
         self.__logger.debug('%s publisher_thread: %s', route, self.publisher_thread)
         self.publisher_thread.clear_do_run()
         self.publisher_thread.join()

@@ -19,8 +19,12 @@
   <h1>Maintenance Interface</h1>
   <h2>{{ title }}</h2>
   <h3>{{ subtitle }}</h3>
+  <h4>{{ state.disconnected }}</h4>
+  <h4>{{ state.Disconnected }}</h4>
 
-  <div id="error-msg"></div>
+  <div class="error-msg">
+    <span id="error-msg">&nbsp;</span>
+  </div>
 
   <div class="lozenge-group">
     <div class="lozenge disconnected" id="mqtt-toggle">
@@ -34,7 +38,7 @@
       <span id="discovery-status">Not Discovered</span>
       <span id="discovery-description">You must Connect before Discovery</span>
     </div>
-  </div>  
+  </div>
 </body>
 </html>
 

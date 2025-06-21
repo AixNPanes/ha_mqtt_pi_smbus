@@ -49,7 +49,12 @@ def shutdown_server():
 
 if __name__ == '__main__':
     atexit.register(shutdown_server)            # register shutdown
-    app.run(
-        host=parser.web['address'],
-        port=parser.web['port'],
-        use_reloader=False)
+    try:
+        app.run(
+            host=parser.web['address'],
+            port=parser.web['port'],
+            use_reloader=False)
+    except Exception as e:
+        print(e)
+    except TypeError as e:
+        print(e)
