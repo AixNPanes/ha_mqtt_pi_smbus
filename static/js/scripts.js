@@ -248,6 +248,30 @@ async function updateButtonsFromStatus() {
 
 }
 
+fetch('/status', {
+  method: 'GET',
+  headers: { 'Content-type': 'application/json' }
+})
+.then(response => response.json())
+.then(data => {
+  if(data.Error.length != 0) {
+    setErrorMessage(data.Error);
+    resyncState(data);
+  }
+  if (data.Connected) {
+    setConnected();
+    if (data.Discovered) {
+      setDiscovered();
+    }
+    else {
+      setUndiscovered();
+    }
+  }
+  else {
+    setDisconnected();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', updateButtonsFromStatus);
 
 document.addEventListener('DOMContentLoaded', function () {

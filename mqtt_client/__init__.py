@@ -189,6 +189,9 @@ class MQTTClient(paho.mqtt.client.Client):
         else:
             client.state.error = [rc]
 
+    def is_discovered(self) -> bool:
+        return self.state.discovered
+
     def __init__(self, client_prefix:str, device:HADevice, smbus_device:SMBusDevice, mqtt_config:Dict[str, Any] = None):
         """
         Paameters
