@@ -44,8 +44,8 @@ app = HAFlask(__name__, parser, client, device)
 
 # shutdown callback
 def shutdown_server():
-    logger.info("Shutting down server")
-    app.shutdown_server()                 
+    logger.info('Shutting down server')
+    app.shutdown_server()
 
 if __name__ == '__main__':
     atexit.register(shutdown_server)            # register shutdown

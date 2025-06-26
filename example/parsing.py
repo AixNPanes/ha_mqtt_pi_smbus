@@ -48,10 +48,10 @@ def read_yaml(file_path) -> Dict[str, Any]:
             data = yaml.safe_load(file)
             return data
     except FileNotFoundError:
-        logger.error(f"Error: File not found: {file_path}")
+        logger.error('Error: File not found: %s', file_path)
         return None
     except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML: {e}")
+        logger.error('Error parsing YAML: %s', e)
         return None
 
 def auto_int(x) -> int:
