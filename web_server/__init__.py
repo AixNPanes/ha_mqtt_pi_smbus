@@ -14,6 +14,7 @@ from mqtt_client import MQTTClient, State
 
 class HAFlask(Flask):
     def __init__(self, import_name, parser, client:MQTTClient, device:HADevice):
+        route = '__init__'
         templates_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
         static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
         super().__init__(import_name, template_folder=templates_path, static_folder=static_path)
@@ -21,6 +22,7 @@ class HAFlask(Flask):
         self.parser = parser
         self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
         self.client = client
+        self.__logger.debug(f'{route} self.client: {self.client}')
         self.device = device
         secret_key = secrets.token_hex(32)
         self.config['SECRET_KEY'] = secret_key
@@ -64,18 +66,19 @@ class HAFlask(Flask):
             clientstate = request.get_json()
             self.client.state = State(clientstate)
             self.__logger.debug(f'%s state: %s -------------------', route, self.client.state.to_dict())
-            if self.client.state.connected != self.client.is_connected():
-                self.__logger.debug('%s resyncing client.is_connected(): %s, self.client.state: %s', route, self.client.is_connected(), self.client.state.to_dict())
+            is_connected = self.client.is_connected()
+            if self.client.state.connected != is_connected:
+                self.__logger.debug('%s resyncing is_connected: %s, self.client.state: %s', route, is_connected, self.client.state.to_dict())
                 self.client.state = State()
-                self.cllient.state.connected = self.client.is_connected()
+                self.client.state.connected = is_connected
                 self.client.state.error = ['Web page reloaded, resyncing state']
                 self.__logger.debug(f'%s state: %s', route, self.client.state.to_dict())
-                return json.dumps(self.client.state.to_dict())
-            if self.client.state.connected != self.client.is_connected():
-                self.client.state.error = (f'state.connected({self.client.state.connected}) does not match client.is_connected()({self.client.is_connected()})')
+                return jsonify(self.client.state.to_dict())
+            if self.client.state.connected != is_connected:
+                self.client.state.error = (f'state.connected({self.client.state.connected}) does not match is_connected({is_connected})')
                 #return render_template('index.html', state=jsonify(self.client.state))
                 return self.client.state
-            if not self.client.state.discovered and not self.client.is_connected():
+            if not self.client.state.discovered and not is_connected:
                 # Connect and start loop
                 self.__logger.debug(f'{route} connecting mqtt client')
                 self.__logger.debug(f'{route} state: {self.client.state}, client.connect_mqtt()')
@@ -83,11 +86,12 @@ class HAFlask(Flask):
                 self.__logger.debug(f'{route} client.loop_start()')
                 self.client.loop_start()
                 for _ in range(20):
-                    self.__logger.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
-                    if self.client.is_connected():
+                    is_connected = self.client.is_connected()
+                    self.__logger.debug(f'{route} is_connected: {is_connected}')
+                    if is_connected:
                         break
                     time.sleep(0.5)
-                self.__logger.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
+                self.__logger.debug(f'{route} is_connected: {is_connected}')
                 self.client.state.connected = True
             elif not self.client.state.discovered:
                 self.__logger.debug(f'{route} disconnecting mqtt client')
@@ -103,39 +107,44 @@ class HAFlask(Flask):
                     self.__logger.debug(f'{route} state: {self.client.state}, client.disconnect_mqtt()')
                     self.client.disconnect_mqtt()
                     self.client.state.connected = False
-        
+
             self.__logger.debug(f'{route} return state: {self.client.state.to_dict()}')
-            return json.dumps(self.client.state.to_dict())
-        
+            return jsonify(self.client.state.to_dict())
+
         @self.route('/discovery-toggle', methods=['POST'])
         def discovery_toggle():
             route = f'{request.path} [{request.method}]'
-        
+
             clientstate = request.get_json()
             self._stage = State(clientstate)
             self.__logger.debug(f'{route} ------------------------------------------------------------------------------------------------')
             self.__logger.debug(f'{route} clientstate: {clientstate}')
-            self.client.state.connected = self.client.is_connected()
-            self.client.state.discovered = clientstate.get('Discovered', self.client.state.discovered)
+            #self.client.state.connected = clientstate.get('Connected', self.client.state.connected)
+            #self.client.state.discovered = clientstate.get('Discovered', self.client.state.discovered)
             self.client.state.error = []
-            self.__logger.debug(f'{route} state: {self.client.state.to_dict()}')
-        
-            self.__logger.debug(f'{route} client.is_connected(): {self.client.is_connected()}')
-            if self.client.state.connected != self.client.is_connected():
-                self.client.state.error = [f'state.connected({self.state.connected}) does not match client.is_connected()({self.client.is_connected()})']
-                return str(self.client.state)
+            connected = self.client.is_connected()
+            self.__logger.debug(f'{route} client.state.connected: {self.client.state.connected}')
+
+            self.__logger.debug(f'{route} connected: {connected}')
+            if self.client.state.connected != connected:
+                self.client.state.error = ['client connected state mismatch']
+                #self.client.state.connected = connected
+                #self.client.state.discovered = False
+                self.__logger.debug(f'{route} {self.client.state.error}')
+                return jsonify(self.client.state.to_dict())
+            if not self.client.state.connected:
+                self.client.state.error = ['client must be connected']
+                self.client.state.connected = False
+                self.client.state.discovered = False
+                self.__logger.debug(f'{route} {self.client.state.error}')
+                return jsonify(self.client.state.to_dict())
             if not self.client.state.discovered:
                 # Turn ON
                 self.__logger.debug(f'{route} turning on discovery')
-                if not self.client.is_connected():
-                    self.__logger.critical(f'{route} turning on discovery with client disconnected isn\'t going to work.')
-                    #self.client.mqtt_connect()
-                    #self.client.state.connected = True
                 self.__logger.debug(f'{route} client.loop_start()')
                 self.client.loop_start()
                 self.__logger.debug(f'{route} client.publish_discoveries()')
                 self.client.publish_discoveries(self.device.sensors)
-        
                 self.client.state.discovered = True
             else:
                 # Turn OFF
@@ -148,10 +157,9 @@ class HAFlask(Flask):
                 self.__logger.debug(f'{route} client.loop_stop()')
                 self.client.loop_stop()
                 self.client.state.discovered = False
-        
             self.__logger.debug(f'{route} return state: {self.client.state.to_dict()}');
-            return json.dumps(self.client.state.to_dict())
-        
+            return jsonify(self.client.state.to_dict())
+
     # to handle ctrl-c, clear discoveries, and shut things down
     def shutdown_server(self):
         route = "Shutdown"
