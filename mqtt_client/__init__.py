@@ -50,10 +50,10 @@ class State:
 
     def to_dict(self):
         if not isinstance(self.error, list):
-            self.__logger.exception("self.error is str (%s)" % (type(self.error)))
+            self.__logger.exception('self.error is str (%s)' % (type(self.error)))
         if self.rc is not None and  not isinstance(self.rc, ReasonCode):
-            self.__logger.exception("self.rc not ReasonCode (%s)" % (type(self.rc)))
-            self.__logger.exception("self.rc (%s)" % (self.rc))
+            self.__logger.exception('self.rc not ReasonCode (%s)' % (type(self.rc)))
+            self.__logger.exception('self.rc (%s)' % (self.rc))
         return {
             "Connected": self.connected,
             "Discovered": self.discovered,
@@ -127,7 +127,7 @@ class MQTT_Publisher_Thread(threading.Thread):
             if data['last_update'] != self.data['last_update']:
                 self.data = data
                 self.client.publish(self.device.state_topic, json.dumps(data))
-                self.__logger.debug(f"MQTT publisher: {json.dumps(data, indent=4)}")
+                self.__logger.debug('MQTT publisher: %s', json.dumps(data, indent=4))
             time.sleep(1)
 
     def clear_do_run(self) -> None:
@@ -243,8 +243,8 @@ class MQTTClient(mqtt.Client):
         self.state = State()
         mqttErrorCode = super().connect(self.broker_address, self.port)
         if mqttErrorCode != 0:
-            self.__logger.critical(f'{route} error {mqttErrorCode} in connect_mqtt')
-        self.__logger.info(f"{route} connecting to broker at {self.broker_address}:{self.port}")
+            self.__logger.critical('%s error %s in connect_mqtt', route, mqttErrorCode)
+        self.__logger.info('%s connecting to broker at %s:%s', route, self.broker_address, self.port)
 
     def is_connected(self) -> bool | None:
         connected = super().is_connected()
@@ -257,7 +257,7 @@ class MQTTClient(mqtt.Client):
         route = "disconnect_mqtt"
         mqttErrorCode = super().disconnect()
         if mqttErrorCode != 0:
-            self.__logger.critical(f'{route} error {mqttErrorCode} in disconnect_mqtt')
+            self.__logger.critical('%s error %s in disconnect_mqtt', route, mqttErrorCode)
 
     def subscribe(self, topici:str) -> None:
         """ subscribe to messages from the MQTT broker
@@ -265,7 +265,7 @@ class MQTTClient(mqtt.Client):
         The client is subscribed to the topic supplied
         """
         route = "subscribe"
-        self.__logger.info(f'{route} subscribing to topic "{topic}"')
+        self.__logger.info('%s subscribing to topic "%s"', route, topic)
         tuple = super().subscribe(topic)
         return tuple
 
@@ -292,16 +292,16 @@ class MQTTClient(mqtt.Client):
             A set of properties for the message, if desired
         """
         route = "publish"
-        self.__logger.info(f'{route} publishing to topic: "{topic}"')
-        self.__logger.debug(f'{route} \tmessage: "{message}"')
+        self.__logger.info('%s publishing to topic: "%s"', route, topic)
+        self.__logger.debug('%s \tmessage: "%s"', route, message)
         result = super().publish(topic, message)
         status = result[0]
         mid = result[1]
         if status == 0:
-            self.__logger.debug(f'{route} Sent "{message}" to "{topic}" with mid: {mid}')
+            self.__logger.debug('%s Sent "%s" to "%s" with mid: %s', route, message, topic, mid)
             pass
         else:
-            self.__logger.error(f"{route} Failed to send message to topic {topic}, rc {status}")
+            self.__logger.error('%s Failed to send message to topic %s, rc %s', route, topic, status)
             pass
         return result
 
@@ -321,7 +321,7 @@ class MQTTClient(mqtt.Client):
                 sensor.discovery_topic, 
                 json.dumps(sensor.discovery_payload), 
                 qos=2, retain=True)
-        self.__logger.info(f"{route} Published discovery for {key}")
+        self.__logger.info('%s Published discovery for %s', route, key)
 
     def clear_discovery(self, key:str, sensor:HASensor) -> None:
         """ publish a clear discovery message for a sensor
@@ -336,7 +336,7 @@ class MQTTClient(mqtt.Client):
         """
         route = "clear_discovery"
         self.publish(sensor.discovery_topic, "", qos=2, retain=True)
-        self.__logger.info(f"{route} Cleared discovery for {key}")
+        self.__logger.info('%s Cleared discovery for %s', route, key)
 
     def publish_discoveries(self, sensors:Dict[str, Any]) -> None:
         """ Publish a discovery message for each sensor in the device
