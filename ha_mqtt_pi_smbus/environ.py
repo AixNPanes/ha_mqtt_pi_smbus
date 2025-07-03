@@ -124,7 +124,7 @@ def getCpuInfo() -> Dict[str, Any]:
     ------
     >>> from environ import getCpuInfo
     >>> print(f'The cpu info is as follows:\n{getCpuInfo()}')
-    The cpu info is as follows:
+   The cpu info is as follows:
 {'cpu': {'Revision': 'a22082', 'Serial': '000000009ec1f24d', 'Model': 'Raspberry Pi 3 Model B Rev 1.2', 'processors': 4}, 'processors': {'0': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '1': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '2': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '3': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}}}
     >>>
     """
@@ -138,8 +138,8 @@ def getCpuInfo() -> Dict[str, Any]:
         piece = group.split("\n")
         stanza = {}
         for line in piece:
-            if len(line) > 0:
-                token = line.split(":")
+            if len(line.strip()) > 0:
+                token = line.strip().split(":")
                 token[0] = token[0].strip()
                 token[1] = token[1].strip()
                 stanza[token[0]] = token[1]
@@ -184,12 +184,3 @@ def getOSInfo() -> Dict[str, Any]:
         if len(token) == 2:
             info[token[0].strip()] = token[1].strip()
     return info
-
-if __name__ == '__main__':
-    print(f'getOSInfo(): {getOSInfo()}\n')
-    print(f'getCpuInfo(): {getCpuInfo()}\n')
-    print(f'getObjectId(): {getObjectId()}\n')
-    print(f'getMacAddressByInterface("eth0"): {getMacAddressByInterface("eth0")}\n')
-    print(f'getMacAddressByInterface("wlan0"): {getMacAddressByInterface("wlan0")}\n')
-    print(f'getMacAddress(): {getMacAddress()}\n')
-    print(f'getTemperature(): {getTemperature()}\n')

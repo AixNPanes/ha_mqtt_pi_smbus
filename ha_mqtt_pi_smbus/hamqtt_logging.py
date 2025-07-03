@@ -5,7 +5,7 @@ import logging.config
 
 import flask.logging
 
-def loggerConfig():
+def loggerConfig() -> str:
     """ logging configuration
 
     Parameters
@@ -79,8 +79,8 @@ def loggerConfig():
     }
 
     try:
-        with open('logging.config', 'r') as f:
-            logging_config = json.load(f) # For JSON
+        with open('logging.config', 'r') as config_file:
+            logging_config = json.load(config_file) # For JSON
             # config = yaml.safe_load(f) # For YAML
         if not 'disable_existing_loggers' in logging_config:
             logging_config['disable_existing_loggers'] = False
@@ -96,3 +96,4 @@ def loggerConfig():
     
     # Apply the logging config
     logging.config.dictConfig(logging_config)
+    return logging_config

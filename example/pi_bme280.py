@@ -6,9 +6,9 @@ import paho.mqtt.client as mqtt
 
 from example.parsing import Parser
 from example.device import BME280, BME280_Device
-from hamqtt_logging import loggerConfig
-from mqtt_client import MQTTClient
-from web_server import HAFlask
+from ha_mqtt_pi_smbus.hamqtt_logging import loggerConfig
+from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
+from ha_mqtt_pi_smbus.web_server import HAFlask
 
 # parse config and command line args
 parser = Parser()

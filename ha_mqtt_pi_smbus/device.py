@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 from smbus2 import SMBus
 
-from environ import getCpuInfo, getOSInfo, getMacAddress, getObjectId
+from ha_mqtt_pi_smbus.environ import getCpuInfo, getOSInfo, getMacAddress, getObjectId
 
 class HASensor:
     """ Definition for a Home Assistant discoverable sensor
@@ -85,14 +85,8 @@ class HASensor:
         self.discovery_payload['stat_t'] = state_topic
         self.discovery_payload['dev'] = device_payload
 
-    def topic(self) -> Dict[str, Any]:
-        return self.config_topic
-
-    def payload(self) -> Dict[str, Any]:
-        return self.config_payload
-
     def jsonPayload(self) -> str:
-        return json.dumps(self.config_payload, default=vars)
+        return json.dumps(self.discovery_payload, default=vars)
 
 class HADevice:
     """ Definition for a Home Assistant device with discoverable sensors
@@ -302,7 +296,7 @@ class SMBusDevice(SMBus):
                 }
 
     # Override this method if desired
-    def toJson() -> str:
+    def toJson(self) -> str:
         return ""
 
     # Override this method if desired

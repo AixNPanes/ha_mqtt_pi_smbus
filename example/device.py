@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import bme280
 
-from device import HADevice, HASensor, SMBusDevice, SMBusDevice_Sampler_Thread
+from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice, SMBusDevice_Sampler_Thread
 
 class BME280_Device(HADevice):
     """ Definition for a Home Assistant dicscoverable sensor device
