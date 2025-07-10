@@ -1,68 +1,68 @@
-const MQTTStatus = {
+export const MQTTStatus = {
   DISCONNECTED: 'disconnected',
   PROCESSING: 'processing',
   CONNECTED: 'connected'
 };
 
-const DiscoveryStatus = {
+export const DiscoveryStatus = {
   UNDISCOVERED: 'undiscovered',
   PROCESSING: 'processing',
   DISCOVERED: 'discovered'
 };
 
-function mqttToggle() {
+export function mqttToggle() {
   return document.getElementById('mqtt-toggle');
 }
 
-function mqttStatus() {
+export function mqttStatus() {
   return document.getElementById('mqtt-status');
 }
 
-function mqttDescription() {
+export function mqttDescription() {
   return document.getElementById('mqtt-description');
 }
 
-function discoveryToggle() {
+export function discoveryToggle() {
   return document.getElementById('discovery-toggle');
 }
 
-function discoveryStatus() {
+export function discoveryStatus() {
   return document.getElementById('discovery-status');
 }
 
-function discoveryDescription() {
+export function discoveryDescription() {
   return document.getElementById('discovery-description');
 }
 
-function errorMsg() {
+export function errorMsg() {
   return document.getElementById('error-msg');
 }
 
-function isMQTTConnected() {
+export function isMQTTConnected() {
   return mqttToggle().classList.contains(MQTTStatus.CONNECTED);
 }
 
-function isDiscoveryDiscovered() {
+export function isDiscoveryDiscovered() {
   return discoveryToggle().classList.contains(DiscoveryStatus.DISCOVERED);
 }
 
-function isMQTTProcessing() {
+export function isMQTTProcessing() {
   return mqttToggle().classList.contains(MQTTStatus.PROCESSING);
 }
 
-function isDiscoveryProcessing() {
+export function isDiscoveryProcessing() {
   return discoveryToggle().classList.contains(DiscoveryStatus.PROCESSING);
 }
 
-function isMQTTDisconnected() {
+export function isMQTTDisconnected() {
   return mqttToggle().classList.contains(MQTTStatus.DISCONNECTED);
 }
 
-function isDiscoveryUndiscovered() {
+export function isDiscoveryUndiscovered() {
   return discoveryToggle().classList.contains(DiscoeryStatus.UNDISCOVERED);
 }
 
-function getState(error) {
+export function getState(error) {
   return {
       Connected: isMQTTConnected(),
       Discovered: isDiscoveryDiscovered(),
@@ -70,7 +70,7 @@ function getState(error) {
     };
 }
 
-function getStatus(toggle) {
+export function getStatus(toggle) {
   const cList = toggle.classList;
   const isMqtt = toggle == mqttToggle();
   const toggleName = isMqtt ? 'mqttToggle' : 'discoveryToggle';
@@ -92,29 +92,29 @@ function getStatus(toggle) {
   return list[0];
 }
 
-function setMQTTState(state) {
+export function setMQTTState(state) {
   for(let key in MQTTStatus) {
     mqttToggle().classList.remove(MQTTStatus[key]);
   }
   mqttToggle().classList.add(state);
 }
 
-function setDiscoveryState(state) {
+export function setDiscoveryState(state) {
   for(let key in DiscoveryStatus) {
     discoveryToggle().classList.remove(DiscoveryStatus[key]);
   }
   discoveryToggle().classList.add(state);
 }
 
-function setDisabled(toggle) {
+export function setDisabled(toggle) {
   toggle.classList.add('disabled');
 }
 
-function setEnabled(toggle) {
+export function setEnabled(toggle) {
   toggle.classList.remove('disabled');
 }
 
-function setDisconnected() {
+export function setDisconnected() {
   mqttStatus().textContent = 'Not Connected';
   mqttDescription().textContent = 'Click to Connect';
   discoveryStatus().textContent = 'Not discovered';
@@ -124,7 +124,7 @@ function setDisconnected() {
   setDisabled(discoveryToggle());
 }
 
-function setMQTTConnectProcessing() {
+export function setMQTTConnectProcessing() {
   mqttStatus().textContent = 'Connection in process';
   mqttDescription().textContent = 'Wait for completion';
   discoveryStatus().textContent = 'Not discovered';
@@ -134,7 +134,7 @@ function setMQTTConnectProcessing() {
   setDisabled(discoveryToggle());
 }
 
-function setConnected() {
+export function setConnected() {
   mqttStatus().textContent = 'Connected';
   mqttDescription().textContent = 'Start Discovery or Click To Disconnect';
   discoveryStatus().textContent = 'Not discovered';
@@ -144,7 +144,7 @@ function setConnected() {
   setEnabled(discoveryToggle());
 }
 
-function setMQTTDisconnectProcessing() {
+export function setMQTTDisconnectProcessing() {
   mqttStatus().textContent = 'Disconnection in process';
   mqttDescription().textContent = 'Wait for completion';
   discoveryStatus().textContent = 'Not discovered';
@@ -154,7 +154,7 @@ function setMQTTDisconnectProcessing() {
   setDisabled(discoveryToggle());
 }
 
-function setDiscovered() {
+export function setDiscovered() {
   mqttStatus().textContent = 'Connected';
   mqttDescription().textContent = 'You must Undiscover before Connect';
   discoveryStatus().textContent = 'Discovered';
@@ -164,7 +164,7 @@ function setDiscovered() {
   setEnabled(discoveryToggle());
 }
 
-function setUndiscovered() {
+export function setUndiscovered() {
   mqttStatus().textContent = 'Connected';
   mqttDescription().textContent = 'Start Discovery or Click To Disconnect';
   discoveryStatus().textContent = 'Not discovered';
@@ -174,7 +174,7 @@ function setUndiscovered() {
   setEnabled(discoveryToggle());
 }
 
-function setDiscoveryProcessing() {
+export function setDiscoveryProcessing() {
   mqttStatus().textContent = 'Connected';
   mqttDescription().textContent = 'You must Undiscover before Connect';
   discoveryStatus().textContent = 'Discovery in process';
@@ -184,7 +184,7 @@ function setDiscoveryProcessing() {
   setDisabled(discoveryToggle());
 }
 
-function setUndiscoveryProcessing() {
+export function setUndiscoveryProcessing() {
   mqttStatus().textContent = 'Connected';
   mqttDescription().textContent = 'You must Undiscover before Connect';
   discoveryStatus().textContent = 'Un-Discovery in process';
@@ -194,7 +194,7 @@ function setUndiscoveryProcessing() {
   setDisabled(discoveryToggle());
 }
 
-function setErrorMessage(msg) {
+export function setErrorMessage(msg) {
   if (msg === null) {
     errorMsg().textContent = '\u00a0';
   } else {
@@ -203,7 +203,7 @@ function setErrorMessage(msg) {
   }
 }
 
-function resyncState(state) {
+export function resyncState(state) {
   console.log(state);
   if (state.Discovered) {
     console.log('setDiscovered()');
@@ -217,7 +217,7 @@ function resyncState(state) {
   }
 }
 
-function formatError(msg, error) {
+export function formatError(msg, error) {
   return "Error toggling MQTT: " + error + "\n"
     "\tname: " + error.name; + "\n"
     "\tlineNumber: " + error.lineNumber + "\n"
@@ -226,7 +226,7 @@ function formatError(msg, error) {
     "\tcause: " + error.cause;
 }
 
-async function updateButtonsFromStatus() {
+export async function updateButtonsFromStatus() {
   const response = await fetch('/status');
   const state = await response.json();
   console.log("updateButtonsFromStatus: "+JSON.stringify(state));
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
       mqttDescription().textContent = 'Wait until Discovery turned off';
       return;
     }
-    state = getState([]);
+    const state = getState([]);
     if (isMQTTConnected()) {
       setMQTTDisconnectProcessing();
     } else {
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
       discoveryDescription().textContent = 'MQTT must be connected first';
       return;
     }
-    state = getState([])
+    const state = getState([])
     if (isDiscovered) {
       setUndiscoveryProcessing();
     } else {
