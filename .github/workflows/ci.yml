@@ -34,7 +34,7 @@ jobs:
       - name: Run Python tests
         run: |
           source venv/bin/activate
-          make test-python
+          pytest --cov=ha_mqtt_pi_smbus --cov-report=term-missing
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
