@@ -12,65 +12,82 @@ import paho
 from paho.mqtt.client import Client as mqtt
 
 from ha_mqtt_pi_smbus.device import HADevice, HASensor
-from ha_mqtt_pi_smbus.mqtt_client import State, StateErrorEnum, MQTTClient, MQTT_Publisher_Thread
+from ha_mqtt_pi_smbus.mqtt_client import (
+    State,
+    StateErrorEnum,
+    MQTTClient,
+    MQTT_Publisher_Thread,
+)
 
 """
 Note the methods of MQTTClient aren't necessarily order dependent so
 so these tests don't run in the normal functional order.
 """
 
+
 class Temperature(HASensor):
-    def __init__(self, name:str):
-        super().__init__(f'{chr(176)}C')
+    def __init__(self, name: str):
+        super().__init__(f"{chr(176)}C")
+
 
 class Humidity(HASensor):
-    def __init__(self, name:str):
-        super().__init__('%')
+    def __init__(self, name: str):
+        super().__init__("%")
+
 
 class Pressure(HASensor):
-    def __init__(self, name:str):
-        super().__init__('mbar')
+    def __init__(self, name: str):
+        super().__init__("mbar")
+
 
 class BME280_Device(HADevice):
     def __init__(self):
-        super().__init__((
-            Temperature(), Humidity(), Pressure()), 'Office', 'me/state', 'Bosch', 'BME280')
+        super().__init__(
+            (Temperature(), Humidity(), Pressure()),
+            "Office",
+            "me/state",
+            "Bosch",
+            "BME280",
+        )
+
 
 class TestMQTTClient(unittest.TestCase):
     def setUp(self):
 
         parser = Namespace(
-            logginglevel='DEBUG',
-            title='Test Title',
-            subtitle='Test Subtitle'
+            logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
         )
         mock_data = {
-            "last_update": '06/27/2025 17:01:05',
+            "last_update": "06/27/2025 17:01:05",
             "bus": 1,
             "address": 0x76,
             "temperature": 31.2,
-            "temperature_units": f'{chr(176)}C',
+            "temperature_units": f"{chr(176)}C",
             "pressure": 1019.2,
             "pressure_units": "mbar",
             "humidity": 89.4,
-            "humidity_units": "%"}
+            "humidity_units": "%",
+        }
 
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
-    def test_mqtt_client_connect_error(self, mock_smbus, mock_connect, mock_is_connected):
+    def test_mqtt_client_connect_error(
+        self, mock_smbus, mock_connect, mock_is_connected
+    ):
         mock_connect.return_value = 1
-        #mock_mqtt.reconnect.return_value = None
+        # mock_mqtt.reconnect.return_value = None
         mqtt_client = MQTTClient(
-            client_prefix='me',
+            client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
         rc = mqtt_client.connect_mqtt()
         assert rc == 1
 
@@ -78,43 +95,48 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice.data")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
-    def test_publisher_thread(self, mock_smbus, mock_data, mock_connect, mock_is_connected):
+    def test_publisher_thread(
+        self, mock_smbus, mock_data, mock_connect, mock_is_connected
+    ):
         mock_connect.return_value = 0
         mock_is_connected.return_value = False
-        mock_data.side_effect = [{'last_update': i} for i in range(1, 11)]
+        mock_data.side_effect = [{"last_update": i} for i in range(1, 11)]
         mqtt_client = MQTTClient(
-            client_prefix='me',
+            client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
         thread = MQTT_Publisher_Thread(
             mqtt_client,
             HADevice(
                 (
-                    HASensor(f'{chr(176)}', name='temperature', device_class='temperature'),
-                    HASensor('mbar', name='pressure', device_class='pressure'),
-                    HASensor('%', name='humidity', device_class='humidity'),
+                    HASensor(
+                        f"{chr(176)}", name="temperature", device_class="temperature"
+                    ),
+                    HASensor("mbar", name="pressure", device_class="pressure"),
+                    HASensor("%", name="humidity", device_class="humidity"),
                 ),
-                'me',
-                'my/state',
-                'God',
-                'WASP'
+                "me",
+                "my/state",
+                "God",
+                "WASP",
             ),
-            mock_smbus
+            mock_smbus,
         )
-        obj = {'Connected': False, 'Discovered': False, 'rc': 0, 'Error': ['Error!']}
+        obj = {"Connected": False, "Discovered": False, "rc": 0, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.is_connected() == False
         thread.start()
-        assert thread.data['last_update'] == 2
+        assert thread.data["last_update"] == 2
         time.sleep(1.1)
-        assert thread.data['last_update'] == 3
+        assert thread.data["last_update"] == 3
         thread.clear_do_run()
         thread.join()
 
@@ -122,21 +144,24 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.disconnect")
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
-    def test_mqtt_client_connect_disconnect(self, mock_smbus, mock_connect, mock_disconnect, mock_is_connected):
+    def test_mqtt_client_connect_disconnect(
+        self, mock_smbus, mock_connect, mock_disconnect, mock_is_connected
+    ):
         mock_connect.return_value = 0
         mock_disconnect.side_effect = [0, 1]
         mock_is_connected.return_value = False
         mqtt_client = MQTTClient(
-            client_prefix='me',
+            client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
-        obj = {'Connected': False, 'Discovered': False, 'rc': 0, 'Error': ['Error!']}
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
+        obj = {"Connected": False, "Discovered": False, "rc": 0, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.is_connected() == False
@@ -151,7 +176,10 @@ class TestMQTTClient(unittest.TestCase):
         assert len(mqtt_client.state.error) == 0
         mqtt_client.disconnect_mqtt()
         MQTTClient.on_disconnect(mqtt_client, None, None, 1)
-        assert mqtt_client.state.error[0] == 'Connection Refused: unacceptable protocol version.'
+        assert (
+            mqtt_client.state.error[0]
+            == "Connection Refused: unacceptable protocol version."
+        )
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.disconnect_mqtt() == 1
         assert mqtt_client.is_discovered() == False
@@ -159,20 +187,23 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
-    def test_mqtt_client_on_connect_error(self, mock_smbus, mock_connect, mock_is_connected):
+    def test_mqtt_client_on_connect_error(
+        self, mock_smbus, mock_connect, mock_is_connected
+    ):
         mock_connect.return_value = 0
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
-            client_prefix='me',
+            client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
-        obj = {'Connected': False, 'Discovered': False, 'rc': 1, 'Error': ['Error!']}
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
+        obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.is_connected() == False
@@ -180,8 +211,10 @@ class TestMQTTClient(unittest.TestCase):
         MQTTClient.on_connect(mqtt_client, None, None, 1)
         assert not mqtt_client.state.connected
         assert len(mqtt_client.state.error) == 1
-        assert mqtt_client.state.error[0] == 'Connection Refused: unacceptable protocol version.'
-
+        assert (
+            mqtt_client.state.error[0]
+            == "Connection Refused: unacceptable protocol version."
+        )
 
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
@@ -190,16 +223,17 @@ class TestMQTTClient(unittest.TestCase):
         mock_connect.return_value = 0
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
-            client_prefix='me',
+            client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
-        obj = {'Connected': False, 'Discovered': False, 'rc': 1, 'Error': ['Error!']}
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
+        obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.is_connected() == False
@@ -210,20 +244,23 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
-    def test_mqtt_client_is_connected_error(self, mock_smbus, mock_connect, mock_is_connected):
+    def test_mqtt_client_is_connected_error(
+        self, mock_smbus, mock_connect, mock_is_connected
+    ):
         mock_connect.return_value = 0
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
-            client_prefix='me',
+            client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
-        obj = {'Connected': False, 'Discovered': False, 'rc': 1, 'Error': ['Error!']}
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
+        obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.is_connected() == False
@@ -237,66 +274,74 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
-    def test_mqtt_client_subscribe(self, mock_smbus, mock_connect, mock_is_connected, mock_subscribe):
+    def test_mqtt_client_subscribe(
+        self, mock_smbus, mock_connect, mock_is_connected, mock_subscribe
+    ):
         mock_connect.return_value = 0
         mock_subscribe.return_value = (0, 1)
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
-            client_prefix='me',
+            client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
-        obj = {'Connected': False, 'Discovered': False, 'rc': 1, 'Error': ['Error!']}
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
+        obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.is_connected() == False
         assert not mqtt_client.state.connected
         MQTTClient.on_connect(mqtt_client, None, None, 0)
         assert mqtt_client.state.connected
-        rc = mqtt_client.subscribe('my/state')
+        rc = mqtt_client.subscribe("my/state")
         assert len(rc) == 2
 
     @patch("paho.mqtt.client.Client.publish")
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
-    def test_mqtt_client_publish(self, mock_smbus, mock_connect, mock_is_connected, mock_subscribe):
+    def test_mqtt_client_publish(
+        self, mock_smbus, mock_connect, mock_is_connected, mock_subscribe
+    ):
         mock_connect.return_value = 0
         mock_subscribe.return_value = (0, 1)
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
-            client_prefix='me',
-            device = HADevice(
+            client_prefix="me",
+            device=HADevice(
                 (
-                    HASensor(f'{chr(176)}', name='temperature', device_class='temperature'),
-                    HASensor('mbar', name='pressure', device_class='pressure'),
-                    HASensor('%', name='humidity', device_class='humidity'),
+                    HASensor(
+                        f"{chr(176)}", name="temperature", device_class="temperature"
+                    ),
+                    HASensor("mbar", name="pressure", device_class="pressure"),
+                    HASensor("%", name="humidity", device_class="humidity"),
                 ),
-                'me',
-                'my/state',
-                'God',
-                'WASP'
+                "me",
+                "my/state",
+                "God",
+                "WASP",
             ),
             smbus_device=mock_smbus,
             mqtt_config={
-                'broker': '127.0.0.1',
-                'port': 1883,
-                'username': 'me',
-                'password': 'mine'
-            })
-        obj = {'Connected': False, 'Discovered': False, 'rc': 1, 'Error': ['Error!']}
+                "broker": "127.0.0.1",
+                "port": 1883,
+                "username": "me",
+                "password": "mine",
+            },
+        )
+        obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.is_connected() == False
         assert not mqtt_client.state.connected
         MQTTClient.on_connect(mqtt_client, None, None, 0)
         assert mqtt_client.state.connected
-        rc = mqtt_client.subscribe('my/state')
+        rc = mqtt_client.subscribe("my/state")
         assert len(rc) == 2
         mqtt_client.publish_discoveries(mqtt_client.device.sensors)
         mqtt_client.clear_discoveries(mqtt_client.device.sensors)

@@ -4,10 +4,16 @@ from typing import Any, Dict
 
 import bme280
 
-from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice, SMBusDevice_Sampler_Thread
+from ha_mqtt_pi_smbus.device import (
+    HADevice,
+    HASensor,
+    SMBusDevice,
+    SMBusDevice_Sampler_Thread,
+)
+
 
 class BME280_Device(HADevice):
-    """ Definition for a Home Assistant dicscoverable sensor device
+    """Definition for a Home Assistant dicscoverable sensor device
 
     Parameters
     ----------
@@ -37,42 +43,67 @@ class BME280_Device(HADevice):
     bme280_device = BME280_Device('Living Room TPH')
 
     """
+
     class Temperature(HASensor):
-        units:str = f'{chr(176)}C'
-        device_class = 'temperature'
-        def __init__(self, sensor_name:str = None):
-            super().__init__(self.units, name = sensor_name, device_class = self.device_class)
+        units: str = f"{chr(176)}C"
+        device_class = "temperature"
+
+        def __init__(self, sensor_name: str = None):
+            super().__init__(
+                self.units, name=sensor_name, device_class=self.device_class
+            )
 
     class Pressure(HASensor):
-        units:str = 'mbar'
-        device_class = 'pressure'
-        def __init__(self, sensor_name:str = None):
-            super().__init__(self.units, name = sensor_name, device_class = self.device_class)
+        units: str = "mbar"
+        device_class = "pressure"
+
+        def __init__(self, sensor_name: str = None):
+            super().__init__(
+                self.units, name=sensor_name, device_class=self.device_class
+            )
 
     class Humidity(HASensor):
-        units:str = '%'
-        device_class = 'humidity'
-        def __init__(self, sensor_name:str = None):
-            super().__init__(self.units, name = sensor_name, device_class = self.device_class)
-            
-    def __init__(self, name:str, state_topic:str, manufacturer:str, model:str, smbus_device:SMBusDevice, polling_interval:int):
-        super().__init__((
-            BME280_Device.Temperature(),
-            BME280_Device.Pressure(),
-            BME280_Device.Humidity()
-            ), name, state_topic, manufacturer, model)
-        route = 'BME280_Sensor'
-        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
+        units: str = "%"
+        device_class = "humidity"
+
+        def __init__(self, sensor_name: str = None):
+            super().__init__(
+                self.units, name=sensor_name, device_class=self.device_class
+            )
+
+    def __init__(
+        self,
+        name: str,
+        state_topic: str,
+        manufacturer: str,
+        model: str,
+        smbus_device: SMBusDevice,
+        polling_interval: int,
+    ):
+        super().__init__(
+            (
+                BME280_Device.Temperature(),
+                BME280_Device.Pressure(),
+                BME280_Device.Humidity(),
+            ),
+            name,
+            state_topic,
+            manufacturer,
+            model,
+        )
+        route = "BME280_Sensor"
+        self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.smbus_device = smbus_device
         self.sampler_thread = SMBusDevice_Sampler_Thread(smbus_device, polling_interval)
         self.sampler_thread.start()
 
     def data(self) -> Dict[str, Any]:
-        route = 'BME280_Sensor'
+        route = "BME280_Sensor"
         return self.smbus_device.data()
 
+
 class BME280(SMBusDevice):
-    """ Definition for a SMBus device which communicated over I2C
+    """Definition for a SMBus device which communicated over I2C
 
     Parameters
     ----------
@@ -89,19 +120,20 @@ class BME280(SMBusDevice):
     bme280 = BME280(bus = 1, address = 0x76)
 
     """
-    last_update:datetime = datetime.datetime.now()
-    temperature:float = -32.0 * 5 / 9
-    pressure:float = 0.0
-    humidity:float = 0.0
 
-    def __init__(self, bus:int = 1, address:int = 0x76):
+    last_update: datetime = datetime.datetime.now()
+    temperature: float = -32.0 * 5 / 9
+    pressure: float = 0.0
+    humidity: float = 0.0
+
+    def __init__(self, bus: int = 1, address: int = 0x76):
         super().__init__(bus)
         self.bus = bus
         self.address = address
         self._calibration_params = bme280.load_calibration_params(self, self.address)
 
     def sample(self) -> None:
-        """ makes one sample of the device
+        """makes one sample of the device
 
         The sampled data is retained in the device for later collection
         with the data() method.
@@ -123,7 +155,7 @@ class BME280(SMBusDevice):
         self.humidity = data.humidity
 
     def data(self) -> Dict[str, Any]:
-        """ returns sampled data
+        """returns sampled data
 
         The data was either sampled previously by the saple() method
         or, alternatively, the initial data stored in the object will
@@ -139,21 +171,22 @@ class BME280(SMBusDevice):
 
         """
         return {
-                "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
-                "bus": self.bus,
-                "address": self.address,
-                "temperature": round(self.temperature, 1),
-                "temperature_units": f'{chr(176)}C',
-                "pressure": round(self.pressure, 1),
-                "pressure_units": "mbar",
-                "humidity": round(self.humidity, 1),
-                "humidity_units": "%",
-                }
+            "last_update": self.last_update.strftime("%m/%d/%Y %H:%M:%S"),
+            "bus": self.bus,
+            "address": self.address,
+            "temperature": round(self.temperature, 1),
+            "temperature_units": f"{chr(176)}C",
+            "pressure": round(self.pressure, 1),
+            "pressure_units": "mbar",
+            "humidity": round(self.humidity, 1),
+            "humidity_units": "%",
+        }
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import json
-    dev = BME280(1, 0x76)
-    print(f'BME280 device: {dev}')
-    dev.sample()
-    print(f'device sample: {dev.data()}')
 
+    dev = BME280(1, 0x76)
+    print(f"BME280 device: {dev}")
+    dev.sample()
+    print(f"device sample: {dev.data()}")

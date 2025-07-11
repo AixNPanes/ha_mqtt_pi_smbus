@@ -1,3 +1,5 @@
+---
+# yamllint disable rule:truthy
 name: CI
 
 on:
@@ -12,8 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [ "3.11" ]
-        node-version: [ "20" ]
+        python-version: ["3.11"]
+        node-version: ["20"]
 
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +51,4 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/coverage.xml,coverage-js/clover.xml  
-
-
+          files: coverage/coverage.xml,coverage-js/clover.xml

@@ -9,8 +9,9 @@ from smbus2 import SMBus
 
 from ha_mqtt_pi_smbus.environ import getCpuInfo, getOSInfo, getMacAddress, getObjectId
 
+
 class HASensor:
-    """ Definition for a Home Assistant discoverable sensor
+    """Definition for a Home Assistant discoverable sensor
 
     Parameters
     ----------
@@ -59,10 +60,11 @@ class HASensor:
         def __init(self, name:str):
             super.__init(self.units, name = name, device_class = self.device_class)
 
-    In this example the 3 sensors for a Bosch BME280 are defined. 
+    In this example the 3 sensors for a Bosch BME280 are defined.
 
     """
-    def __init__(self, units:str, name:str = None, device_class:str = None):
+
+    def __init__(self, units: str, name: str = None, device_class: str = None):
         self.name = name
         if self.name is None:
             self.name = type(self).__name__.lower()
@@ -70,26 +72,31 @@ class HASensor:
         if self.device_class is None:
             self.device_class = type(self).__name__.lower()
         self.discovery_payload = {
-                "name": f'{self.name}',
-                "stat_t": '', # this is set with setDevice() by the HADevice
-                "device_class": f'{self.device_class}',
-                "val_tpl": f'{{{{ value_json.{self.device_class} }}}}',
-                "unit_of_meas": f'{units}',
-                "uniq_id": f'{getObjectId()}-{self.device_class}',
-                "dev": { } # this is set with setDevice() by the HADevice
-            }
-        self.discovery_topic = None # this is set with setDevice() by the HADevice
+            "name": f"{self.name}",
+            "stat_t": "",  # this is set with setDevice() by the HADevice
+            "device_class": f"{self.device_class}",
+            "val_tpl": f"{{{{ value_json.{self.device_class} }}}}",
+            "unit_of_meas": f"{units}",
+            "uniq_id": f"{getObjectId()}-{self.device_class}",
+            "dev": {},  # this is set with setDevice() by the HADevice
+        }
+        self.discovery_topic = None  # this is set with setDevice() by the HADevice
 
-    def setDevice(self, base_name:str, state_topic:str, device_payload:Dict[str, str]) -> None:
-        self.discovery_topic = f'{base_name}/sensor/{getObjectId()}-{self.device_class}/config'
-        self.discovery_payload['stat_t'] = state_topic
-        self.discovery_payload['dev'] = device_payload
+    def setDevice(
+        self, base_name: str, state_topic: str, device_payload: Dict[str, str]
+    ) -> None:
+        self.discovery_topic = (
+            f"{base_name}/sensor/{getObjectId()}-{self.device_class}/config"
+        )
+        self.discovery_payload["stat_t"] = state_topic
+        self.discovery_payload["dev"] = device_payload
 
     def jsonPayload(self) -> str:
         return json.dumps(self.discovery_payload, default=vars)
 
+
 class HADevice:
-    """ Definition for a Home Assistant device with discoverable sensors
+    """Definition for a Home Assistant device with discoverable sensors
 
     This device with its sensors defines that data that is used to see
 
@@ -151,42 +158,54 @@ class HADevice:
             return self.smbus_device.data()
 
     """
-    def __init__(self, sensors:List[Dict[str, Any]], name:str, state_topic:str, manufacturer:str, model:str, base_name:str = None):
+
+    def __init__(
+        self,
+        sensors: List[Dict[str, Any]],
+        name: str,
+        state_topic: str,
+        manufacturer: str,
+        model: str,
+        base_name: str = None,
+    ):
         mac_address = getMacAddress()
         basename = base_name
         if basename == None:
-            basename = 'homeassistant'
+            basename = "homeassistant"
         self.sensors = {}
         _sensor = None
         device_payload = {
-            "ids":[f'{name}'],
-            "name": f'{name}',
-            "mf": f'{manufacturer}',
-            "mdl": f'{model}',
+            "ids": [f"{name}"],
+            "name": f"{name}",
+            "mf": f"{manufacturer}",
+            "mdl": f"{model}",
             "hw": f'{getCpuInfo()["cpu"]["Model"]}',
             "sw": f'{getOSInfo()["PRETTY_NAME"]}',
-            "sn": f'{getObjectId()}',
+            "sn": f"{getObjectId()}",
         }
         for sensor in sensors:
             sensor.setDevice(basename, state_topic, device_payload)
-            self.sensors[sensor.discovery_payload['name'].lower()] = sensor
+            self.sensors[sensor.discovery_payload["name"].lower()] = sensor
             _sensor = sensor
         self.sensor_names = list(self.sensors.keys())
         self.discovery_topics = {k: v.discovery_topic for k, v in self.sensors.items()}
-        self.discovery_payload = {k: v.discovery_payload for k, v in self.sensors.items()}
+        self.discovery_payload = {
+            k: v.discovery_payload for k, v in self.sensors.items()
+        }
         self.state_topic = state_topic
 
     def data(self) -> Dict[str, Any]:
-        raise Exception('Class needs data(self) definition')
+        raise Exception("Class needs data(self) definition")
+
 
 class SMBusDevice(SMBus):
-    bus:int = None
+    bus: int = None
     address = None
-    last_update:datetime.datetime = datetime.datetime.now()
+    last_update: datetime.datetime = datetime.datetime.now()
 
-    def __init__(self, bus:int = 1, address:int = 0x76):
-        """ Definition for SMBus device specific to sensors
-    
+    def __init__(self, bus: int = 1, address: int = 0x76):
+        """Definition for SMBus device specific to sensors
+
         Parameters
         ----------
         bus : int
@@ -194,32 +213,32 @@ class SMBusDevice(SMBus):
         address : int
             The address of the device on the I2C bus. The default is
             118 (0x76).
-    
+
         Note
         ----
         This class is designed to be subclassed and not used directly.
         The subclass must override the sample() and data() methods in
         order to sample the device data adn return the data to the
         application, respectively.
-    
+
         Example
         -------
         import datetime
         import bme280
         from smbus2 import SMBus
-    
+
         class BME280(SMBusDevice):
             last_update = datetime.datetime.now()
             temperature:float = -32.0 * 5.0 / 9.0
             pressure:float = 0.0
             humidity:float = 0.0
-    
+
             def __init(self, bus:int = 1, address:int = 0x76):
                 super().__init__(bus)
                 self.bus = bus
                 self.address = address
                 self._calibration_params = bme280.load_calibration_params(self, self.address)
-    
+
             def sample(self) -> None:
                 super().sample()
                 data = bme280.sample(self, self.address, self._calibration_params)
@@ -227,7 +246,7 @@ class SMBusDevice(SMBus):
                 self.temperature = data.temperature
                 self.pressure = data.pressure
                 self.humidity = data.humidity
-    
+
             def data(self) -> Dict[str, Any]:
                 return {
                     "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
@@ -240,7 +259,7 @@ class SMBusDevice(SMBus):
                     "humidity": round(self.humidity, 1),
                     "humidity_units": "%",
                     }
-    
+
         """
         super().__init__(bus)
         self.bus = bus
@@ -248,24 +267,24 @@ class SMBusDevice(SMBus):
 
     # Override this method
     def sample(self) -> None:
-        """ sample device, save the data in the object's 'data' variable
-    
+        """sample device, save the data in the object's 'data' variable
+
         Parameters
         ----------
         None
-    
+
         Example
         -------
 
-        bme = BME280() 
+        bme = BME280()
         bme.sample()
         """
         self.last_update = datetime.datetime.now()
 
     # Override this method return any desired data stored in the 'data' variable as a dict
     def data(self) -> Dict[str, Any]:
-        """ return the previously sampled data to the application
-    
+        """return the previously sampled data to the application
+
         Parameters
         ----------
         None
@@ -281,19 +300,19 @@ class SMBusDevice(SMBus):
         This method should be overriden as the provided data only
         provides SMBus parameters and a time stamp but no actual
         sensor data.
-    
+
         Example
         -------
 
-        bme = BME280() 
+        bme = BME280()
         bme.sample()
         data = bme.data()
         """
         return {
-                "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
-                "bus": self.bus,
-                "address": self.address,
-                }
+            "last_update": self.last_update.strftime("%m/%d/%Y %H:%M:%S"),
+            "bus": self.bus,
+            "address": self.address,
+        }
 
     # Override this method if desired
     def toJson(self) -> str:
@@ -303,10 +322,11 @@ class SMBusDevice(SMBus):
     def __str__(self) -> str:
         return f"bus: {self.bus}, address: {self.address}"
 
+
 class SMBusDevice_Sampler_Thread(threading.Thread):
-    def __init__(self, smbus_device:SMBusDevice, polling_interval:int):
-        """ Definition of a sampler thread for an SMBusDevice
-    
+    def __init__(self, smbus_device: SMBusDevice, polling_interval: int):
+        """Definition of a sampler thread for an SMBusDevice
+
         Parameters
         ----------
         smbus_device : SMBusDevice
@@ -318,7 +338,7 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         ----
         This class is designed to be used in the class which implements
         the HADevice interface. It need not be overriden.
-    
+
         Example
         -------
         class BME280_Device(HASensor)
@@ -328,15 +348,15 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
                 self.sampler_thread = SMBussDevice_Sampler_Thread(logger, smbus_device, polling_interval)
                 self.sampler_thread.start()
         """
-        super().__init__(name='SMBusDevice', daemon=True)
-        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
+        super().__init__(name="SMBusDevice", daemon=True)
+        self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.smbus_device = smbus_device
         self.polling_interval = polling_interval
         self.do_run = True
 
     def run(self) -> None:
-        """ the thread execution method
-    
+        """the thread execution method
+
         Parameters
         ----------
         None
@@ -348,7 +368,7 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         when the thread is started with the thread.start() method.
         (See class example, above.)
         """
-        route = 'SMBusDevice_Sampler_Thread'
+        route = "SMBusDevice_Sampler_Thread"
         while True:
             for i in range(self.polling_interval):
                 if not self.do_run:

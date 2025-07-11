@@ -2,8 +2,9 @@ import psutil
 import subprocess
 from typing import Any, Dict
 
+
 def getTemperature() -> float:
-    """ get Raspberry Pi CPU temperature in Centigrade as a float
+    """get Raspberry Pi CPU temperature in Centigrade as a float
 
     Parameters
     ----------
@@ -24,8 +25,9 @@ def getTemperature() -> float:
     with open("/sys/class/thermal/thermal_zone0/temp", "r") as file_object:
         return float(file_object.read()) / 1000.0
 
+
 def getMacAddressByInterface(interface) -> str:
-    """ get the Mac address of the specified interface
+    """get the Mac address of the specified interface
 
     Parameters
     ----------
@@ -36,7 +38,7 @@ def getMacAddressByInterface(interface) -> str:
     -------
     a str containing 6 pairs of hexadecimal digits separated by
     semicolongs (:) which is the encoding of the 48-bit mac address of
-    the specified interface 
+    the specified interface
 
     Example
     ------
@@ -54,8 +56,9 @@ def getMacAddressByInterface(interface) -> str:
     except subprocess.CalledProcessError:
         return None
 
+
 def getMacAddress() -> str:
-    """ get the 'primary' iac address of the Raspberry pi
+    """get the 'primary' iac address of the Raspberry pi
 
     The Mac address for eth0 is returned, if no eth0, then for wlan0,
     if no wlan0, then None is returned
@@ -83,8 +86,9 @@ def getMacAddress() -> str:
         return mac
     return getMacAddressByInterface("wlan0")
 
+
 def getObjectId() -> str:
-    """ get a unique object id representing the Raspberry Pi system
+    """get a unique object id representing the Raspberry Pi system
 
     The object id returned is a str containing the Mac Address for the
     'primary' interface with the semicolons(:) removed. If no 'primary'
@@ -107,29 +111,30 @@ def getObjectId() -> str:
     The object id is b827ebc1f24d
     >>>
     """
-    return getMacAddress().replace(":","")
+    return getMacAddress().replace(":", "")
+
 
 def getCpuInfo() -> Dict[str, Any]:
-    """ get Raspberry Pi CPU info
+    """get Raspberry Pi CPU info
 
-    Parameters
-    ----------
-    None
+        Parameters
+        ----------
+        None
 
-    Returns
-    -------
-    a dict value representing the information read from /proc/cpuinfo
+        Returns
+        -------
+        a dict value representing the information read from /proc/cpuinfo
 
-    Example
-    ------
-    >>> from environ import getCpuInfo
-    >>> print(f'The cpu info is as follows:\n{getCpuInfo()}')
-   The cpu info is as follows:
-{'cpu': {'Revision': 'a22082', 'Serial': '000000009ec1f24d', 'Model': 'Raspberry Pi 3 Model B Rev 1.2', 'processors': 4}, 'processors': {'0': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '1': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '2': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '3': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}}}
-    >>>
+        Example
+        ------
+        >>> from environ import getCpuInfo
+        >>> print(f'The cpu info is as follows:\n{getCpuInfo()}')
+       The cpu info is as follows:
+    {'cpu': {'Revision': 'a22082', 'Serial': '000000009ec1f24d', 'Model': 'Raspberry Pi 3 Model B Rev 1.2', 'processors': 4}, 'processors': {'0': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '1': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '2': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '3': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}}}
+        >>>
     """
     info = {}
-    with open('/proc/cpuinfo','r') as f:
+    with open("/proc/cpuinfo", "r") as f:
         content = f.read()
     groups = content.split("\n\n")
     stanzas = []
@@ -143,22 +148,22 @@ def getCpuInfo() -> Dict[str, Any]:
                 token[0] = token[0].strip()
                 token[1] = token[1].strip()
                 stanza[token[0]] = token[1]
-        processor = stanza.pop('processor', None)
+        processor = stanza.pop("processor", None)
         if not processor is None:
-            stanza['BogoMIPS'] = float(stanza['BogoMIPS'])
-            stanza['CPU architecture'] = int(stanza['CPU architecture'])
-            stanza['CPU revision'] = int(stanza['CPU revision'])
-            stanza['Features'] = stanza['Features'].split(' ')
+            stanza["BogoMIPS"] = float(stanza["BogoMIPS"])
+            stanza["CPU architecture"] = int(stanza["CPU architecture"])
+            stanza["CPU revision"] = int(stanza["CPU revision"])
+            stanza["Features"] = stanza["Features"].split(" ")
             processors[processor] = stanza
         else:
-            stanza['processors'] = len(processors)
-            info['cpu'] = stanza
-    info['processors'] = processors
+            stanza["processors"] = len(processors)
+            info["cpu"] = stanza
+    info["processors"] = processors
     return info
 
 
 def getOSInfo() -> Dict[str, Any]:
-    """ get Raspberry Pi OS operating system release information
+    """get Raspberry Pi OS operating system release information
 
     Parameters
     ----------
@@ -177,7 +182,7 @@ def getOSInfo() -> Dict[str, Any]:
     >>>
     """
     info = {}
-    with open('/etc/os-release','r') as f:
+    with open("/etc/os-release", "r") as f:
         content = f.read()
     for line in content.split("\n"):
         token = line.split("=")

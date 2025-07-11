@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 fetchMock.enableMocks();
 
@@ -7,13 +7,15 @@ fetchMock.enableMocks();
 beforeEach(() => {
   jest.resetModules();
   fetchMock.resetMocks();
-  fetchMock.mockResponseOnce(JSON.stringify({
-    Connected: false,
-    Discovered: false,
-    rc: 0,
-    Error: []
-  }));
-  
+  fetchMock.mockResponseOnce(
+    JSON.stringify({
+      Connected: false,
+      Discovered: false,
+      rc: 0,
+      Error: [],
+    }),
+  );
+
   document.body.innerHTML = `
     <div class="error-msg">
       <span id="error_msg>&nbsp;</span>
@@ -31,16 +33,16 @@ beforeEach(() => {
   `;
 });
 
-test('MQTTStatus', async () => {
-  const scripts = await import('../scripts.js');
-  expect(scripts.MQTTStatus.DISCONNECTED).toEqual('disconnected');
-  expect(scripts.MQTTStatus.PROCESSING).toEqual('processing');
-  expect(scripts.MQTTStatus.CONNECTED).toEqual('connected');
+test("MQTTStatus", async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.MQTTStatus.DISCONNECTED).toEqual("disconnected");
+  expect(scripts.MQTTStatus.PROCESSING).toEqual("processing");
+  expect(scripts.MQTTStatus.CONNECTED).toEqual("connected");
 });
 
-test('DiscoveryStatus', async () => {
-  const scripts = await import('../scripts.js');
-  expect(scripts.DiscoveryStatus.UNDISCOVERED).toEqual('undiscovered');
-  expect(scripts.DiscoveryStatus.PROCESSING).toEqual('processing');
-  expect(scripts.DiscoveryStatus.DISCOVERED).toEqual('discovered');
+test("DiscoveryStatus", async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.DiscoveryStatus.UNDISCOVERED).toEqual("undiscovered");
+  expect(scripts.DiscoveryStatus.PROCESSING).toEqual("processing");
+  expect(scripts.DiscoveryStatus.DISCOVERED).toEqual("discovered");
 });

@@ -19,6 +19,7 @@ from ha_mqtt_pi_smbus.device import HADevice, SMBusDevice
 from ha_mqtt_pi_smbus.environ import getObjectId
 from ha_mqtt_pi_smbus.state import State, State, StateErrorEnum
 
+
 class MQTT_Publisher_Thread(threading.Thread):
     """
     A class used to represent a thread which, at intervals, publishes
@@ -52,7 +53,10 @@ class MQTT_Publisher_Thread(threading.Thread):
 
 
     """
-    def __init__(self, client:"MQTTClient", device: HADevice, smbus_device:SMBusDevice):
+
+    def __init__(
+        self, client: "MQTTClient", device: HADevice, smbus_device: SMBusDevice
+    ):
         """
         Parameters
         ----------
@@ -64,16 +68,16 @@ class MQTT_Publisher_Thread(threading.Thread):
         smbus_device : SMBusDevice
             the device which contains the data to be sent
         """
-        super().__init__(name='MQTT_Publisher', daemon=True)
+        super().__init__(name="MQTT_Publisher", daemon=True)
         self.client = client
         self.device = device
         self.smbus_device = smbus_device
-        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
+        self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.do_run = True
         self.data = self.smbus_device.data()
 
     def run(self) -> None:
-        """ the main execution method for the thread
+        """the main execution method for the thread
 
         Parameters
         ----------
@@ -83,13 +87,13 @@ class MQTT_Publisher_Thread(threading.Thread):
             if not self.do_run:
                 return
             data = self.smbus_device.data()
-            if data['last_update'] != self.data['last_update']:
+            if data["last_update"] != self.data["last_update"]:
                 self.data = data
                 self.client.publish(self.device.state_topic, json.dumps(data))
             time.sleep(1)
 
     def clear_do_run(self) -> None:
-        """ the run() routine's do_run flag is cleared
+        """the run() routine's do_run flag is cleared
 
         Parameters
         ----------
@@ -97,8 +101,9 @@ class MQTT_Publisher_Thread(threading.Thread):
         """
         self.do_run = False
 
+
 class MQTTClient(mqtt.Client):
-    """ a class extending the paho MQTT client
+    """a class extending the paho MQTT client
 
     Attributes
     ----------
@@ -131,6 +136,7 @@ class MQTTClient(mqtt.Client):
     __logger : logging.Logger
         the logger instance used to log messages
     """
+
     def on_connect(client, userdata, flags, rc, properties=None) -> None:
         """Callback function called when the client connects to the broker."""
         client.state.rc = rc
@@ -146,7 +152,13 @@ class MQTTClient(mqtt.Client):
         else:
             client.state.error = [connack_string(rc)]
 
-    def __init__(self, client_prefix:str, device:HADevice, smbus_device:SMBusDevice, mqtt_config:Dict[str, Any] = None):
+    def __init__(
+        self,
+        client_prefix: str,
+        device: HADevice,
+        smbus_device: SMBusDevice,
+        mqtt_config: Dict[str, Any] = None,
+    ):
         """
         Paameters
         ---------
@@ -170,14 +182,16 @@ class MQTTClient(mqtt.Client):
                 the password used to authenticate to the MQTT broker
         """
         super().__init__(
-                mqtt_enums.CallbackAPIVersion.VERSION2, 
-                f'{client_prefix}-{getObjectId()}-{str(random.randint(0,1000)).zfill(3)}',
-                True, None)
-        route = '__init__'
-        self.broker_address = mqtt_config['broker']
-        self.port = mqtt_config['port']
-        self.username = mqtt_config['username']
-        self.password = mqtt_config['password']
+            mqtt_enums.CallbackAPIVersion.VERSION2,
+            f"{client_prefix}-{getObjectId()}-{str(random.randint(0,1000)).zfill(3)}",
+            True,
+            None,
+        )
+        route = "__init__"
+        self.broker_address = mqtt_config["broker"]
+        self.port = mqtt_config["port"]
+        self.username = mqtt_config["username"]
+        self.password = mqtt_config["password"]
         self.device = device
         self.smbus_device = smbus_device
         self.state = State()
@@ -187,38 +201,42 @@ class MQTTClient(mqtt.Client):
         self.on_disconnect = MQTTClient.on_disconnect
         self.publisher_thread = None
         super().user_data_set(self)
-        self.__logger = logging.getLogger(__name__+'.'+self.__class__.__name__)
+        self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
 
     def connect_mqtt(self) -> int:
-        """ Initiate a connection to the MQTT broker"""
+        """Initiate a connection to the MQTT broker"""
         route = "connect_mqtt"
         super().username_pw_set(self.username, self.password)
         self.state = State()
-        self.__logger.info('%s connecting to broker at %s:%s', route, self.broker_address, self.port)
+        self.__logger.info(
+            "%s connecting to broker at %s:%s", route, self.broker_address, self.port
+        )
         mqttErrorCode = super().connect(self.broker_address, self.port)
         if mqttErrorCode != 0:
-            self.__logger.critical('%s error %s in connect_mqtt', route, mqttErrorCode)
+            self.__logger.critical("%s error %s in connect_mqtt", route, mqttErrorCode)
         return mqttErrorCode
 
     def is_connected(self) -> bool | None:
         connected = super().is_connected()
-        if (connected == self.state.connected):
+        if connected == self.state.connected:
             return connected
         return None
 
     def disconnect_mqtt(self) -> int:
-        """ disconnect from the MQTT broker """
+        """disconnect from the MQTT broker"""
         route = "disconnect_mqtt"
         mqttErrorCode = super().disconnect()
         if mqttErrorCode != 0:
-            self.__logger.critical('%s error %s in disconnect_mqtt', route, mqttErrorCode)
+            self.__logger.critical(
+                "%s error %s in disconnect_mqtt", route, mqttErrorCode
+            )
         return mqttErrorCode
 
     def is_discovered(self) -> bool:
         return self.state.discovered
 
-    def subscribe(self, topic:str) -> None:
-        """ subscribe to messages from the MQTT broker
+    def subscribe(self, topic: str) -> None:
+        """subscribe to messages from the MQTT broker
 
         The client is subscribed to the topic supplied
         """
@@ -227,9 +245,15 @@ class MQTTClient(mqtt.Client):
         tuple = super().subscribe(topic)
         return tuple
 
-    def publish(self, topic:str, message:str, qos: int = 0, retain: bool = False,
-                properties: mqtt_properties.Properties | None = None):
-        """ publish a messge to Home Assistant via the MQTT broker
+    def publish(
+        self,
+        topic: str,
+        message: str,
+        qos: int = 0,
+        retain: bool = False,
+        properties: mqtt_properties.Properties | None = None,
+    ):
+        """publish a messge to Home Assistant via the MQTT broker
 
         Parameters
         ----------
@@ -255,11 +279,13 @@ class MQTTClient(mqtt.Client):
         status = result[0]
         mid = result[1]
         if status != 0:
-            self.__logger.error('%s Failed to send message to topic %s, rc %s', route, topic, status)
+            self.__logger.error(
+                "%s Failed to send message to topic %s, rc %s", route, topic, status
+            )
         return result
 
-    def publish_discovery(self, key:str, sensor:HASensor) -> None:
-        """ publish a discovery message
+    def publish_discovery(self, key: str, sensor: HASensor) -> None:
+        """publish a discovery message
 
         Parameters
         ----------
@@ -271,13 +297,15 @@ class MQTTClient(mqtt.Client):
         """
         route = "publish_discovery"
         self.publish(
-                sensor.discovery_topic, 
-                json.dumps(sensor.discovery_payload), 
-                qos=2, retain=True)
-        self.__logger.info('%s Published discovery for %s', route, key)
+            sensor.discovery_topic,
+            json.dumps(sensor.discovery_payload),
+            qos=2,
+            retain=True,
+        )
+        self.__logger.info("%s Published discovery for %s", route, key)
 
-    def clear_discovery(self, key:str, sensor:HASensor) -> None:
-        """ publish a clear discovery message for a sensor
+    def clear_discovery(self, key: str, sensor: HASensor) -> None:
+        """publish a clear discovery message for a sensor
 
         Parameters
         ----------
@@ -289,10 +317,10 @@ class MQTTClient(mqtt.Client):
         """
         route = "clear_discovery"
         self.publish(sensor.discovery_topic, "", qos=2, retain=True)
-        self.__logger.info('%s Cleared discovery for %s', route, key)
+        self.__logger.info("%s Cleared discovery for %s", route, key)
 
-    def publish_discoveries(self, sensors:Dict[str, Any]) -> None:
-        """ Publish a discovery message for each sensor in the device
+    def publish_discoveries(self, sensors: Dict[str, Any]) -> None:
+        """Publish a discovery message for each sensor in the device
 
         Parameters
         ----------
@@ -301,14 +329,16 @@ class MQTTClient(mqtt.Client):
 
         """
         route = "publish_discoveries"
-        self.publisher_thread = MQTT_Publisher_Thread(self, self.device, self.smbus_device)
+        self.publisher_thread = MQTT_Publisher_Thread(
+            self, self.device, self.smbus_device
+        )
         self.publisher_thread.start()
         for key, sensor in sensors.items():
             self.publish_discovery(key, sensor)
         self.state.discovered = True
 
-    def clear_discoveries(self, sensors:Dict[str, Any]) -> None:
-        """ Publish a clear discovery message for each sensor in the device
+    def clear_discoveries(self, sensors: Dict[str, Any]) -> None:
+        """Publish a clear discovery message for each sensor in the device
 
         Parameters
         ----------

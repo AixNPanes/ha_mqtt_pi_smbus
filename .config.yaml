@@ -1,10 +1,11 @@
+---
 title: Bosch BME280
 subtitle: Temperature, Pressure, Humidity Sensors
 logging:
   level: ERROR
 web:
   address: 0.0.0.0
-  port: 8088  
+  port: 8088
 mqtt:
   broker: hastings.attlocal.net
   port: 1883
