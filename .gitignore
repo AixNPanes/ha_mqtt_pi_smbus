@@ -23,6 +23,7 @@ package-lock.json
 coverage/
 coverage-js/
 lcov-report/
+.coverage
 *.lcov
 *.lcov.info
 *.coverage

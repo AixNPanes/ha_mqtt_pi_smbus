@@ -24,8 +24,11 @@ class TestDevice(unittest.TestCase):
         parser = Namespace(
             logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
         )
+        self.patcher = patch('ha_mqtt_pi_smbus.device.SMBus.__init__')
+        self.mock_smbus = self.patcher.start()
 
         self.smbus_device = SMBusDevice(bus=2)
+        self.mock_smbus.assert_called_once_with(2)
         self.smbus_device.sample()
         self.ha_sensor = Humidity()
         self.ha_device = HADevice(
@@ -35,6 +38,9 @@ class TestDevice(unittest.TestCase):
             manufacturer="manufact.",
             model="model1234",
         )
+
+    def tearDown(self):
+        self.patcher.stop()
 
     def test_ha_sensor(self):
         self.assertEqual(self.ha_sensor.name, "humidity")
