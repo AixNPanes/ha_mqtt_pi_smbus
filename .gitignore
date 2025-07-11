@@ -1,6 +1,25 @@
-venv/
-*/__pycache__/*
-
+# don't commit passwords and such
 .secrets.*
+
+# for refernce, not actually part of project
 static/css/material
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Node
 node_modules/
+
+# Coverage outputs
+coverage/
+coverage-js/
+lcov-report/
+*.lcov
+*.lcov.info
+*.xml
+
+# Other typical stuff
+.DS_Store
+
