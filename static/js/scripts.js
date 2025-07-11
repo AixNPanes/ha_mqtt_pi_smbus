@@ -204,7 +204,6 @@ export function setErrorMessage(msg) {
 }
 
 export function resyncState(state) {
-  console.log(state);
   if (state.Discovered) {
     console.log('setDiscovered()');
     setDiscovered();
@@ -222,7 +221,7 @@ export function formatError(msg, error) {
     "\tname: " + error.name; + "\n"
     "\tlineNumber: " + error.lineNumber + "\n"
     "\tcolumnNumber: " + error.columnNumber + "\n"
-    "\tmessage: " + error.message | "\n"
+    "\tmessage: " + error.message + "\n"
     "\tcause: " + error.cause;
 }
 
@@ -272,11 +271,7 @@ fetch('/status', {
   }
 });
 
-document.addEventListener('DOMContentLoaded', updateButtonsFromStatus);
-
-document.addEventListener('DOMContentLoaded', function () {
-
-  mqttToggle().addEventListener('click', function () {
+export function mqttToggleClickEventListener() {
     const mqttState = getStatus(mqttToggle());
     const discoveryState = getStatus(discoveryToggle());
     if (isMQTTProcessing()) {
@@ -318,9 +313,9 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error(formatError("Error Toggling MQTT", error.constructor));
       }
     });
-  });
+}
 
-  discoveryToggle().addEventListener('click', function () {
+export function discoveryToggleClickEventListener() {
     const mqttState = getStatus(mqttToggle());
     const discoveryState = getStatus(discoveryToggle());
     const isDiscovered = isDiscoveryDiscovered();
@@ -353,5 +348,12 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(error => {
       console.error(formatError("Error toggling Discovery:", error));
     });
-  });
+}
+
+document.addEventListener('DOMContentLoaded', updateButtonsFromStatus);
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  mqttToggle().addEventListener('click', mqttToggleClickEventListener);
+  discoveryToggle().addEventListener('click', discoveryToggleClickEventListener);
 });
