@@ -1,25 +1,55 @@
-# don't commit passwords and such
-.secrets.*
-
-# for refernce, not actually part of project
-static/css/material
-
 # Python
 venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+*.log
 
 # Node
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
 
-# Coverage outputs
+# Coverage
 coverage/
 coverage-js/
 lcov-report/
 *.lcov
 *.lcov.info
+*.coverage
 *.xml
+*.clover.xml
 
-# Other typical stuff
+# Test output
+.junit/
+.pipenv/
+.pytest_cache/
+.tox/
+
+# IDE/editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Environment/config secrets
+.env
+*.env
+*.secrets.*
+
+# for refernce, not actually part of project
+static/css/material
 
