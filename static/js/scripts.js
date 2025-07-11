@@ -226,6 +226,7 @@ export function formatError(msg, error) {
 }
 
 export async function updateButtonsFromStatus() {
+  console.log('updateButtonsFromStatus() fetch');	
   const response = await fetch('/status');
   const state = await response.json();
   console.log("updateButtonsFromStatus: "+JSON.stringify(state));
@@ -247,29 +248,37 @@ export async function updateButtonsFromStatus() {
 
 }
 
-fetch('/status', {
-  method: 'GET',
-  headers: { 'Content-type': 'application/json' }
-})
-.then(response => response.json())
-.then(data => {
-  if(data.Error.length != 0) {
-    setErrorMessage(data.Error);
-    resyncState(data);
-  }
-  if (data.Connected) {
-    setConnected();
-    if (data.Discovered) {
-      setDiscovered();
+export function init() {
+  fetch('/status', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json' }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if(data.Error.length != 0) {
+      setErrorMessage(data.Error);
+      resyncState(data);
+    }
+    if (data.Connected) {
+      setConnected();
+      if (data.Discovered) {
+        setDiscovered();
+      }
+      else {
+        setUndiscovered();
+      }
     }
     else {
-      setUndiscovered();
+      setDisconnected();
     }
-  }
-  else {
-    setDisconnected();
-  }
-});
+  });
+
+  document.addEventListener('DOMContentLoaded', updateButtonsFromStatus);
+  document.addEventListener('DOMContentLoaded', function () {
+    mqttToggle().addEventListener('click', mqttToggleClickEventListener);
+    discoveryToggle().addEventListener('click', discoveryToggleClickEventListener);
+  });
+}	
 
 export function mqttToggleClickEventListener() {
     const mqttState = getStatus(mqttToggle());
@@ -285,6 +294,7 @@ export function mqttToggleClickEventListener() {
       setMQTTConnectProcessing();
     }
 
+    console.log('mqttToggleClickEventListener() fetch');	
     fetch('/mqtt-toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -329,6 +339,7 @@ export function discoveryToggleClickEventListener() {
     } else {
       setDiscoveryProcessing();
     }
+    console.log('discoveryToggleClickEventListener() fetch');	
     fetch('/discovery-toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -349,11 +360,3 @@ export function discoveryToggleClickEventListener() {
       console.error(formatError("Error toggling Discovery:", error));
     });
 }
-
-document.addEventListener('DOMContentLoaded', updateButtonsFromStatus);
-
-document.addEventListener('DOMContentLoaded', function () {
-
-  mqttToggle().addEventListener('click', mqttToggleClickEventListener);
-  discoveryToggle().addEventListener('click', discoveryToggleClickEventListener);
-});

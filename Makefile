@@ -1,6 +1,5 @@
 .PHONY: test test-python test-javascript lint format
 
-test: test-python
 #test: test-python test-javascript
 
 test-python:

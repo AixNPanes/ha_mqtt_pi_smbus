@@ -1,0 +1,39 @@
+{
+  "name": "ha_mqtt_pi_smbus",
+  "version": "1.0.0",
+  "description": "<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 --> <a id=\"readme-top\"></a> <!-- *** Thanks for checking out the Best-README-Template. If you have a suggestion *** that would make this better, please fork the repo and create a pull request *** or simply open an issue with the tag \"enhancement\". *** Don't forget to give the project a star! *** Thanks again! Now go create something AMAZING! :D -->",
+  "main": "index.js",
+  "directories": {
+    "example": "example",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AixNPanes/ha_mqtt_pi_smbus.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AixNPanes/ha_mqtt_pi_smbus/issues"
+  },
+  "homepage": "https://github.com/AixNPanes/ha_mqtt_pi_smbus#readme",
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "babel-jest": "^30.0.4",
+    "jest": "^30.0.4",
+    "jest-environment-jsdom": "^30.0.4",
+    "jest-fetch-mock": "^3.0.3",
+    "jsdom": "^26.1.0",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3",
+    "whatwg-fetch": "^3.6.20"
+  },
+  "type": "module"
+}
