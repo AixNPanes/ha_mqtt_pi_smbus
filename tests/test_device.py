@@ -4,7 +4,7 @@ import pytest
 import time
 import unittest
 from unittest import mock
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, mock_open
 
 from ha_mqtt_pi_smbus.device import (
     HASensor,
@@ -13,35 +13,86 @@ from ha_mqtt_pi_smbus.device import (
     SMBusDevice_Sampler_Thread,
 )
 
-
 class Humidity(HASensor):
     def __init__(self):
         super().__init__("mbar")
 
 
 class TestDevice(unittest.TestCase):
+    mock_osrelease_data='''PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+NAME="Debian GNU/Linux"
+VERSION_ID="12"
+VERSION="12 (bookworm)"
+VERSION_CODENAME=bookworm
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"'''
+    mock_cpuinfo_data = '''processor	: 0
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+processor	: 1
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+processor	: 2
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+processor	: 3
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd03
+CPU revision	: 4
+
+Revision	: a22082
+Serial		: 000000009ec1f24d
+Model		: Raspberry Pi 3 Model B Rev 1.2'''
+
     def setUp(self):
         parser = Namespace(
             logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
         )
-        self.smbus_patcher = patch('ha_mqtt_pi_smbus.device.SMBus.__init__')
-        self.cpuinfo_patcher = patch('ha_mqtt_pi_smbus.environ.getCpuInfo', return_value={"cpu":{"model":"bme280"}})
-        self.mock_smbus = self.smbus_patcher.start()
+        cpuinfo_mock = mock_open(read_data=self.mock_cpuinfo_data)
+        osrelease_mock = mock_open(read_data=self.mock_osrelease_data)
+        real_open = open  # Save original open if you want fallback
 
-        self.smbus_device = SMBusDevice(bus=2)
-        self.mock_smbus.assert_called_once_with(2)
-        self.smbus_device.sample()
-        self.ha_sensor = Humidity()
-        self.ha_device = HADevice(
-            (Humidity(), Humidity()),
-            name="Test Device",
-            state_topic="my/topic",
-            manufacturer="manufact.",
-            model="model1234",
-        )
+        mocked_open = MagicMock(side_effect=lambda file, *args, **kwargs: (
+            cpuinfo_mock.return_value if file == "/proc/cpuinfo" else osrelease_mock.return_value if file == "/etc/os-release" else real_open(file, *args, **kwargs)
+        ))
 
-    def tearDown(self):
-        self.smbus_patcher.stop()
+        with patch("builtins.open", mocked_open):
+            self.smbus_device = SMBusDevice(bus=2)
+            self.smbus_device.sample()
+            self.ha_sensor = Humidity()
+            self.ha_device = HADevice(
+                (Humidity(), Humidity()),
+                name="Test Device",
+                state_topic="my/topic",
+                manufacturer="manufact.",
+                model="model1234",
+            )
+        mocked_open.assert_any_call("/proc/cpuinfo", mock.ANY)
+        mocked_open.assert_any_call("/etc/os-release", mock.ANY)
 
     def test_ha_sensor(self):
         self.assertEqual(self.ha_sensor.name, "humidity")
