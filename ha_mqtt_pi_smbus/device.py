@@ -198,7 +198,7 @@ class HADevice:
         raise Exception("Class needs data(self) definition")
 
 
-class SMBusDevice(SMBus):
+class SMBusDevice:
     bus: int = None
     address = None
     last_update: datetime.datetime = datetime.datetime.now()
@@ -261,9 +261,9 @@ class SMBusDevice(SMBus):
                     }
 
         """
-        super().__init__(bus)
         self.bus = bus
         self.address = address
+        self._smbus = SMBus(bus)
 
     # Override this method
     def sample(self) -> None:
