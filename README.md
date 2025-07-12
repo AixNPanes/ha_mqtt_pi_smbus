@@ -21,28 +21,32 @@
 
 Clone the repo:
 
-```bash
+```
+bash
 git clone https://github.com/AixNPanes/ha_mqtt_pi_smbus.git
 cd ha_mqtt_pi_smbus
 ```
 
 Create your Python virtual environment:
 
-```python -m venv venv
+```
+python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
 Install Node.js dependencies:
 
-```npm install
+```
+npm install
 ```
 
 ## ⚡️ Running the app
 
 Run the Flask server:
 
-```source venv/bin/activate
+```
+source venv/bin/activate
 flask run
 ```
 
@@ -52,17 +56,20 @@ Visit http://localhost:5000 (or your configured host).
 
 Python tests
 
-```make test-python
+```
+make test-python
 ```
 
 JavaScript tests
 
-```make test-javascript
+```
+make test-javascript
 ```
 
 All tests
 
-```make test
+```
+make test
 ```
 
 ## ✅ Continuous Integration

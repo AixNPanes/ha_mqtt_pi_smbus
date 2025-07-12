@@ -11,6 +11,7 @@ from ha_mqtt_pi_smbus.device import (
     HADevice,
     SMBusDevice_Sampler_Thread,
 )
+from .mock_data import *
 
 class Humidity(HASensor):
     def __init__(self):
@@ -18,76 +19,50 @@ class Humidity(HASensor):
 
 
 class TestDevice(unittest.TestCase):
-    mock_osrelease_data='''PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
-NAME="Debian GNU/Linux"
-VERSION_ID="12"
-VERSION="12 (bookworm)"
-VERSION_CODENAME=bookworm
-ID=debian
-HOME_URL="https://www.debian.org/"
-SUPPORT_URL="https://www.debian.org/support"
-BUG_REPORT_URL="https://bugs.debian.org/"'''
-    mock_cpuinfo_data = '''processor	: 0
-BogoMIPS	: 38.40
-Features	: fp asimd evtstrm crc32 cpuid
-CPU implementer	: 0x41
-CPU architecture: 8
-CPU variant	: 0x0
-CPU part	: 0xd03
-CPU revision	: 4
-
-processor	: 1
-BogoMIPS	: 38.40
-Features	: fp asimd evtstrm crc32 cpuid
-CPU implementer	: 0x41
-CPU architecture: 8
-CPU variant	: 0x0
-CPU part	: 0xd03
-CPU revision	: 4
-
-processor	: 2
-BogoMIPS	: 38.40
-Features	: fp asimd evtstrm crc32 cpuid
-CPU implementer	: 0x41
-CPU architecture: 8
-CPU variant	: 0x0
-CPU part	: 0xd03
-CPU revision	: 4
-
-processor	: 3
-BogoMIPS	: 38.40
-Features	: fp asimd evtstrm crc32 cpuid
-CPU implementer	: 0x41
-CPU architecture: 8
-CPU variant	: 0x0
-CPU part	: 0xd03
-CPU revision	: 4
-
-Revision	: a22082
-Serial		: 000000009ec1f24d
-Model		: Raspberry Pi 3 Model B Rev 1.2'''
-
     def setUp(self):
         parser = Namespace(
             logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
         )
-        cpuinfo_mock = mock_open(read_data=self.mock_cpuinfo_data)
-        osrelease_mock = mock_open(read_data=self.mock_osrelease_data)
-        real_open = open  # Save original open if you want fallback
 
-        # Combined open mock to handle multiple files
-        mocked_open = MagicMock(side_effect=lambda file, *args, **kwargs: (
-            cpuinfo_mock.return_value if file == "/proc/cpuinfo"
-            else osrelease_mock.return_value if file == "/etc/os-release"
-            else real_open(file, *args, **kwargs)
-        ))
+        self.mocked_open = MOCKED_OPEN
 
-        with patch("builtins.open", mocked_open), \
-             patch("ha_mqtt_pi_smbus.device.SMBus") as mock_smbus_class:
+        mock_ifconfig_eth0_data = MOCK_IFCONFIG_ETH0_DATA.encode('utf-8')
+        mock_ifconfig_wlan0_data = MOCK_IFCONFIG_WLAN0_DATA.encode('utf-8')
+
+        with patch("builtins.open", self.mocked_open), \
+            patch("ha_mqtt_pi_smbus.device.SMBus") as mock_smbus_class, \
+            patch("subprocess.check_output") as mock_subprocess_check_output:
 
             from ha_mqtt_pi_smbus.device import (
                 SMBusDevice,
             )
+
+            mock_subprocess_check_output.side_effect = [
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+                mock_ifconfig_eth0_data,
+                mock_ifconfig_wlan0_data,
+            ]
 
             # Prepare your SMBus mock class + instance
             mock_smbus_instance = MagicMock()
@@ -99,7 +74,6 @@ Model		: Raspberry Pi 3 Model B Rev 1.2'''
             }
 
             # Save mocks for later assertions
-            self.mock_open = mocked_open
             self.mock_smbus_class = mock_smbus_class
             self.mock_smbus_instance = mock_smbus_instance
 
@@ -133,8 +107,8 @@ Model		: Raspberry Pi 3 Model B Rev 1.2'''
             self.assertEqual(data["temperature"], 25.5)    
 
         # Inline check
-        mocked_open.assert_any_call("/proc/cpuinfo", mock.ANY)
-        mocked_open.assert_any_call("/etc/os-release", mock.ANY)
+        self.mocked_open.assert_any_call("/proc/cpuinfo", mock.ANY)
+        self.mocked_open.assert_any_call("/etc/os-release", mock.ANY)
 
     def tearDown(self):
         pass

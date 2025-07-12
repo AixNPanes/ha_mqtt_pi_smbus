@@ -15,68 +15,25 @@ from ha_mqtt_pi_smbus.environ import (
     getOSInfo,
 )
 
-
-class MockOpen:
-    builtin_open = open
-
-    def open(self, *args, **kwargs):
-        if args[0] == "/sys/class/thermal/thermal_zone0/temp":
-            return mock.mock_open(read_data="12345")(*args, **kwargs)
-        if args[0] == "/proc/cpuinfo":
-            return mock.mock_open(
-                read_data="""
-processor	: 00
-BogoMIPS	: 38.40
-Features	: fp asimd evtstrm crc32 cpuid
-CPU implementer	: 0x41
-CPU architecture: 8
-CPU variant	: 0x0
-CPU part	: 0xd03
-CPU revision	: 4
-
-processor	: 1
-BogoMIPS	: 38.40
-Features	: fp asimd evtstrm crc32 cpuid
-CPU implementer	: 0x41
-CPU architecture: 8
-CPU variant	: 0x0
-CPU part	: 0xd03
-CPU revision	: 4
-
-Revision	: a22082
-Serial		: 000000009ec1f24d
-Model		: Raspberry Pi 3 Model B Rev 1.2
- """
-            )(*args, **kwargs)
-        if args[0] == "/etc/os-release":
-            return mock.mock_open(
-                read_data="""
-                PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
-                NAME="Debian GNU/Linux"
-                VERSION_ID="12"
-                VERSION="12 (bookworm)"
-                VERSION_CODENAME=bookworm
-                ID=debian
-                HOME_URL="https://www.debian.org/"
-                SUPPORT_URL="https://www.debian.org/support"
-                BUG_REPORT_URL="https://bugs.debian.org/"
-            """
-            )(*args, **kwargs)
-        return self.builtin_open(*args, **kwargs)
-
+from.mock_data import *
 
 class TestDevice(unittest.TestCase):
     def setUp(self):
-
         parser = Namespace(
             logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
         )
-        self.osinfo = getOSInfo()
 
-    @mock.patch("builtins.open", MockOpen().open)
+        self.mocked_open = MOCKED_OPEN
+
     def test_temperature(self):
-        temp = getTemperature()
-        assert temp == 12.345
+        with patch("builtins.open", self.mocked_open):
+            print('CpuInfo():')
+            print(getCpuInfo())
+            print(getCpuInfo()['cpu']['Model'])
+            print('OSInfo():')
+            print(getOSInfo())
+            temp = getTemperature()
+            assert temp == 46.16
 
     def test_mac_address_eth_success(self):
         fake_ifconfig_output = """
@@ -148,13 +105,13 @@ class TestDevice(unittest.TestCase):
             id = getObjectId()
             assert id == "b827eb94a718"
 
-    @mock.patch("builtins.open", MockOpen().open)
     def test_cpuinfo(self):
-        cpu = getCpuInfo()
-        assert "cpu" in cpu
-        assert cpu["cpu"]["Revision"] == "a22082"
+        with patch("builtins.open", self.mocked_open):
+            cpu = getCpuInfo()
+            assert "cpu" in cpu
+            assert cpu["cpu"]["Revision"] == "a22082"
 
-    @mock.patch("builtins.open", MockOpen().open)
     def test_osinfo(self):
-        osinf = getOSInfo()
-        assert osinf["ID"] == "debian"
+        with patch("builtins.open", self.mocked_open):
+            osinf = getOSInfo()
+            assert osinf["ID"] == "debian"
