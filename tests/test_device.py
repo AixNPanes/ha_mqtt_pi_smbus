@@ -24,8 +24,9 @@ class TestDevice(unittest.TestCase):
         parser = Namespace(
             logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
         )
-        self.patcher = patch('ha_mqtt_pi_smbus.device.SMBus.__init__')
-        self.mock_smbus = self.patcher.start()
+        self.smbus_patcher = patch('ha_mqtt_pi_smbus.device.SMBus.__init__')
+        self.cpuinfo_patcher = patch('ha_mqtt_pi_smbus.environ.getCpuInfo', return_value={"cpu":{"model":"bme280"}})
+        self.mock_smbus = self.smbus_patcher.start()
 
         self.smbus_device = SMBusDevice(bus=2)
         self.mock_smbus.assert_called_once_with(2)
@@ -40,7 +41,7 @@ class TestDevice(unittest.TestCase):
         )
 
     def tearDown(self):
-        self.patcher.stop()
+        self.smbus_patcher.stop()
 
     def test_ha_sensor(self):
         self.assertEqual(self.ha_sensor.name, "humidity")
