@@ -167,3 +167,45 @@ test("setErrorMessage", async () => {
   scripts.setErrorMessage(['Error1','Error2']);
   expect(scripts.errorMsg().textContent).toEqual('Error1<br>Error2');
 });
+
+test("resyncState-Discovered", async () => {
+  const scripts = await import("../scripts.js");
+  scripts.resyncState(scripts.DiscoveryStatus.DISCOVERED);
+  expect(scripts.mqttStatus().textContent).toEqual('Connected');
+  expect(scripts.mqttDescription().textContent).toEqual('You must Undiscover before Connect');
+  expect(scripts.discoveryStatus().textContent).toEqual('Discovered');
+  expect(scripts.discoveryDescription().textContent).toEqual('Click to Undiscover');
+  expect(scripts.discoveryToggle()).toHaveClass(scripts.DiscoveryStatus.DISCOVERED);
+  expect(scripts.mqttToggle()).toHaveClass('disabled');
+  expect(scripts.discoveryToggle()).not.toHaveClass('disabled');
+});
+
+test("resyncState-Connected", async () => {
+  const scripts = await import("../scripts.js");
+  scripts.resyncState(scripts.MQTTStatus.CONNECTED);
+  expect(scripts.mqttStatus().textContent).toEqual('Connected');
+  expect(scripts.mqttDescription().textContent).toEqual('Start Discovery or Click To Disconnect');
+  expect(scripts.discoveryStatus().textContent).toEqual('Not discovered');
+  expect(scripts.discoveryDescription().textContent).toEqual('Click to start Discovery');
+  expect(scripts.mqttToggle()).toHaveClass(scripts.MQTTStatus.CONNECTED);
+  expect(scripts.mqttToggle()).not.toHaveClass('disabled');
+  expect(scripts.discoveryToggle()).not.toHaveClass('disabled');
+});
+
+test("resyncState-Disconnected", async () => {
+  const scripts = await import("../scripts.js");
+  scripts.resyncState(scripts.MQTTStatus.DISCONNECTED);
+  expect(scripts.mqttStatus().textContent).toEqual('Not Connected');
+  expect(scripts.mqttDescription().textContent).toEqual('Click to Connect');
+  expect(scripts.discoveryStatus().textContent).toEqual('Not discovered');
+  expect(scripts.discoveryDescription().textContent).toEqual('You must Connect before Discovery');
+  expect(scripts.mqttToggle()).toHaveClass(scripts.MQTTStatus.DISCONNECTED);
+  expect(scripts.mqttToggle()).not.toHaveClass('disabled');
+  expect(scripts.discoveryToggle()).toHaveClass('disabled');
+});
+
+test("formatError", async () => {
+  const scripts = await import("../scripts.js");
+  const result = scripts.formatError('message', Error('Error'));
+  expect(result).toContain('Error: Error');
+});

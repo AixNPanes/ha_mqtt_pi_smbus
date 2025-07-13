@@ -205,14 +205,11 @@ export function setErrorMessage(msg) {
 }
 
 export function resyncState(state) {
-  if (state.Discovered) {
-    console.log("setDiscovered()");
+  if (state === DiscoveryStatus.DISCOVERED) {
     setDiscovered();
-  } else if (state.Connected) {
-    console.log("setConnected()");
+  } else if (state === MQTTStatus.CONNECTED) {
     setConnected();
   } else {
-    console.log("setDisconnected()");
     setDisconnected();
   }
 }
@@ -228,10 +225,8 @@ export function formatError(msg, error) {
 }
 
 export async function updateButtonsFromStatus() {
-  console.log("updateButtonsFromStatus() fetch");
   const response = await fetch("/status");
   const state = await response.json();
-  console.log("updateButtonsFromStatus: " + JSON.stringify(state));
 
   if (state.Error.length !== 0 || (state.Discovered && !state.Connected)) {
     setDisabled(mqttToggle());
@@ -294,7 +289,6 @@ export function mqttToggleClickEventListener() {
     setMQTTConnectProcessing();
   }
 
-  console.log("mqttToggleClickEventListener() fetch");
   fetch("/mqtt-toggle", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -337,7 +331,6 @@ export function discoveryToggleClickEventListener() {
   } else {
     setDiscoveryProcessing();
   }
-  console.log("discoveryToggleClickEventListener() fetch");
   fetch("/discovery-toggle", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
