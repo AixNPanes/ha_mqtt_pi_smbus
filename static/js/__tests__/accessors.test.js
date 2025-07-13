@@ -1,0 +1,106 @@
+/**
+ * @jest-environment jsdom
+ */
+
+import "@testing-library/jest-dom";
+import fetchMock from "jest-fetch-mock";
+
+fetchMock.enableMocks();
+
+beforeEach(() => {
+  jest.resetModules();
+  fetchMock.resetMocks();
+
+  document.body.innerHTML = `
+    <div class="error-msg">
+      <span id="error-msg">&nbsp;</span>
+    </div>
+    <div class="lozenge-group">
+      <div class="lozenge disconnected" id="mqtt-toggle">
+        <span id="mqtt-status">Not Connected</span>
+        <span id="mqtt-description">Click to connect</span>
+      </div>
+      <div class="lozenge undiscovered disabled" id="discovery-toggle">
+        <span id="discovery-status">Not discovered</span>
+        <span id="discovery-description">Click to start Discovery</span>
+      </div>
+    </div>
+  `;
+});
+
+test('mqttToggle', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.mqttToggle()).toHaveClass('disconnected');
+});
+
+test('mqttStatus', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.mqttStatus().textContent).toEqual('Not Connected');
+});
+
+test('mqttDescription', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.mqttDescription().textContent).toEqual('Click to connect');
+});
+
+test('discoveryToggle', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.discoveryToggle()).toHaveClass('undiscovered');
+});
+
+test('discoveryStatus', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.discoveryStatus().textContent).toEqual('Not discovered');
+});
+
+test('discoveryDescription', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.discoveryDescription().textContent).toEqual('Click to start Discovery');
+});
+
+test('errorMsg', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.errorMsg().textContent).toEqual('\u00a0');
+});
+
+test('isMQTTConnected', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.isMQTTConnected()).toBeFalsy();
+});
+
+test('isMQTTProcessing', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.isMQTTProcessing()).toBeFalsy();
+});
+
+test('isMQTTDisconnected', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.isMQTTDisconnected()).toBeTruthy();
+});
+
+test('isDiscoveryDiscovered', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.isDiscoveryDiscovered()).toBeFalsy();
+});
+
+test('isDiscoveryProcessing', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.isDiscoveryProcessing()).toBeFalsy();
+});
+
+test('isDiscoveryUndiscovered', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.isDiscoveryUndiscovered()).toBeTruthy();
+});
+
+test('getState', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.getState([]).Connected).toBeFalsy();
+  expect(scripts.getState([]).Discovered).toBeFalsy();
+  expect(scripts.getState([]).Error).toEqual([]);
+});
+
+test('getStatus', async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.getStatus(scripts.mqttToggle())).toEqual('disconnected');
+});

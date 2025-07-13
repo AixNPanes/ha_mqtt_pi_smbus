@@ -59,7 +59,7 @@ export function isMQTTDisconnected() {
 }
 
 export function isDiscoveryUndiscovered() {
-  return discoveryToggle().classList.contains(DiscoeryStatus.UNDISCOVERED);
+  return discoveryToggle().classList.contains(DiscoveryStatus.UNDISCOVERED);
 }
 
 export function getState(error) {
