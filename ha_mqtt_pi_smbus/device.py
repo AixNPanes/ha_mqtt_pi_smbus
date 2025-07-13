@@ -280,6 +280,7 @@ class SMBusDevice:
         bme.sample()
         """
         self.last_update = datetime.datetime.now()
+        self._smbus.sample
 
     # Override this method return any desired data stored in the 'data' variable as a dict
     def data(self) -> Dict[str, Any]:

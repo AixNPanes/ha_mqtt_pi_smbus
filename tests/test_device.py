@@ -11,6 +11,7 @@ from ha_mqtt_pi_smbus.device import (
     HADevice,
     SMBusDevice_Sampler_Thread,
 )
+
 from .mock_data import *
 
 class Humidity(HASensor):
@@ -26,9 +27,6 @@ class TestDevice(unittest.TestCase):
 
         self.mocked_open = MOCKED_OPEN
 
-        mock_ifconfig_eth0_data = MOCK_IFCONFIG_ETH0_DATA.encode('utf-8')
-        mock_ifconfig_wlan0_data = MOCK_IFCONFIG_WLAN0_DATA.encode('utf-8')
-
         with patch("builtins.open", self.mocked_open), \
             patch("ha_mqtt_pi_smbus.device.SMBus") as mock_smbus_class, \
             patch("subprocess.check_output") as mock_subprocess_check_output:
@@ -37,32 +35,8 @@ class TestDevice(unittest.TestCase):
                 SMBusDevice,
             )
 
-            mock_subprocess_check_output.side_effect = [
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-                mock_ifconfig_eth0_data,
-                mock_ifconfig_wlan0_data,
-            ]
+            mock_subprocess_check_output.side_effect = \
+                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT *10
 
             # Prepare your SMBus mock class + instance
             mock_smbus_instance = MagicMock()
@@ -83,6 +57,7 @@ class TestDevice(unittest.TestCase):
             # Call the real code while both mocks are active
             self.smbus_device = SMBusDevice(bus=2)
             self.smbus_device._smbus.load_calibration_param(0x71)
+            self.smbus_device.sample()
             self.smbus_device._smbus.sample()
 
             self.ha_sensor = Humidity()
