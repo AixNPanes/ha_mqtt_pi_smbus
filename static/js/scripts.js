@@ -252,17 +252,9 @@ export async function updateButtonsFromStatus() {
   return state;	
 }
 
-export function init() {
-  fetch("/status", {
-    method: "GET",
-    headers: { "Content-type": "application/json" },
-  })
-    .then((response) => response.json())
+export async function initDom() {
+  updateButtonsFromStatus()	
     .then((data) => {
-      if (data.Error.length != 0) {
-        setErrorMessage(data.Error);
-        resyncState(data);
-      }
       if (data.Connected) {
         setConnected();
         if (data.Discovered) {
@@ -274,16 +266,8 @@ export function init() {
         setDisconnected();
       }
     });
-
-  document.addEventListener("DOMContentLoaded", updateButtonsFromStatus);
-  document.addEventListener("DOMContentLoaded", function () {
-    mqttToggle().addEventListener("click", mqttToggleClickEventListener);
-    discoveryToggle().addEventListener(
-      "click",
-      discoveryToggleClickEventListener,
-    );
-  });
-}
+  return getState([]);  	    
+}	
 
 export function mqttToggleClickEventListener() {
   if (isMQTTProcessing()) {
@@ -358,4 +342,17 @@ export function discoveryToggleClickEventListener() {
     .catch((error) => {
       console.error(formatError("Error toggling Discovery:", error));
     });
+}
+
+export async function init() {
+  const state = await initDom();	
+
+  document.addEventListener("DOMContentLoaded", updateButtonsFromStatus);
+  document.addEventListener("DOMContentLoaded", function () {
+    mqttToggle().addEventListener("click", mqttToggleClickEventListener);
+    discoveryToggle().addEventListener(
+      "click",
+      discoveryToggleClickEventListener,
+    );
+  });
 }
