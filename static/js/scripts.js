@@ -224,18 +224,29 @@ export function formatError(msg, error) {
   "\tcause: " + error.cause;
 }
 
-export async function updateButtonsFromStatus() {
-  const response = await fetch("/status");
-  const state = await response.json();
-
-  if (state.Error.length !== 0 || (state.Discovered && !state.Connected)) {
+export function checkStateError(state) {
+  if (state.Error.length !== 0 ||
+      (state.Discovered && !state.Connected)) {
     setDisabled(mqttToggle());
   }
-  if (!state.Connected || state.Error.length !== 0) {
+  if (state.Error.length != 0 ||
+      !state.Connected) {
     setDisabled(discoveryToggle());
   }
+  return state;
+}
 
-  // Optionally show error
+export async function fetchStatus() {
+  return await fetch('/status', {
+      method: "GET",
+      headers: { "Content-type": "application/json" },
+    })
+  .then((response) => response.json())
+  .then((state) => checkStateError(state));
+}
+
+export async function updateButtonsFromStatus() {
+  const state = await fetchStatus();
   if (state.Error.length !== 0) {
     setErrorMessage(state.Error);
     resyncState(state);
