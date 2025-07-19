@@ -90,3 +90,18 @@ test("updateButtonsFromStatus-OK", async () => {
   let state = await scripts.updateButtonsFromStatus();
   expect(scripts.errorMsg().textContent).toEqual('\u00a0');
 });
+
+test("updateButtonsFromStatus-Error", async () => {
+  const scripts = await import("../scripts.js");
+  document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
+  scripts.setConnected();
+  fetchMock.resetMocks();
+  const stat = JSON.parse(JSON.stringify(STATE));
+  stat.Connected = true;
+  stat.Error = ['Error']
+  fetchMock.mockResponseOnce(JSON.stringify(stat));
+  let state = await scripts.updateButtonsFromStatus();
+  expect(scripts.errorMsg().textContent).toEqual('Error');
+  expect(scripts.mqttToggle()).toHaveClass('disconnected');
+  expect(scripts.discoveryToggle()).not.toHaveClass('discovered');
+});

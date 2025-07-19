@@ -215,13 +215,9 @@ export function resyncState(state) {
 }
 
 export function formatError(msg, error) {
-  return "Error toggling MQTT: " + error + "\n";
-  "\tname: " + error.name;
-  +"\n";
-  "\tlineNumber: " + error.lineNumber + "\n";
-  "\tcolumnNumber: " + error.columnNumber + "\n";
-  "\tmessage: " + error.message + "\n";
-  "\tcause: " + error.cause;
+  return "Error toggling MQTT: " + error + "\n"
+  + "\tname: " + error.name +"\n"
+  + "\tmessage: " + error.message + "\n";
 }
 
 export function checkStateError(state) {

@@ -206,6 +206,15 @@ test("resyncState-Disconnected", async () => {
 
 test("formatError", async () => {
   const scripts = await import("../scripts.js");
-  const result = scripts.formatError('message', Error('Error'));
+  let result = scripts.formatError('message', Error('Error'));
   expect(result).toContain('Error: Error');
+  let myError = undefined;
+  try {
+    let x = undefined;
+    x.method();
+  } catch(error) {myError = error;}
+  result = scripts.formatError('message', myError);
+  expect(result).toContain("Error toggling MQTT: TypeError: Cannot read properties of undefined (reading 'method')");
+  expect(result).toContain('name: TypeError');
+  expect(result).toContain("Cannot read properties of undefined (reading 'method')");
 });
