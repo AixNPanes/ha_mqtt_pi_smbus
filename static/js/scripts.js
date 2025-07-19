@@ -249,6 +249,7 @@ export async function updateButtonsFromStatus() {
   } else {
     setErrorMessage(null);
   }
+  return state;	
 }
 
 export function init() {

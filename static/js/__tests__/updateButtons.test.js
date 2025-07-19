@@ -89,6 +89,8 @@ test("updateButtonsFromStatus-OK", async () => {
   fetchMock.mockResponseOnce(JSON.stringify(stat));
   let state = await scripts.updateButtonsFromStatus();
   expect(scripts.errorMsg().textContent).toEqual('\u00a0');
+  expect(state.Connected).toBeTruthy();
+  expect(state.Discovered).toBeFalsy();
 });
 
 test("updateButtonsFromStatus-Error", async () => {
