@@ -50,20 +50,20 @@ test("setMqttProcessingState-Connecting", async () => {
   expect(scripts.mqttToggle()).toHaveClass("disabled");
   expect(scripts.mqttStatus().textContent).toEqual("Connection in process");
   expect(scripts.isMQTTProcessing()).toBeTruthy();
-  expect(scripts.isMQTTConnected()).toBeFalsy();
+  expect(scripts.isConnected()).toBeFalsy();
 });
 
 test("setMqttProcessingState-Disconnecting", async () => {
   const scripts = await import("../scripts.js");
   document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
   scripts.setConnected();
-  expect(scripts.isMQTTConnected()).toBeTruthy();
+  expect(scripts.isConnected()).toBeTruthy();
   fetchMock.resetMocks();
   scripts.setMQTTProcessingState();
   expect(scripts.mqttToggle()).toHaveClass("disabled");
   expect(scripts.mqttStatus().textContent).toEqual("Disconnection in process");
   expect(scripts.isMQTTProcessing()).toBeTruthy();
-  expect(scripts.isMQTTConnected()).toBeFalsy();
+  expect(scripts.isConnected()).toBeFalsy();
 });
 
 test("setDiscoveryProcessingState-Discovering", async () => {
@@ -73,11 +73,11 @@ test("setDiscoveryProcessingState-Discovering", async () => {
   fetchMock.resetMocks();
   scripts.setDiscoveryProcessingState();
   expect(scripts.isMQTTProcessing()).toBeFalsy();
-  expect(scripts.isMQTTConnected()).toBeTruthy();
+  expect(scripts.isConnected()).toBeTruthy();
   expect(scripts.discoveryToggle()).toHaveClass("disabled");
   expect(scripts.discoveryStatus().textContent).toEqual("Discovery in process");
   expect(scripts.isDiscoveryProcessing()).toBeTruthy();
-  expect(scripts.isDiscoveryDiscovered()).toBeFalsy();
+  expect(scripts.isDiscovered()).toBeFalsy();
 });
 
 test("setDiscoveryProcessingState-Undisconnecting", async () => {
@@ -85,15 +85,15 @@ test("setDiscoveryProcessingState-Undisconnecting", async () => {
   document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
   scripts.setConnected();
   scripts.setDiscovered();
-  expect(scripts.isMQTTConnected()).toBeTruthy();
+  expect(scripts.isConnected()).toBeTruthy();
   fetchMock.resetMocks();
   scripts.setDiscoveryProcessingState();
   expect(scripts.isMQTTProcessing()).toBeFalsy();
-  expect(scripts.isMQTTConnected()).toBeTruthy();
+  expect(scripts.isConnected()).toBeTruthy();
   expect(scripts.discoveryToggle()).toHaveClass("disabled");
   expect(scripts.discoveryStatus().textContent).toEqual(
     "Un-Discovery in process",
   );
   expect(scripts.isDiscoveryProcessing()).toBeTruthy();
-  expect(scripts.isDiscoveryDiscovered()).toBeFalsy();
+  expect(scripts.isDiscovered()).toBeFalsy();
 });

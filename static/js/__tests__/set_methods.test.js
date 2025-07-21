@@ -96,7 +96,7 @@ test("setConnected", async () => {
 
 test("setMQTTConnectProcessing", async () => {
   const scripts = await import("../scripts.js");
-  scripts.setMQTTConnectProcessing();
+  scripts.setConnectProcessing();
   expect(scripts.mqttStatus().textContent).toEqual("Connection in process");
   expect(scripts.mqttDescription().textContent).toEqual("Wait for completion");
   expect(scripts.discoveryStatus().textContent).toEqual("Not discovered");
@@ -110,7 +110,7 @@ test("setMQTTConnectProcessing", async () => {
 
 test("setMQTTDisconnectProcessing", async () => {
   const scripts = await import("../scripts.js");
-  scripts.setMQTTDisconnectProcessing();
+  scripts.setDisconnectProcessing();
   expect(scripts.mqttStatus().textContent).toEqual("Disconnection in process");
   expect(scripts.mqttDescription().textContent).toEqual("Wait for completion");
   expect(scripts.discoveryStatus().textContent).toEqual("Not discovered");

@@ -46,7 +46,7 @@ test("mqttToggleClickEventListener-ConnectProcessing", async () => {
   const scripts = await import("../scripts.js");
   let state = JSON.parse(JSON.stringify(STATE));
   state.Connected = false;
-  scripts.setMQTTConnectProcessing();
+  scripts.setConnectProcessing();
   expect(scripts.isMQTTProcessing()).toBeTruthy();
   state = await scripts.mqttToggleClickEventListener();
   expect(scripts.isMQTTProcessing()).toBeTruthy();
@@ -63,7 +63,7 @@ test("mqttToggleClickEventListener-DisconnectProcessing", async () => {
   const scripts = await import("../scripts.js");
   let state = JSON.parse(JSON.stringify(STATE));
   state.Connected = true;
-  scripts.setMQTTDisconnectProcessing();
+  scripts.setDisconnectProcessing();
   expect(scripts.isMQTTProcessing()).toBeTruthy();
   state = await scripts.mqttToggleClickEventListener();
   expect(scripts.isMQTTProcessing()).toBeTruthy();
@@ -83,7 +83,7 @@ test("mqttToggleClickEventListener-OK", async () => {
   fetchMock.mockResponseOnce(JSON.stringify(state));
   state = await scripts.mqttToggleClickEventListener();
   expect(scripts.isMQTTProcessing()).toBeFalsy();
-  expect(scripts.isMQTTConnected()).toBeTruthy();
+  expect(scripts.isConnected()).toBeTruthy();
   expect(scripts.mqttToggle()).toHaveClass("connected");
   expect(scripts.mqttToggle()).not.toHaveClass("disabled");
   expect(scripts.mqttDescription().innerHTML).toEqual(

@@ -65,9 +65,9 @@ test("errorMsg", async () => {
   expect(scripts.errorMsg().textContent).toEqual("\u00a0");
 });
 
-test("isMQTTConnected", async () => {
+test("isConnected", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.isMQTTConnected()).toBeFalsy();
+  expect(scripts.isConnected()).toBeFalsy();
 });
 
 test("isMQTTProcessing", async () => {
@@ -75,14 +75,14 @@ test("isMQTTProcessing", async () => {
   expect(scripts.isMQTTProcessing()).toBeFalsy();
 });
 
-test("isMQTTDisconnected", async () => {
+test("isDisconnected", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.isMQTTDisconnected()).toBeTruthy();
+  expect(scripts.isDisconnected()).toBeTruthy();
 });
 
-test("isDiscoveryDiscovered", async () => {
+test("isDiscovered", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.isDiscoveryDiscovered()).toBeFalsy();
+  expect(scripts.isDiscovered()).toBeFalsy();
 });
 
 test("isDiscoveryProcessing", async () => {
@@ -90,9 +90,9 @@ test("isDiscoveryProcessing", async () => {
   expect(scripts.isDiscoveryProcessing()).toBeFalsy();
 });
 
-test("isDiscoveryUndiscovered", async () => {
+test("isUndiscovered", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.isDiscoveryUndiscovered()).toBeTruthy();
+  expect(scripts.isUndiscovered()).toBeTruthy();
 });
 
 test("getState", async () => {
