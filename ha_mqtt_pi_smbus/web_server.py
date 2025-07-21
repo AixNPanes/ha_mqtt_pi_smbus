@@ -12,8 +12,7 @@ import pdb
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from ha_mqtt_pi_smbus.device import HADevice
-from ha_mqtt_pi_smbus.mqtt_client import MQTTClient, State
-
+from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
 
 class HAFlask(Flask):
     def __init__(
@@ -60,12 +59,13 @@ class HAFlask(Flask):
         @self.route("/status", methods=["GET"])
         def status():
             route = f"{request.path} [{request.method}]"
-            return render_template(
-                "index.html",
-                state=self.client.state.to_dict(),
-                title=self.title,
-                subtitle=self.subtitle,
-            )
+            return jsonify(self.client.state.to_dict())
+            #return render_template(
+            #    "index.html",
+            #    state=self.client.state.to_dict(),
+            #    title=self.title,
+            #    subtitle=self.subtitle,
+            #)
 
         @self.route("/mqtt-toggle", methods=["POST"])
         def mqtt_toggle():

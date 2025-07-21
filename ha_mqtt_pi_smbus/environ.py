@@ -190,5 +190,4 @@ def getOSInfo() -> Dict[str, Any]:
         token = line.split("=")
         if len(token) == 2:
             info[token[0].strip()] = token[1].strip()
-    print(info)
     return info

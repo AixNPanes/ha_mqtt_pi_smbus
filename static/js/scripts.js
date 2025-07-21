@@ -246,7 +246,10 @@ export async function fetchStatus() {
     headers: { "Content-type": "application/json" },
   })
     .then((response) => response.json())
-    .then((state) => checkStateError(state));
+    .then((state) => checkStateError(state))
+    .catch((error) => {
+      console.error(formatError("fetchStatus errpr", error));
+    });
 }
 
 export async function updateButtonsFromStatus() {

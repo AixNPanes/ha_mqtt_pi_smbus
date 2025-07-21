@@ -17,7 +17,7 @@ from paho.mqtt.reasoncodes import ReasonCode
 
 from ha_mqtt_pi_smbus.device import HADevice, SMBusDevice
 from ha_mqtt_pi_smbus.environ import getObjectId
-from ha_mqtt_pi_smbus.state import State, State, StateErrorEnum
+from ha_mqtt_pi_smbus.state import State, StateErrorEnum
 
 
 class MQTT_Publisher_Thread(threading.Thread):
