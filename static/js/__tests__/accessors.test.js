@@ -109,15 +109,19 @@ test("getStatus-OK", async () => {
 
 test("getStatus-extra-classes", async () => {
   const scripts = await import("../scripts.js");
-  scripts.mqttToggle().classList.add(
-    scripts.MQTTStatus.DISCONNECTED,
-    scripts.MQTTStatus.CONNECTED);
+  scripts
+    .mqttToggle()
+    .classList.add(
+      scripts.MQTTStatus.DISCONNECTED,
+      scripts.MQTTStatus.CONNECTED,
+    );
   expect(() => scripts.getStatus(scripts.mqttToggle())).toThrow(
-    new Error('Invalid status for toggle: disconnected,connected'));
+    new Error("Invalid status for toggle: disconnected,connected"),
+  );
 });
 
 test("getStatus-no-classes", async () => {
   const scripts = await import("../scripts.js");
-  scripts.mqttToggle().className = '';
-  expect(scripts.getStatus(scripts.mqttToggle())).toEqual('disconnected');
+  scripts.mqttToggle().className = "";
+  expect(scripts.getStatus(scripts.mqttToggle())).toEqual("disconnected");
 });
