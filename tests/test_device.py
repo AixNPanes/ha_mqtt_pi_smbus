@@ -14,6 +14,7 @@ from ha_mqtt_pi_smbus.device import (
 
 from .mock_data import *
 
+
 class Humidity(HASensor):
     def __init__(self):
         super().__init__("mbar")
@@ -27,24 +28,29 @@ class TestDevice(unittest.TestCase):
 
         self.mocked_open = MOCKED_OPEN
 
-        with patch("builtins.open", self.mocked_open), \
-            patch("ha_mqtt_pi_smbus.device.SMBus") as mock_smbus_class, \
-            patch("subprocess.check_output") as mock_subprocess_check_output:
+        with patch("builtins.open", self.mocked_open), patch(
+            "ha_mqtt_pi_smbus.device.SMBus"
+        ) as mock_smbus_class, patch(
+            "subprocess.check_output"
+        ) as mock_subprocess_check_output:
 
             from ha_mqtt_pi_smbus.device import (
                 SMBusDevice,
             )
 
-            mock_subprocess_check_output.side_effect = \
-                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT *10
+            mock_subprocess_check_output.side_effect = (
+                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10
+            )
 
             # Prepare your SMBus mock class + instance
             mock_smbus_instance = MagicMock()
-            mock_smbus_instance.load_calibration_param.return_value = "mocked_cal_params"
+            mock_smbus_instance.load_calibration_param.return_value = (
+                "mocked_cal_params"
+            )
             mock_smbus_instance.sample.return_value = {
                 "temperature": 25.5,
                 "pressure": 1013.2,
-                "humidity": 45.8
+                "humidity": 45.8,
             }
 
             # Save mocks for later assertions
@@ -53,7 +59,7 @@ class TestDevice(unittest.TestCase):
 
             # SMBus() constructor returns the instance mock
             self.mock_smbus_class.return_value = self.mock_smbus_instance
-        
+
             # Call the real code while both mocks are active
             self.smbus_device = SMBusDevice(bus=2)
             self.smbus_device._smbus.load_calibration_param(0x71)
@@ -70,16 +76,16 @@ class TestDevice(unittest.TestCase):
             )
             # SMBus constructor called with bus=2
             mock_smbus_class.assert_called_once_with(2)
-    
+
             # load_calibration_param called with correct address
             mock_smbus_instance.load_calibration_param.assert_called()
-    
+
             # sample called with address & calibration params
             mock_smbus_instance.sample.assert_called()
-    
+
             # Check the output from sample
             data = self.smbus_device._smbus.sample()
-            self.assertEqual(data["temperature"], 25.5)    
+            self.assertEqual(data["temperature"], 25.5)
 
         # Inline check
         self.mocked_open.assert_any_call("/proc/cpuinfo", mock.ANY)
@@ -87,7 +93,7 @@ class TestDevice(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def xtest_smbus_methods(self):
         # SMBus constructor called with bus=2
         self.mock_smbus_class.assert_called_once_with(2)
@@ -100,7 +106,7 @@ class TestDevice(unittest.TestCase):
 
         # Check the output from sample
         data = self.device.sample()
-        self.assertEqual(data["temperature"], 25.5)    
+        self.assertEqual(data["temperature"], 25.5)
 
     def test_ha_sensor(self):
         self.assertEqual(self.ha_sensor.name, "humidity")

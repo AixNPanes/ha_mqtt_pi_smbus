@@ -15,7 +15,8 @@ from ha_mqtt_pi_smbus.environ import (
     getOSInfo,
 )
 
-from.mock_data import *
+from .mock_data import *
+
 
 class TestDevice(unittest.TestCase):
     def setUp(self):
@@ -27,10 +28,10 @@ class TestDevice(unittest.TestCase):
 
     def test_temperature(self):
         with patch("builtins.open", self.mocked_open):
-            print('CpuInfo():')
+            print("CpuInfo():")
             print(getCpuInfo())
-            print(getCpuInfo()['cpu']['Model'])
-            print('OSInfo():')
+            print(getCpuInfo()["cpu"]["Model"])
+            print("OSInfo():")
             print(getOSInfo())
             temp = getTemperature()
             assert temp == 46.16

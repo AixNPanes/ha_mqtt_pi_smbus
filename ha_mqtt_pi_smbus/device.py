@@ -198,7 +198,7 @@ class HADevice:
         raise Exception("Class needs data(self) definition")
 
 
-#class SMBusDevice(SMBus):
+# class SMBusDevice(SMBus):
 class SMBusDevice:
     bus: int = None
     address = None
@@ -262,7 +262,7 @@ class SMBusDevice:
                     }
 
         """
-        #super().__init__(bus)
+        # super().__init__(bus)
         self.bus = bus
         self.address = address
         self._smbus = SMBus(bus)

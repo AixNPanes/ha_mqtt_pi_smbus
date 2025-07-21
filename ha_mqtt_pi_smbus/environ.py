@@ -4,6 +4,7 @@ from typing import Any, Dict
 
 DEGREE = chr(176)
 
+
 def getTemperature() -> float:
     """get Raspberry Pi CPU temperature in Centigrade as a float
 
@@ -189,5 +190,5 @@ def getOSInfo() -> Dict[str, Any]:
         token = line.split("=")
         if len(token) == 2:
             info[token[0].strip()] = token[1].strip()
-    print(info)        
+    print(info)
     return info

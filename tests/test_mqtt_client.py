@@ -20,7 +20,7 @@ from ha_mqtt_pi_smbus.mqtt_client import (
 )
 from ha_mqtt_pi_smbus.environ import *
 
-from.mock_data import *
+from .mock_data import *
 
 """
 Note the methods of MQTTClient aren't necessarily order dependent so
@@ -30,7 +30,7 @@ so these tests don't run in the normal functional order.
 
 class Temperature(HASensor):
     def __init__(self, name: str):
-        super().__init__('%C' % (DEGREE))
+        super().__init__("%C" % (DEGREE))
 
 
 class Humidity(HASensor):
@@ -73,11 +73,13 @@ class TestMQTTClient(unittest.TestCase):
     ):
 
         mock_connect.return_value = 1
-        with patch('builtins.open', self.mocked_open), \
-            patch('subprocess.check_output') as mock_subprocess_check_output:
+        with patch("builtins.open", self.mocked_open), patch(
+            "subprocess.check_output"
+        ) as mock_subprocess_check_output:
 
-            mock_subprocess_check_output.side_effect = \
-                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10;    
+            mock_subprocess_check_output.side_effect = (
+                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10
+            )
             mqtt_client = MQTTClient(
                 client_prefix="me",
                 device=(),
@@ -98,13 +100,20 @@ class TestMQTTClient(unittest.TestCase):
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice.data")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
     def test_mqtt_client_publisher_thread(
-        self, mock_smbus, mock_data, mock_connect, mock_is_connected, mock_subprocess_check_output
+        self,
+        mock_smbus,
+        mock_data,
+        mock_connect,
+        mock_is_connected,
+        mock_subprocess_check_output,
     ):
-        with patch('builtins.open', self.mocked_open), \
-            patch('subprocess.check_output') as mock_subprocess_check_output:
+        with patch("builtins.open", self.mocked_open), patch(
+            "subprocess.check_output"
+        ) as mock_subprocess_check_output:
 
-            mock_subprocess_check_output.side_effect = \
-                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10;    
+            mock_subprocess_check_output.side_effect = (
+                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10
+            )
             mock_connect.return_value = 0
             mock_is_connected.return_value = False
             mock_data.side_effect = [{"last_update": i} for i in range(1, 11)]
@@ -136,7 +145,12 @@ class TestMQTTClient(unittest.TestCase):
                 ),
                 mock_smbus,
             )
-            obj = {"Connected": False, "Discovered": False, "rc": 0, "Error": ["Error!"]}
+            obj = {
+                "Connected": False,
+                "Discovered": False,
+                "rc": 0,
+                "Error": ["Error!"],
+            }
             mqtt_client.state = State(obj)
             assert mqtt_client.connect_mqtt() == 0
             assert mqtt_client.is_connected() == False
@@ -155,12 +169,17 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
     def test_mqtt_client_connect_disconnect(
-        self, mock_smbus, mock_connect, mock_disconnect, mock_is_connected, mock_subprocess_check_output
+        self,
+        mock_smbus,
+        mock_connect,
+        mock_disconnect,
+        mock_is_connected,
+        mock_subprocess_check_output,
     ):
         mock_subprocess_check_output.side_effect = [
-            MOCK_IFCONFIG_ETH0_DATA.encode('utf-8'),    
-            MOCK_IFCONFIG_WLAN0_DATA.encode('utf-8')    
-        ] * 10    
+            MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
+            MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
+        ] * 10
         mock_connect.return_value = 0
         mock_disconnect.side_effect = [0, 1]
         mock_is_connected.return_value = False
@@ -206,9 +225,9 @@ class TestMQTTClient(unittest.TestCase):
         self, mock_smbus, mock_connect, mock_is_connected, mock_subprocess_check_output
     ):
         mock_subprocess_check_output.side_effect = [
-            MOCK_IFCONFIG_ETH0_DATA.encode('utf-8'),    
-            MOCK_IFCONFIG_WLAN0_DATA.encode('utf-8')    
-        ] * 10    
+            MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
+            MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
+        ] * 10
         mock_connect.return_value = 0
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
@@ -243,9 +262,9 @@ class TestMQTTClient(unittest.TestCase):
         self, mock_smbus, mock_connect, mock_is_connected, mock_subprocess_check_output
     ):
         mock_subprocess_check_output.side_effect = [
-            MOCK_IFCONFIG_ETH0_DATA.encode('utf-8'),    
-            MOCK_IFCONFIG_WLAN0_DATA.encode('utf-8')    
-        ] * 10    
+            MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
+            MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
+        ] * 10
         mock_connect.return_value = 0
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
@@ -275,9 +294,9 @@ class TestMQTTClient(unittest.TestCase):
         self, mock_smbus, mock_connect, mock_is_connected, mock_subprocess_check_output
     ):
         mock_subprocess_check_output.side_effect = [
-            MOCK_IFCONFIG_ETH0_DATA.encode('utf-8'),    
-            MOCK_IFCONFIG_WLAN0_DATA.encode('utf-8')    
-        ] * 10    
+            MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
+            MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
+        ] * 10
         mock_connect.return_value = 0
         mock_is_connected.side_effect = [False] * 20
         mqtt_client = MQTTClient(
@@ -307,12 +326,17 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
     def test_mqtt_client_subscribe(
-        self, mock_smbus, mock_connect, mock_is_connected, mock_subscribe, mock_subprocess_check_output
+        self,
+        mock_smbus,
+        mock_connect,
+        mock_is_connected,
+        mock_subscribe,
+        mock_subprocess_check_output,
     ):
         mock_subprocess_check_output.side_effect = [
-            MOCK_IFCONFIG_ETH0_DATA.encode('utf-8'),    
-            MOCK_IFCONFIG_WLAN0_DATA.encode('utf-8')    
-        ] * 10    
+            MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
+            MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
+        ] * 10
         mock_connect.return_value = 0
         mock_subscribe.return_value = (0, 1)
         mock_is_connected.side_effect = [False] * 20
@@ -344,14 +368,21 @@ class TestMQTTClient(unittest.TestCase):
     @patch("paho.mqtt.client.Client.connect")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
     def test_mqtt_client_publish(
-        self, mock_smbus, mock_connect, mock_is_connected, mock_subscribe, mock_subprocess_check_output,
-            mock_builtin_open
+        self,
+        mock_smbus,
+        mock_connect,
+        mock_is_connected,
+        mock_subscribe,
+        mock_subprocess_check_output,
+        mock_builtin_open,
     ):
-        with patch('builtins.open', self.mocked_open), \
-            patch('subprocess.check_output') as mock_subprocess_check_output:
+        with patch("builtins.open", self.mocked_open), patch(
+            "subprocess.check_output"
+        ) as mock_subprocess_check_output:
 
-            mock_subprocess_check_output.side_effect = \
-                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10;    
+            mock_subprocess_check_output.side_effect = (
+                MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10
+            )
             mock_connect.return_value = 0
             mock_subscribe.return_value = (0, 1)
             mock_is_connected.side_effect = [False] * 20
@@ -378,7 +409,12 @@ class TestMQTTClient(unittest.TestCase):
                     "password": "mine",
                 },
             )
-            obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
+            obj = {
+                "Connected": False,
+                "Discovered": False,
+                "rc": 1,
+                "Error": ["Error!"],
+            }
             mqtt_client.state = State(obj)
             assert mqtt_client.connect_mqtt() == 0
             assert mqtt_client.is_connected() == False

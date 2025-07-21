@@ -49,12 +49,12 @@ test("initDom-Disconnected-Undiscovered", async () => {
   const stat = JSON.parse(JSON.stringify(STATE));
   fetchMock.mockResponseOnce(JSON.stringify(stat));
   const state = await scripts.initDom();
-  expect(state).toEqual({"Connected": false, "Discovered": false, "Error": []});	
-  expect(scripts.getState([]).Connected).toBeFalsy();	
-  expect(scripts.getState([]).Discovered).toBeFalsy();	
-  expect(scripts.errorMsg().textContent).toEqual('\u00a0');
-  expect(scripts.mqttToggle()).not.toHaveClass('connected');
-  expect(scripts.discoveryToggle()).not.toHaveClass('discovered');
+  expect(state).toEqual({ Connected: false, Discovered: false, Error: [] });
+  expect(scripts.getState([]).Connected).toBeFalsy();
+  expect(scripts.getState([]).Discovered).toBeFalsy();
+  expect(scripts.errorMsg().textContent).toEqual("\u00a0");
+  expect(scripts.mqttToggle()).not.toHaveClass("connected");
+  expect(scripts.discoveryToggle()).not.toHaveClass("discovered");
 });
 
 test("initDom-Connected-Undiscovered", async () => {
@@ -66,9 +66,9 @@ test("initDom-Connected-Undiscovered", async () => {
   stat.Connected = true;
   fetchMock.mockResponseOnce(JSON.stringify(stat));
   const state = await scripts.initDom();
-  expect(scripts.errorMsg().textContent).toEqual('\u00a0');
-  expect(scripts.mqttToggle()).toHaveClass('connected');
-  expect(scripts.discoveryToggle()).not.toHaveClass('discovered');
+  expect(scripts.errorMsg().textContent).toEqual("\u00a0");
+  expect(scripts.mqttToggle()).toHaveClass("connected");
+  expect(scripts.discoveryToggle()).not.toHaveClass("discovered");
 });
 
 test("initDom-Connected-Discovered", async () => {
@@ -82,9 +82,9 @@ test("initDom-Connected-Discovered", async () => {
   stat.Discovered = true;
   fetchMock.mockResponseOnce(JSON.stringify(stat));
   const state = await scripts.initDom();
-  expect(scripts.errorMsg().textContent).toEqual('\u00a0');
-  expect(scripts.mqttToggle()).toHaveClass('connected');
-  expect(scripts.discoveryToggle()).toHaveClass('discovered');
+  expect(scripts.errorMsg().textContent).toEqual("\u00a0");
+  expect(scripts.mqttToggle()).toHaveClass("connected");
+  expect(scripts.discoveryToggle()).toHaveClass("discovered");
 });
 
 //test("initDom-Undiscovered", async () => {

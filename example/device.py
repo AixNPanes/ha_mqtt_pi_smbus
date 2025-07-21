@@ -130,7 +130,9 @@ class BME280(SMBusDevice):
         super().__init__(bus)
         self.bus = bus
         self.address = address
-        self._calibration_params = bme280.load_calibration_params(self._smbus, self.address)
+        self._calibration_params = bme280.load_calibration_params(
+            self._smbus, self.address
+        )
 
     def sample(self) -> None:
         """makes one sample of the device

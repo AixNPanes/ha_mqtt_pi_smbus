@@ -28,79 +28,81 @@ beforeEach(() => {
   `;
 });
 
-test('mqttToggle', async () => {
+test("mqttToggle", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.mqttToggle()).toHaveClass('disconnected');
+  expect(scripts.mqttToggle()).toHaveClass("disconnected");
 });
 
-test('mqttStatus', async () => {
+test("mqttStatus", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.mqttStatus().textContent).toEqual('Not Connected');
+  expect(scripts.mqttStatus().textContent).toEqual("Not Connected");
 });
 
-test('mqttDescription', async () => {
+test("mqttDescription", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.mqttDescription().textContent).toEqual('Click to connect');
+  expect(scripts.mqttDescription().textContent).toEqual("Click to connect");
 });
 
-test('discoveryToggle', async () => {
+test("discoveryToggle", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.discoveryToggle()).toHaveClass('undiscovered');
+  expect(scripts.discoveryToggle()).toHaveClass("undiscovered");
 });
 
-test('discoveryStatus', async () => {
+test("discoveryStatus", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.discoveryStatus().textContent).toEqual('Not discovered');
+  expect(scripts.discoveryStatus().textContent).toEqual("Not discovered");
 });
 
-test('discoveryDescription', async () => {
+test("discoveryDescription", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.discoveryDescription().textContent).toEqual('Click to start Discovery');
+  expect(scripts.discoveryDescription().textContent).toEqual(
+    "Click to start Discovery",
+  );
 });
 
-test('errorMsg', async () => {
+test("errorMsg", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.errorMsg().textContent).toEqual('\u00a0');
+  expect(scripts.errorMsg().textContent).toEqual("\u00a0");
 });
 
-test('isMQTTConnected', async () => {
+test("isMQTTConnected", async () => {
   const scripts = await import("../scripts.js");
   expect(scripts.isMQTTConnected()).toBeFalsy();
 });
 
-test('isMQTTProcessing', async () => {
+test("isMQTTProcessing", async () => {
   const scripts = await import("../scripts.js");
   expect(scripts.isMQTTProcessing()).toBeFalsy();
 });
 
-test('isMQTTDisconnected', async () => {
+test("isMQTTDisconnected", async () => {
   const scripts = await import("../scripts.js");
   expect(scripts.isMQTTDisconnected()).toBeTruthy();
 });
 
-test('isDiscoveryDiscovered', async () => {
+test("isDiscoveryDiscovered", async () => {
   const scripts = await import("../scripts.js");
   expect(scripts.isDiscoveryDiscovered()).toBeFalsy();
 });
 
-test('isDiscoveryProcessing', async () => {
+test("isDiscoveryProcessing", async () => {
   const scripts = await import("../scripts.js");
   expect(scripts.isDiscoveryProcessing()).toBeFalsy();
 });
 
-test('isDiscoveryUndiscovered', async () => {
+test("isDiscoveryUndiscovered", async () => {
   const scripts = await import("../scripts.js");
   expect(scripts.isDiscoveryUndiscovered()).toBeTruthy();
 });
 
-test('getState', async () => {
+test("getState", async () => {
   const scripts = await import("../scripts.js");
   expect(scripts.getState([]).Connected).toBeFalsy();
   expect(scripts.getState([]).Discovered).toBeFalsy();
   expect(scripts.getState([]).Error).toEqual([]);
 });
 
-test('getStatus', async () => {
+test("getStatus", async () => {
   const scripts = await import("../scripts.js");
-  expect(scripts.getStatus(scripts.mqttToggle())).toEqual('disconnected');
+  expect(scripts.getStatus(scripts.mqttToggle())).toEqual("disconnected");
 });

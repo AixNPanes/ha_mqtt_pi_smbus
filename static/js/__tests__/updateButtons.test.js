@@ -1,4 +1,3 @@
-
 /**
  * @jest-environment jsdom
  */
@@ -47,18 +46,18 @@ test("checkStateError-OK-not-connected", async () => {
   const scripts = await import("../scripts.js");
   document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
   let state = scripts.checkStateError(STATE);
-  expect(scripts.mqttToggle()).not.toHaveClass('disabled');
-  expect(scripts.discoveryToggle()).toHaveClass('disabled');
+  expect(scripts.mqttToggle()).not.toHaveClass("disabled");
+  expect(scripts.discoveryToggle()).toHaveClass("disabled");
 });
 
 test("checkStateError-Error", async () => {
   const scripts = await import("../scripts.js");
   document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
   let state = JSON.parse(JSON.stringify(STATE));
-  state.Error = ['Error'];
+  state.Error = ["Error"];
   let checkstate = scripts.checkStateError(state);
-  expect(scripts.mqttToggle()).toHaveClass('disabled');
-  expect(scripts.discoveryToggle()).toHaveClass('disabled');
+  expect(scripts.mqttToggle()).toHaveClass("disabled");
+  expect(scripts.discoveryToggle()).toHaveClass("disabled");
 });
 
 test("checkStateError-Discovered-not-Connected", async () => {
@@ -67,16 +66,16 @@ test("checkStateError-Discovered-not-Connected", async () => {
   let state = JSON.parse(JSON.stringify(STATE));
   state.Discovered = true;
   let checkstate = scripts.checkStateError(state);
-  expect(scripts.mqttToggle()).toHaveClass('disabled');
-  expect(scripts.discoveryToggle()).toHaveClass('disabled');
+  expect(scripts.mqttToggle()).toHaveClass("disabled");
+  expect(scripts.discoveryToggle()).toHaveClass("disabled");
 });
 
 test("fetchStatus", async () => {
   const scripts = await import("../scripts.js");
   document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
   let state = scripts.fetchStatus();
-  expect(scripts.mqttToggle()).not.toHaveClass('disabled');
-  expect(scripts.discoveryToggle()).toHaveClass('disabled');
+  expect(scripts.mqttToggle()).not.toHaveClass("disabled");
+  expect(scripts.discoveryToggle()).toHaveClass("disabled");
 });
 
 test("updateButtonsFromStatus-OK", async () => {
@@ -88,7 +87,7 @@ test("updateButtonsFromStatus-OK", async () => {
   stat.Connected = true;
   fetchMock.mockResponseOnce(JSON.stringify(stat));
   let state = await scripts.updateButtonsFromStatus();
-  expect(scripts.errorMsg().textContent).toEqual('\u00a0');
+  expect(scripts.errorMsg().textContent).toEqual("\u00a0");
   expect(state.Connected).toBeTruthy();
   expect(state.Discovered).toBeFalsy();
 });
@@ -100,10 +99,10 @@ test("updateButtonsFromStatus-Error", async () => {
   fetchMock.resetMocks();
   const stat = JSON.parse(JSON.stringify(STATE));
   stat.Connected = true;
-  stat.Error = ['Error']
+  stat.Error = ["Error"];
   fetchMock.mockResponseOnce(JSON.stringify(stat));
   let state = await scripts.updateButtonsFromStatus();
-  expect(scripts.errorMsg().textContent).toEqual('Error');
-  expect(scripts.mqttToggle()).toHaveClass('disconnected');
-  expect(scripts.discoveryToggle()).not.toHaveClass('discovered');
+  expect(scripts.errorMsg().textContent).toEqual("Error");
+  expect(scripts.mqttToggle()).toHaveClass("disconnected");
+  expect(scripts.discoveryToggle()).not.toHaveClass("discovered");
 });
