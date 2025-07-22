@@ -145,6 +145,18 @@ class Parser:
             type=int,
         )
         parser.add_argument(
+            "-q",
+            "--mqtt_qos",
+            help="MQTT Quality of Service (0, 1, 2). Check HA MQTT documentation for descrition. Default(0)",
+            type=int,
+            choices=(0, 1, 2),
+        )
+        parser.add_argument(
+            "--mqtt_disable_retain",
+            help="MQTT retain policy. Check HA MQTT documentation for descrition. Default(true)",
+            action="store_false",
+        )
+        parser.add_argument(
             "-a",
             "--bme280_address",
             help="BME280 address (118, 119, 0x67, 0x77",
@@ -163,7 +175,9 @@ class Parser:
         parser.add_argument(
             "-I", "--bme280_polling_interval", help="BME280 polling interval", type=int
         )
-        parser.add_argument("-c", "--config", help="config file name (YAML)")
+        parser.add_argument(
+            "-c", "--config", help="config file name (YAML), default(.config.yaml)"
+        )
         parser.add_argument(
             "-s",
             "--secrets",
@@ -216,6 +230,16 @@ class Parser:
         self.mqtt["polling_interval"] = configOrCmdParm(
             args.mqtt_password, config, secrets, ["mqtt", "polling_interval"], default=1
         )
+        self.mqtt["qos"] = configOrCmdParm(
+            args.mqtt_qos, config, secrets, ["mqtt", "qos"], default=0
+        )
+        self.mqtt["disable_retain"] = configOrCmdParm(
+            args.mqtt_disable_retain if not args.mqtt_disable_retain else None,
+            config,
+            secrets,
+            ["mqtt", "disable_retain"],
+        )
+        self.mqtt["retain"] = False if self.mqtt["disable_retain"] else True
 
         # get BME280 parameters
         self.bme280 = {}

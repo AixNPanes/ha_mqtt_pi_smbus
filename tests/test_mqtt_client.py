@@ -89,6 +89,8 @@ class TestMQTTClient(unittest.TestCase):
                     "port": 1883,
                     "username": "me",
                     "password": "mine",
+                    "qos": 1,
+                    "retain": True,
                 },
             )
             rc = mqtt_client.connect_mqtt()
@@ -126,6 +128,8 @@ class TestMQTTClient(unittest.TestCase):
                     "port": 1883,
                     "username": "me",
                     "password": "mine",
+                    "qos": 1,
+                    "retain": True,
                 },
             )
             thread = MQTT_Publisher_Thread(
@@ -192,6 +196,8 @@ class TestMQTTClient(unittest.TestCase):
                 "port": 1883,
                 "username": "me",
                 "password": "mine",
+                "qos": 1,
+                "retain": True,
             },
         )
         obj = {"Connected": False, "Discovered": False, "rc": 0, "Error": ["Error!"]}
@@ -239,6 +245,8 @@ class TestMQTTClient(unittest.TestCase):
                 "port": 1883,
                 "username": "me",
                 "password": "mine",
+                "qos": 1,
+                "retain": True,
             },
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
@@ -276,6 +284,8 @@ class TestMQTTClient(unittest.TestCase):
                 "port": 1883,
                 "username": "me",
                 "password": "mine",
+                "qos": 1,
+                "retain": True,
             },
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
@@ -308,6 +318,8 @@ class TestMQTTClient(unittest.TestCase):
                 "port": 1883,
                 "username": "me",
                 "password": "mine",
+                "qos": 1,
+                "retain": True,
             },
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
@@ -349,6 +361,8 @@ class TestMQTTClient(unittest.TestCase):
                 "port": 1883,
                 "username": "me",
                 "password": "mine",
+                "qos": 1,
+                "retain": True,
             },
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
@@ -407,6 +421,8 @@ class TestMQTTClient(unittest.TestCase):
                     "port": 1883,
                     "username": "me",
                     "password": "mine",
+                    "qos": 1,
+                    "retain": True,
                 },
             )
             obj = {

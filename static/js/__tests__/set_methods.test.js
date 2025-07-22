@@ -264,8 +264,8 @@ test("formatError", async () => {
     myError = error;
   }
   result = scripts.formatError("message", myError);
-  expect(result).toContain(
-    "Error toggling MQTT: TypeError: Cannot read properties of undefined (reading 'method')",
+  expect(result).toEqual(
+    "message: TypeError: Cannot read properties of undefined (reading 'method')\n\tname: TypeError\n\tmessage: Cannot read properties of undefined (reading 'method')",
   );
   expect(result).toContain("name: TypeError");
   expect(result).toContain(

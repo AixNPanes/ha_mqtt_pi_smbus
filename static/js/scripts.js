@@ -218,15 +218,9 @@ export function resyncState(state) {
 
 export function formatError(msg, error) {
   return (
-    "Error toggling MQTT: " +
-    error +
-    "\n" +
-    "\tname: " +
-    error.name +
-    "\n" +
-    "\tmessage: " +
-    error.message +
-    "\n"
+    msg +": " + error +
+    "\n\t" + "name: " + error.name +
+    "\n\tmessage: " + error.message
   );
 }
 
@@ -248,7 +242,9 @@ export async function fetchStatus() {
     .then((response) => response.json())
     .then((state) => checkStateError(state))
     .catch((error) => {
-      console.error(formatError("fetchStatus errpr", error));
+      let err = formatError("fetchStatus error", error);
+      errorMsg().innerHTML = err;  
+      console.error(err);
     });
 }
 
@@ -343,7 +339,9 @@ export async function mqttToggleClickEventListener() {
   state = await postUrl("/mqtt-toggle", state)
     .then((data) => handleMqttTogglePost(data))
     .catch((error) => {
-      console.error(formatError("Error Toggling MQTT", error));
+      let err = formatError("Error Toggling MQTT", error);
+      errorMsg().innerHTML = err;  
+      console.error(err);
     });
   return state;
 }
@@ -365,7 +363,9 @@ export async function discoveryToggleClickEventListener() {
   state = await postUrl("/discovery-toggle", state)
     .then((data) => handleDiscoveryTogglePost(data))
     .catch((error) => {
-      console.error(formatError("Error toggling Discovery:", error));
+      let err = formatError("Error toggling Discovery", error);
+      errorMsg().innerHTML = err;  
+      console.error(err);
     });
   return state;
 }

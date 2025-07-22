@@ -180,6 +180,10 @@ class MQTTClient(mqtt.Client):
                 the username used to authenticate to the MQTT broker
             password : str
                 the password used to authenticate to the MQTT broker
+            qos: int
+                the quality of service to be used with the MQTT broker
+            retain: bool
+                the retain policy to be used with the MQTT broker
         """
         super().__init__(
             mqtt_enums.CallbackAPIVersion.VERSION2,
@@ -192,6 +196,8 @@ class MQTTClient(mqtt.Client):
         self.port = mqtt_config["port"]
         self.username = mqtt_config["username"]
         self.password = mqtt_config["password"]
+        self.qos = mqtt_config["qos"]
+        self.retain = mqtt_config["retain"]
         self.device = device
         self.smbus_device = smbus_device
         self.state = State()
@@ -249,8 +255,8 @@ class MQTTClient(mqtt.Client):
         self,
         topic: str,
         message: str,
-        qos: int = 0,
-        retain: bool = False,
+        qos: int = None,
+        retain: bool = True,
         properties: mqtt_properties.Properties | None = None,
     ):
         """publish a messge to Home Assistant via the MQTT broker
@@ -299,8 +305,8 @@ class MQTTClient(mqtt.Client):
         self.publish(
             sensor.discovery_topic,
             json.dumps(sensor.discovery_payload),
-            qos=2,
-            retain=True,
+            qos=self.qos,
+            retain=self.retain,
         )
         self.__logger.info("%s Published discovery for %s", route, key)
 
@@ -316,7 +322,7 @@ class MQTTClient(mqtt.Client):
             the sensor for which discovery is to be cleared
         """
         route = "clear_discovery"
-        self.publish(sensor.discovery_topic, "", qos=2, retain=True)
+        self.publish(sensor.discovery_topic, "", qos=self.qos, retain=self.retain)
         self.__logger.info("%s Cleared discovery for %s", route, key)
 
     def publish_discoveries(self, sensors: Dict[str, Any]) -> None:
