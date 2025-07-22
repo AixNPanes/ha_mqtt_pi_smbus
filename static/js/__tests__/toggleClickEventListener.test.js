@@ -96,9 +96,11 @@ test("mqttToggleClickEventListener-Error", async () => {
   let state = JSON.parse(JSON.stringify(STATE));
   state.Connected = true;
   fetchMock.resetMocks();
-  fetchMock.mockReject(new Error("Network error simulated"));  
+  fetchMock.mockReject(new Error("Network error simulated"));
   state = await scripts.mqttToggleClickEventListener();
-  expect(scripts.errorMsg().innerHTML).toEqual('Error Toggling MQTT: Error: Network error simulated\n\tname: Error\n\tmessage: Network error simulated');
+  expect(scripts.errorMsg().innerHTML).toEqual(
+    "Error Toggling MQTT: Error: Network error simulated\n\tname: Error\n\tmessage: Network error simulated",
+  );
 });
 
 test("discoveryToggleClickEventListener-DiscoveryProcessing", async () => {
@@ -196,7 +198,9 @@ test("discoveryToggleClickEventListener-Error", async () => {
   state.Connected = true;
   scripts.setConnected();
   fetchMock.resetMocks();
-  fetchMock.mockReject(new Error("Network error simulated"));  
+  fetchMock.mockReject(new Error("Network error simulated"));
   state = await scripts.discoveryToggleClickEventListener();
-  expect(scripts.errorMsg().innerHTML).toEqual('Error toggling Discovery: Error: Network error simulated\n\tname: Error\n\tmessage: Network error simulated');
+  expect(scripts.errorMsg().innerHTML).toEqual(
+    "Error toggling Discovery: Error: Network error simulated\n\tname: Error\n\tmessage: Network error simulated",
+  );
 });

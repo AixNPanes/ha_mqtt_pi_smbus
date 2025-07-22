@@ -218,9 +218,14 @@ export function resyncState(state) {
 
 export function formatError(msg, error) {
   return (
-    msg +": " + error +
-    "\n\t" + "name: " + error.name +
-    "\n\tmessage: " + error.message
+    msg +
+    ": " +
+    error +
+    "\n\t" +
+    "name: " +
+    error.name +
+    "\n\tmessage: " +
+    error.message
   );
 }
 
@@ -243,7 +248,7 @@ export async function fetchStatus() {
     .then((state) => checkStateError(state))
     .catch((error) => {
       let err = formatError("fetchStatus error", error);
-      errorMsg().innerHTML = err;  
+      errorMsg().innerHTML = err;
       console.error(err);
     });
 }
@@ -340,7 +345,7 @@ export async function mqttToggleClickEventListener() {
     .then((data) => handleMqttTogglePost(data))
     .catch((error) => {
       let err = formatError("Error Toggling MQTT", error);
-      errorMsg().innerHTML = err;  
+      errorMsg().innerHTML = err;
       console.error(err);
     });
   return state;
@@ -364,7 +369,7 @@ export async function discoveryToggleClickEventListener() {
     .then((data) => handleDiscoveryTogglePost(data))
     .catch((error) => {
       let err = formatError("Error toggling Discovery", error);
-      errorMsg().innerHTML = err;  
+      errorMsg().innerHTML = err;
       console.error(err);
     });
   return state;

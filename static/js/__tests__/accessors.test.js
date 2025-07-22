@@ -107,6 +107,11 @@ test("getStatus-OK", async () => {
   expect(scripts.getStatus(scripts.mqttToggle())).toEqual("disconnected");
 });
 
+test("getStatus-DiscoveryStatus", async () => {
+  const scripts = await import("../scripts.js");
+  expect(scripts.getStatus(scripts.discoveryToggle())).toEqual("undiscovered");
+});
+
 test("getStatus-extra-classes", async () => {
   const scripts = await import("../scripts.js");
   scripts

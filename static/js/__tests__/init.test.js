@@ -42,7 +42,7 @@ afterEach(() => {
   fetch.resetMocks();
 });
 
-test("mqttToggleClickEventListener-ConnectProcessing", async () => {
+test("init", async () => {
   const domInit = jest.fn(() => Promise.resolve());
   const onUpdate = jest.fn();
   const onMqttClick = jest.fn();

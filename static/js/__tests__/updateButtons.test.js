@@ -70,12 +70,24 @@ test("checkStateError-Discovered-not-Connected", async () => {
   expect(scripts.discoveryToggle()).toHaveClass("disabled");
 });
 
-test("fetchStatus", async () => {
+test("fetchStatus-OK", async () => {
   const scripts = await import("../scripts.js");
   document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
-  let state = scripts.fetchStatus();
+  let state = await scripts.fetchStatus();
   expect(scripts.mqttToggle()).not.toHaveClass("disabled");
   expect(scripts.discoveryToggle()).toHaveClass("disabled");
+});
+
+test("fetchStatus-Error", async () => {
+  const scripts = await import("../scripts.js");
+  document.body.innerHTML = DOCUMENT_BODY_INNERHTML;
+  fetchMock.resetMocks();
+  fetchMock.mockReject(new Error("Network error simulated"));
+  let state = await scripts.fetchStatus();
+  console.error(document.body.innerHTML);
+  expect(scripts.errorMsg().innerHTML).toEqual(
+    "fetchStatus error: Error: Network error simulated\n\tname: Error\n\tmessage: Network error simulated",
+  );
 });
 
 test("updateButtonsFromStatus-OK", async () => {
