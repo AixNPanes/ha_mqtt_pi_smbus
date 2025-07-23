@@ -10,6 +10,24 @@ from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
 
 
 class HAFlask(Flask):
+    def connect(self):
+        # Connect and start loop
+        self.client.connect_mqtt()
+        self.client.loop_start()
+        for _ in range(self._debug_step_count):
+            is_connected = self.client.is_connected()
+            if is_connected:
+                self.client.state.connected = True
+                break
+            time.sleep(0.5)
+
+    def discover(self):
+        # Turn ON
+        self.client.loop_start()
+        self.client.publish_discoveries(self.device.sensors)
+        self.client.state.discovered = True
+        self.client.publish_availables(self.device.sensors)
+
     def __init__(
         self,
         import_name,
@@ -37,6 +55,9 @@ class HAFlask(Flask):
         self.config["SECRET_KEY"] = secret_key
         self.title = parser.title
         self.subtitle = parser.subtitle
+        if parser.mqtt['auto_discover']:
+            self.connect()
+            self.discover()
 
     def _register_routes(self):
         @self.route("/", methods=["GET"])
@@ -59,15 +80,7 @@ class HAFlask(Flask):
             )
             is_connected = state.connected
             if not is_connected:
-                # Connect and start loop
-                self.client.connect_mqtt()
-                self.client.loop_start()
-                for _ in range(self._debug_step_count):
-                    is_connected = self.client.is_connected()
-                    if is_connected:
-                        self.client.state.connected = True
-                        break
-                    time.sleep(0.5)
+                self.connect()
                 return jsonify(self.client.state.to_dict())
             self.client.disconnect_mqtt()
             self.client.state.connected = False
@@ -78,11 +91,7 @@ class HAFlask(Flask):
             self.client.state.error = []
 
             if not self.client.state.discovered:
-                # Turn ON
-                self.client.loop_start()
-                self.client.publish_discoveries(self.device.sensors)
-                self.client.state.discovered = True
-                self.client.publish_availables(self.device.sensors)
+                self.discover()
             else:
                 # Turn OFF
                 self.client.publish_unavailables(self.device.sensors)

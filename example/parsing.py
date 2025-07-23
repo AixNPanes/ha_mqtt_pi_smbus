@@ -159,6 +159,11 @@ class Parser:
             action="store_false",
         )
         parser.add_argument(
+            "--mqtt_auto_discover",
+            help="perform automatic discovery without web interaction",
+            action="store_true",
+        )
+        parser.add_argument(
             "-a",
             "--bme280_address",
             help="BME280 address (118, 119, 0x67, 0x77",
@@ -241,6 +246,12 @@ class Parser:
             config,
             secrets,
             ["mqtt", "disable_retain"],
+        )
+        self.mqtt["auto_discover"] = configOrCmdParm(
+            args.mqtt_auto_discover,
+            config,
+            secrets,
+            ["mqtt", "auto_discover"],
         )
         self.mqtt["retain"] = False if self.mqtt["disable_retain"] else True
 
