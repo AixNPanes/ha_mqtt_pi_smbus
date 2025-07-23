@@ -12,7 +12,7 @@ mqtt:
   username: mqttuser
   password: mqttuser-password
   polling_interval: 1
-  qos: 1  
+  qos: 0  
   disable_retain: false 
 bme280:
   address: 0x76

@@ -74,7 +74,9 @@ class HASensor:
         self.discovery_payload = {
             "name": f"{self.name}",
             "stat_t": "",  # this is set with setDevice() by the HADevice
+            "availability_topic": "", # this is set with setDevice()
             "device_class": f"{self.device_class}",
+            "state_class": "measurement",
             "val_tpl": f"{{{{ value_json.{self.device_class} }}}}",
             "unit_of_meas": f"{units}",
             "uniq_id": f"{getObjectId()}-{self.device_class}",
@@ -85,11 +87,17 @@ class HASensor:
     def setDevice(
         self, base_name: str, state_topic: str, device_payload: Dict[str, str]
     ) -> None:
+        device_name = f"{getObjectId()}-{self.device_class}"
         self.discovery_topic = (
-            f"{base_name}/sensor/{getObjectId()}-{self.device_class}/config"
+            f"{base_name}/sensor/{device_name}/config"
         )
+        self.available_topic = f"{base_name}/{device_name}/availability"
+        self.available_payload = 'online'
+        self.unavailable_payload = 'offline'
         self.discovery_payload["stat_t"] = state_topic
         self.discovery_payload["dev"] = device_payload
+        self.discovery_payload["availability_topic"] = \
+            self.available_topic
 
     def jsonPayload(self) -> str:
         return json.dumps(self.discovery_payload, default=vars)

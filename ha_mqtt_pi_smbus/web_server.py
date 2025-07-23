@@ -82,8 +82,11 @@ class HAFlask(Flask):
                 self.client.loop_start()
                 self.client.publish_discoveries(self.device.sensors)
                 self.client.state.discovered = True
+                self.client.publish_availables(self.device.sensors)
             else:
                 # Turn OFF
+                self.client.publish_unavailables(self.device.sensors)
+                time.sleep(0.5)
                 self.client.clear_discoveries(self.device.sensors)
                 time.sleep(0.5)
                 self.client.loop_stop()

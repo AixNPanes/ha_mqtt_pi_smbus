@@ -86,7 +86,8 @@ class MQTT_Publisher_Thread(threading.Thread):
             data = self.smbus_device.data()
             if data["last_update"] != self.data["last_update"]:
                 self.data = data
-                self.client.publish(self.device.state_topic, json.dumps(data))
+                self.client.publish(self.device.state_topic, json.dumps(data),
+                    qos=self.client.qos, retain=self.client.retain)
             time.sleep(1)
 
     def clear_do_run(self) -> None:
@@ -276,8 +277,10 @@ class MQTTClient(mqtt.Client):
             A set of properties for the message, if desired
         """
         route = "publish"
-        self.__logger.info('%s publishing to topic: "%s"', route, topic)
-        result = super().publish(topic, message)
+        self.__logger.info('%s publishing to Topic = %s, Payload = %s, ' + \
+                "QOS = %s, Retain = %s, Properties = %s",
+                           route, topic, message, qos, retain, properties)
+        result = super().publish(topic, message, qos, retain, properties)
         status = result[0]
         mid = result[1]
         if status != 0:
@@ -301,14 +304,12 @@ class MQTTClient(mqtt.Client):
         sensor : HASensor
             the sensor for which discovery is to be initiated
         """
-        route = "publish_discovery"
         self.publish(
             sensor.discovery_topic,
             json.dumps(sensor.discovery_payload),
             qos=self.qos,
             retain=self.retain,
         )
-        self.__logger.info("%s Published discovery for %s", route, key)
 
     def clear_discovery(self, key: str, sensor: HASensor) -> None:
         """publish a clear discovery message for a sensor
@@ -321,9 +322,43 @@ class MQTTClient(mqtt.Client):
         sensor : HASensor
             the sensor for which discovery is to be cleared
         """
-        route = "clear_discovery"
         self.publish(sensor.discovery_topic, "", qos=self.qos, retain=self.retain)
-        self.__logger.info("%s Cleared discovery for %s", route, key)
+
+    def publish_available(self, key: str, sensor: HASensor) -> None:
+        """publish an available message
+
+        Parameters
+        ----------
+        key : str
+            the name of the sensor for which available is being
+            performed
+        sensor : HASensor
+            the sensor for which available is to be initiated
+        """
+        self.publish(
+            sensor.available_topic,
+            sensor.available_payload,
+            qos=self.qos,
+            retain=self.retain,
+        )
+
+    def publish_unavailable(self, key: str, sensor: HASensor) -> None:
+        """publish an unavailable message
+
+        Parameters
+        ----------
+        key : str
+            the name of the sensor for which available is being
+            performed
+        sensor : HASensor
+            the sensor for which available is to be initiated
+        """
+        self.publish(
+            sensor.available_topic,
+            sensor.unavailable_payload,
+            qos=self.qos,
+            retain=self.retain,
+        )
 
     def publish_discoveries(self, sensors: Dict[str, Any]) -> None:
         """Publish a discovery message for each sensor in the device
@@ -341,6 +376,30 @@ class MQTTClient(mqtt.Client):
         for key, sensor in sensors.items():
             self.publish_discovery(key, sensor)
         self.state.discovered = True
+
+    def publish_availables(self, sensors: Dict[str, Any]) -> None:
+        """Publish an available message for each sensor in the device
+
+        Parameters
+        ----------
+        sensors : Dict[str, Any]
+            a set of sensor_name, sensor pairs
+
+        """
+        for key, sensor in sensors.items():
+            self.publish_available(key, sensor)
+
+    def publish_unavailables(self, sensors: Dict[str, Any]) -> None:
+        """Publish an unvailable message for each sensor in the device
+
+        Parameters
+        ----------
+        sensors : Dict[str, Any]
+            a set of sensor_name, sensor pairs
+
+        """
+        for key, sensor in sensors.items():
+            self.publish_unavailable(key, sensor)
 
     def clear_discoveries(self, sensors: Dict[str, Any]) -> None:
         """Publish a clear discovery message for each sensor in the device
