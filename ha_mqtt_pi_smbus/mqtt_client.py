@@ -1,23 +1,20 @@
 from __future__ import annotations
 
-from enum import Enum
 import json
 import logging
 import random
 import threading
 import time
-import traceback
 from typing import Any, Dict
 
 import paho.mqtt.client as mqtt
 import paho.mqtt.enums as mqtt_enums
 import paho.mqtt.properties as mqtt_properties
 from paho.mqtt.client import connack_string
-from paho.mqtt.reasoncodes import ReasonCode
 
-from ha_mqtt_pi_smbus.device import HADevice, SMBusDevice
+from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice
 from ha_mqtt_pi_smbus.environ import getObjectId
-from ha_mqtt_pi_smbus.state import State, StateErrorEnum
+from ha_mqtt_pi_smbus.state import State
 
 
 class MQTT_Publisher_Thread(threading.Thread):
@@ -191,7 +188,6 @@ class MQTTClient(mqtt.Client):
             True,
             None,
         )
-        route = "__init__"
         self.broker_address = mqtt_config["broker"]
         self.port = mqtt_config["port"]
         self.username = mqtt_config["username"]
@@ -286,7 +282,11 @@ class MQTTClient(mqtt.Client):
         mid = result[1]
         if status != 0:
             self.__logger.error(
-                "%s Failed to send message to topic %s, rc %s", route, topic, status
+                "%s Failed to send message to topic %s, rc %s, mid %s",
+                route,
+                topic,
+                status,
+                mid,
             )
         return result
 
@@ -334,7 +334,6 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        route = "publish_discoveries"
         self.publisher_thread = MQTT_Publisher_Thread(
             self, self.device, self.smbus_device
         )
@@ -352,7 +351,6 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        route = "clear_discoveries"
         for key, sensor in sensors.items():
             self.clear_discovery(key, sensor)
         self.state.discovered = False

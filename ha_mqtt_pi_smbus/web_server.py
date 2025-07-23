@@ -1,15 +1,9 @@
-import atexit
-import json
 import logging
 import os
 import secrets
-import threading
 import time
-import traceback
 
-import pdb
-
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, jsonify
 
 from ha_mqtt_pi_smbus.device import HADevice
 from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
@@ -24,7 +18,6 @@ class HAFlask(Flask):
         device: HADevice,
         _debug_step_count: int = 20,
     ):
-        route = "__init__"
         templates_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "templates")
         )
@@ -48,8 +41,6 @@ class HAFlask(Flask):
     def _register_routes(self):
         @self.route("/", methods=["GET"])
         def index():
-            route = f"{request.path} [{request.method}]"
-
             return render_template(
                 "index.html",
                 state=self.client.state.to_dict(),
@@ -59,22 +50,13 @@ class HAFlask(Flask):
 
         @self.route("/status", methods=["GET"])
         def status():
-            route = f"{request.path} [{request.method}]"
             return jsonify(self.client.state.to_dict())
-            # return render_template(
-            #    "index.html",
-            #    state=self.client.state.to_dict(),
-            #    title=self.title,
-            #    subtitle=self.subtitle,
-            # )
 
         @self.route("/mqtt-toggle", methods=["POST"])
         def mqtt_toggle():
-            route = f"{request.path} [{request.method}]"
             state = self.client.state.validate(
                 request.get_json(), self.client.is_connected()
             )
-            json_data = request.get_json()
             is_connected = state.connected
             if not is_connected:
                 # Connect and start loop
@@ -93,10 +75,7 @@ class HAFlask(Flask):
 
         @self.route("/discovery-toggle", methods=["POST"])
         def discovery_toggle():
-            route = f"{request.path} [{request.method}]"
-            clientstate = request.get_json()
             self.client.state.error = []
-            is_connected = self.client.is_connected()
 
             if not self.client.state.discovered:
                 # Turn ON

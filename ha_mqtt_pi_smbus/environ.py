@@ -1,4 +1,3 @@
-import psutil
 import subprocess
 from typing import Any, Dict
 
@@ -84,7 +83,7 @@ def getMacAddress() -> str:
     >>>
     """
     mac = getMacAddressByInterface("eth0")
-    if not mac is None:
+    if mac is not None:
         return mac
     return getMacAddressByInterface("wlan0")
 
@@ -132,14 +131,30 @@ def getCpuInfo() -> Dict[str, Any]:
         >>> from environ import getCpuInfo
         >>> print(f'The cpu info is as follows:\n{getCpuInfo()}')
        The cpu info is as follows:
-    {'cpu': {'Revision': 'a22082', 'Serial': '000000009ec1f24d', 'Model': 'Raspberry Pi 3 Model B Rev 1.2', 'processors': 4}, 'processors': {'0': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '1': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '2': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}, '3': {'BogoMIPS': 38.4, 'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'], 'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}}}
+    {'cpu': {'Revision': 'a22082', 'Serial': '000000009ec1f24d',
+    'Model': 'Raspberry Pi 3 Model B Rev 1.2', 'processors': 4},
+    'processors': {'0': {'BogoMIPS': 38.4,x
+    'Features':['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'],
+    'CPU implementer': '0x41', 'CPU architecture': 8,
+    'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4},
+    '1': {'BogoMIPS': 38.4,
+    'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'],
+    'CPU implementer': '0x41', 'CPU architecture': 8, 'CPU variant': '0x0',
+    'CPU part': '0xd03', 'CPU revision': 4},
+    '2': {'BogoMIPS': 38.4,
+    'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'],
+    'CPU implementer': '0x41', 'CPU architecture': 8,
+    'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4},
+    '3': {'BogoMIPS': 38.4,
+    'Features': ['fp', 'asimd', 'evtstrm', 'crc32', 'cpuid'],
+    'CPU implementer': '0x41', 'CPU architecture': 8,
+    'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}}}
         >>>
     """
     info = {}
     with open("/proc/cpuinfo", "r") as f:
         content = f.read()
     groups = content.split("\n\n")
-    stanzas = []
     processors = {}
     for group in groups:
         piece = group.split("\n")
@@ -151,7 +166,7 @@ def getCpuInfo() -> Dict[str, Any]:
                 token[1] = token[1].strip()
                 stanza[token[0]] = token[1]
         processor = stanza.pop("processor", None)
-        if not processor is None:
+        if processor is not None:
             stanza["BogoMIPS"] = float(stanza["BogoMIPS"])
             stanza["CPU architecture"] = int(stanza["CPU architecture"])
             stanza["CPU revision"] = int(stanza["CPU revision"])
@@ -180,7 +195,12 @@ def getOSInfo() -> Dict[str, Any]:
     >>> from environ import getOSInfo
     >>> print(f'The OS release information is:\n{getOSInfo()}')
     The OS release information is:
-    {'PRETTY_NAME': '"Debian GNU/Linux 12 (bookworm)"', 'NAME': '"Debian GNU/Linux"', 'VERSION_ID': '"12"', 'VERSION': '"12 (bookworm)"', 'VERSION_CODENAME': 'bookworm', 'ID': 'debian', 'HOME_URL': '"https://www.debian.org/"', 'SUPPORT_URL': '"https://www.debian.org/support"', 'BUG_REPORT_URL': '"https://bugs.debian.org/"'}
+    {'PRETTY_NAME': '"Debian GNU/Linux 12 (bookworm)"',
+    'NAME': '"Debian GNU/Linux"', 'VERSION_ID': '"12"',
+    VERSION': '"12 (bookworm)"', 'VERSION_CODENAME': 'bookworm',
+    'ID': 'debian', 'HOME_URL': '"https://www.debian.org/"',
+    'SUPPORT_URL': '"https://www.debian.org/support"',
+    'BUG_REPORT_URL': '"https://bugs.debian.org/"'}
     >>>
     """
     info = {}

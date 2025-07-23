@@ -91,14 +91,12 @@ class BME280_Device(HADevice):
             manufacturer,
             model,
         )
-        route = "BME280_Sensor"
         self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.smbus_device = smbus_device
         self.sampler_thread = SMBusDevice_Sampler_Thread(smbus_device, polling_interval)
         self.sampler_thread.start()
 
     def data(self) -> Dict[str, Any]:
-        route = "BME280_Sensor"
         return self.smbus_device.data()
 
 
@@ -186,8 +184,6 @@ class BME280(SMBusDevice):
 
 
 if __name__ == "__main__":
-    import json
-
     dev = BME280(1, 0x76)
     print(f"BME280 device: {dev}")
     dev.sample()

@@ -1,11 +1,6 @@
 # tests/test_state.py
-from argparse import Namespace
 import logging
-import pytest
-from pytest_mock import MockerFixture
 import unittest
-from unittest import mock
-from unittest.mock import MagicMock, patch
 
 from ha_mqtt_pi_smbus.state import State, StateErrorEnum
 
@@ -124,7 +119,6 @@ class TestState(unittest.TestCase):
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_2, state.error_code[1])
 
     def test_state_discovered_equal(self):
-        route = "d="
         init_state = State({"Connected": False, "Discovered": False})
         json_data = {"Connected": False, "Discovered": False}
         state = init_state.validate(json_data, False)

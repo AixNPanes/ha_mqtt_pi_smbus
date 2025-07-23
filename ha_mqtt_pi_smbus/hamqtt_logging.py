@@ -3,8 +3,6 @@ from json.decoder import JSONDecodeError
 import logging
 import logging.config
 
-import flask.logging
-
 
 def loggerConfig() -> str:
     """logging configuration
@@ -83,9 +81,9 @@ def loggerConfig() -> str:
         with open("logging.config", "r") as config_file:
             logging_config = json.load(config_file)  # For JSON
             # config = yaml.safe_load(f) # For YAML
-        if not "disable_existing_loggers" in logging_config:
+        if "disable_existing_loggers" not in logging_config:
             logging_config["disable_existing_loggers"] = False
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         print("FileNotFoundError")
         logging_config = LOGGING_CONFIG
     except JSONDecodeError as e:

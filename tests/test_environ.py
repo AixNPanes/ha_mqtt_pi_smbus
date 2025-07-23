@@ -1,10 +1,8 @@
 # tests/test_routes.py
 from argparse import Namespace
-import pytest
 import subprocess
 import unittest
-from unittest import mock
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from ha_mqtt_pi_smbus.environ import (
     getTemperature,
@@ -15,14 +13,12 @@ from ha_mqtt_pi_smbus.environ import (
     getOSInfo,
 )
 
-from .mock_data import *
+from .mock_data import MOCKED_OPEN
 
 
 class TestDevice(unittest.TestCase):
     def setUp(self):
-        parser = Namespace(
-            logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
-        )
+        Namespace(logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle")
 
         self.mocked_open = MOCKED_OPEN
 
@@ -90,7 +86,7 @@ class TestDevice(unittest.TestCase):
         with patch(
             "ha_mqtt_pi_smbus.environ.subprocess.check_output",
             side_effect=["".encode("utf-8"), fake_ifconfig_wlan0_output],
-        ) as mock_check_output:
+        ):
             mac = getMacAddress()
             assert mac == "b8:27:eb:94:a7:19"
 

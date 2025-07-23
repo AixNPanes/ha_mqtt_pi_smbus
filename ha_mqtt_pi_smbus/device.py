@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 from smbus2 import SMBus
 
-from ha_mqtt_pi_smbus.environ import getCpuInfo, getOSInfo, getMacAddress, getObjectId
+from ha_mqtt_pi_smbus.environ import getCpuInfo, getOSInfo, getObjectId
 
 
 class HASensor:
@@ -168,12 +168,10 @@ class HADevice:
         model: str,
         base_name: str = None,
     ):
-        mac_address = getMacAddress()
         basename = base_name
-        if basename == None:
+        if basename is None:
             basename = "homeassistant"
         self.sensors = {}
-        _sensor = None
         device_payload = {
             "ids": [f"{name}"],
             "name": f"{name}",
@@ -186,7 +184,6 @@ class HADevice:
         for sensor in sensors:
             sensor.setDevice(basename, state_topic, device_payload)
             self.sensors[sensor.discovery_payload["name"].lower()] = sensor
-            _sensor = sensor
         self.sensor_names = list(self.sensors.keys())
         self.discovery_topics = {k: v.discovery_topic for k, v in self.sensors.items()}
         self.discovery_payload = {
@@ -238,11 +235,13 @@ class SMBusDevice:
                 super().__init__(bus)
                 self.bus = bus
                 self.address = address
-                self._calibration_params = bme280.load_calibration_params(self, self.address)
+                self._calibration_params =
+                    bme280.load_calibration_params(self, self.address)
 
             def sample(self) -> None:
                 super().sample()
-                data = bme280.sample(self, self.address, self._calibration_params)
+                data = bme280.sample(
+                    self, self.address, self._calibration_params)
                 last_update = datetime.datetime.now()
                 self.temperature = data.temperature
                 self.pressure = data.pressure
@@ -283,7 +282,8 @@ class SMBusDevice:
         """
         self.last_update = datetime.datetime.now()
 
-    # Override this method return any desired data stored in the 'data' variable as a dict
+    # Override this method return any desired data stored
+    # in the 'data' variable as a dict
     def data(self) -> Dict[str, Any]:
         """return the previously sampled data to the application
 
@@ -344,10 +344,12 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         Example
         -------
         class BME280_Device(HASensor)
-            def __init__(self, name:str, smbus_device: SMBusDevice, polling_interval:int)
+            def __init__(self, name:str, smbus_device: SMBusDevice,
+                    polling_interval:int)
                 super().__init((Temperature(name), Pressure(name), Humidity(name)))
                 self.smbus_device = smbus_device
-                self.sampler_thread = SMBussDevice_Sampler_Thread(logger, smbus_device, polling_interval)
+                self.sampler_thread = SMBussDevice_Sampler_Thread(
+                    logger, smbus_device, polling_interval)
                 self.sampler_thread.start()
         """
         super().__init__(name="SMBusDevice", daemon=True)
@@ -370,7 +372,6 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         when the thread is started with the thread.start() method.
         (See class example, above.)
         """
-        route = "SMBusDevice_Sampler_Thread"
         while True:
             for i in range(self.polling_interval):
                 if not self.do_run:

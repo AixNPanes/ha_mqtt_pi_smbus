@@ -1,11 +1,7 @@
 import argparse
-import json
 import logging
-import random
-import re
 import socket
 import sys
-import time
 from typing import Any, Dict
 import yaml
 
@@ -95,7 +91,7 @@ def configOrCmdParm(
         return arg
     cfg = deep_merge_dicts(config, secrets)
     for n in cfg_name:
-        if not n in cfg:
+        if n not in cfg:
             if required:
                 print(f"parameter '{' '.join(cfg_name)}' required")
                 sys.exit()
@@ -107,14 +103,18 @@ def configOrCmdParm(
 class Parser:
     def __init__(self):
         parser = argparse.ArgumentParser(
-            description="Raspberry Pi BME280 Home Assistant MQTT client for temperature, pressure and humidity",
-            epilog="This  program starts a simple web server which can be used to connect /disconnect the MQTT client and enable/disable device discovery. Without these 2 operations, the device wil not appear in Home Assistant.",
+            description="Raspberry Pi BME280 Home Assistant MQTT client "
+            + "for temperature, pressure and humidity",
+            epilog="This  program starts a simple web server which can be "
+            + "used to connect /disconnect the MQTT client and "
+            + "enable/disable device discovery. Without these 2 "
+            + "operations, the device wil not appear in Home Assistant.",
         )
         parser.add_argument(
-            "-t", "--title", help=f"the title for the web management interface"
+            "-t", "--title", help="the title for the web management interface"
         )
         parser.add_argument(
-            "--subtitle", help=f"the subtitle for the web management interface"
+            "--subtitle", help="the subtitle for the web management interface"
         )
         parser.add_argument(
             "-w",
@@ -147,13 +147,15 @@ class Parser:
         parser.add_argument(
             "-q",
             "--mqtt_qos",
-            help="MQTT Quality of Service (0, 1, 2). Check HA MQTT documentation for descrition. Default(0)",
+            help="MQTT Quality of Service (0, 1, 2). Check HA MQTT "
+            + "documentation for descrition. Default(0)",
             type=int,
             choices=(0, 1, 2),
         )
         parser.add_argument(
             "--mqtt_disable_retain",
-            help="MQTT retain policy. Check HA MQTT documentation for descrition. Default(true)",
+            help="MQTT retain policy. Check HA MQTT documentation "
+            + "for descrition. Default(true)",
             action="store_false",
         )
         parser.add_argument(
@@ -181,7 +183,8 @@ class Parser:
         parser.add_argument(
             "-s",
             "--secrets",
-            help="secrets file name (YAML) which is merged with and overrides entries in config",
+            help="secrets file name (YAML) which is merged with "
+            + "and overrides entries in config",
         )
 
         args = parser.parse_args()

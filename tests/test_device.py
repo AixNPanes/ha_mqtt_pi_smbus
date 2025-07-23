@@ -4,7 +4,7 @@ import pytest
 import time
 import unittest
 from unittest import mock
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock, patch
 
 from ha_mqtt_pi_smbus.device import (
     HASensor,
@@ -12,7 +12,7 @@ from ha_mqtt_pi_smbus.device import (
     SMBusDevice_Sampler_Thread,
 )
 
-from .mock_data import *
+from .mock_data import MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT, MOCKED_OPEN
 
 
 class Humidity(HASensor):
@@ -22,9 +22,7 @@ class Humidity(HASensor):
 
 class TestDevice(unittest.TestCase):
     def setUp(self):
-        parser = Namespace(
-            logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
-        )
+        Namespace(logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle")
 
         self.mocked_open = MOCKED_OPEN
 
@@ -116,7 +114,10 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(self.ha_sensor.discovery_payload["unit_of_meas"], "mbar")
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
-            '{"name": "humidity", "stat_t": "", "device_class": "humidity", "val_tpl": "{{ value_json.humidity }}", "unit_of_meas": "mbar", "uniq_id": "b827ebc1f24d-humidity", "dev": {}}',
+            '{"name": "humidity", "stat_t": "", "device_class": '
+            + '"humidity", "val_tpl": "{{ value_json.humidity }}", '
+            + '"unit_of_meas": "mbar", "uniq_id": "b827ebc1f24d-humidity", '
+            + '"dev": {}}',
         )
 
     def test_ha_device(self):

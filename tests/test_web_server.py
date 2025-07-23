@@ -1,18 +1,13 @@
 # tests/test_web_server.py
-from argparse import Namespace
 import logging
-import pdb
-import pytest
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
-from ha_mqtt_pi_smbus.state import State, StateErrorEnum
+from ha_mqtt_pi_smbus.state import State
 from ha_mqtt_pi_smbus.web_server import HAFlask
 
 
 class DummyParser:
-    logginglevel: "DEBUG"
     title = "Test Title"
     subtitle = "Test Subtitle"
 
@@ -46,7 +41,10 @@ class TestHAFlask(unittest.TestCase):
 
     def test_index(self):
         self.mock_client.is_connected.return_value = True
-        # with self.app.test_request_context('/', method='GET', content_type='text/plain'):
+        # with self.app.test_request_context(
+        #   '/',
+        #   method='GET',
+        #   content_type='text/plain'):
         with self.client.get("/", content_type="text/plain") as response:
             self.logger.debug(response)
             # response = self.app.dispatch_request()
@@ -66,6 +64,7 @@ class TestHAFlask(unittest.TestCase):
         self.mock_client.is_connected.return_value = False
         with self.app.test_request_context("/status", method="GET"):
             response = self.app.dispatch_request()
+            self.assertIsNotNone(response)
 
     def test_mqtt_toggle_not_connected(self):
         # State before toggle: disconnected

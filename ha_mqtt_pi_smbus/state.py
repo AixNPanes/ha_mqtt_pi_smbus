@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from enum import Enum
-import json
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from paho.mqtt.reasoncodes import ReasonCode
 
@@ -12,7 +11,8 @@ class StateErrorEnum(Enum):
     SUCCESS = (0, None)
     CONNECTED_INCONSISTENT_1 = (
         1,
-        "json_state.connected != client.is_connected or json_state.connected != client.state.connected",
+        "json_state.connected != client.is_connected or "
+        + "json_state.connected != client.state.connected",
     )
     CONNECTED_INCONSISTENT_2 = (2, "client.state.connected != client.is_connected")
     DISCOVERED_INCONSISTENT = (3, "json_state.discovered != client.state.discovered")
@@ -72,7 +72,7 @@ class State:
 
     def add_error_code(self, error_code):
         if error_code is not None:
-            if not error_code in self.error_code:
+            if error_code not in self.error_code:
                 self.error_code.append(error_code)
 
     def translate_error_codes(self):

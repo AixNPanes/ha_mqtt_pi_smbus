@@ -1,26 +1,24 @@
 # tests/test_mqtt_client.py
 from argparse import Namespace
-import pytest
-from pytest_mock import MockerFixture
-import subprocess
 import time
 import unittest
 from unittest import mock
-from unittest.mock import MagicMock, patch
-
-import paho
-from paho.mqtt.client import Client as mqtt
+from unittest.mock import patch
 
 from ha_mqtt_pi_smbus.device import HADevice, HASensor
 from ha_mqtt_pi_smbus.mqtt_client import (
     State,
-    StateErrorEnum,
     MQTTClient,
     MQTT_Publisher_Thread,
 )
-from ha_mqtt_pi_smbus.environ import *
+from ha_mqtt_pi_smbus.environ import DEGREE
 
-from .mock_data import *
+from .mock_data import (
+    MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT,
+    MOCK_IFCONFIG_WLAN0_DATA,
+    MOCK_IFCONFIG_ETH0_DATA,
+    MOCKED_OPEN,
+)
 
 """
 Note the methods of MQTTClient aren't necessarily order dependent so
@@ -30,7 +28,7 @@ so these tests don't run in the normal functional order.
 
 class Temperature(HASensor):
     def __init__(self, name: str):
-        super().__init__("%C" % (DEGREE))
+        super().__init__("%sC" % (DEGREE))
 
 
 class Humidity(HASensor):
@@ -56,7 +54,7 @@ class BME280_Device(HADevice):
 
 class TestMQTTClient(unittest.TestCase):
     def setUp(self):
-        parser = Namespace(
+        self.parser = Namespace(
             logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
         )
         self.mocked_open = MOCKED_OPEN
@@ -157,7 +155,7 @@ class TestMQTTClient(unittest.TestCase):
             }
             mqtt_client.state = State(obj)
             assert mqtt_client.connect_mqtt() == 0
-            assert mqtt_client.is_connected() == False
+            assert not mqtt_client.is_connected()
             thread.start()
             assert thread.data["last_update"] == 2
             time.sleep(1.1)
@@ -203,7 +201,7 @@ class TestMQTTClient(unittest.TestCase):
         obj = {"Connected": False, "Discovered": False, "rc": 0, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
-        assert mqtt_client.is_connected() == False
+        assert not mqtt_client.is_connected()
         assert not mqtt_client.state.connected
         MQTTClient.on_connect(mqtt_client, None, None, 0)
         assert mqtt_client.state.connected
@@ -221,7 +219,7 @@ class TestMQTTClient(unittest.TestCase):
         )
         assert mqtt_client.connect_mqtt() == 0
         assert mqtt_client.disconnect_mqtt() == 1
-        assert mqtt_client.is_discovered() == False
+        assert not mqtt_client.is_discovered()
 
     @patch("subprocess.check_output")
     @patch("paho.mqtt.client.Client.is_connected")
@@ -252,7 +250,7 @@ class TestMQTTClient(unittest.TestCase):
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
-        assert mqtt_client.is_connected() == False
+        assert not mqtt_client.is_connected()
         assert not mqtt_client.state.connected
         MQTTClient.on_connect(mqtt_client, None, None, 1)
         assert not mqtt_client.state.connected
@@ -291,7 +289,7 @@ class TestMQTTClient(unittest.TestCase):
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
-        assert mqtt_client.is_connected() == False
+        assert not mqtt_client.is_connected()
         assert not mqtt_client.state.connected
         MQTTClient.on_connect(mqtt_client, None, None, 0)
         assert mqtt_client.state.connected
@@ -325,12 +323,12 @@ class TestMQTTClient(unittest.TestCase):
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
-        assert mqtt_client.is_connected() == False
+        assert not mqtt_client.is_connected()
         assert not mqtt_client.state.connected
         MQTTClient.on_connect(mqtt_client, None, None, 0)
         assert mqtt_client.state.connected
         mqtt_client.state.connected = True
-        assert mqtt_client.is_connected() == None
+        assert mqtt_client.is_connected() is None
 
     @patch("subprocess.check_output")
     @patch("paho.mqtt.client.Client.subscribe")
@@ -368,7 +366,7 @@ class TestMQTTClient(unittest.TestCase):
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
         assert mqtt_client.connect_mqtt() == 0
-        assert mqtt_client.is_connected() == False
+        assert not mqtt_client.is_connected()
         assert not mqtt_client.state.connected
         MQTTClient.on_connect(mqtt_client, None, None, 0)
         assert mqtt_client.state.connected
@@ -433,7 +431,7 @@ class TestMQTTClient(unittest.TestCase):
             }
             mqtt_client.state = State(obj)
             assert mqtt_client.connect_mqtt() == 0
-            assert mqtt_client.is_connected() == False
+            assert not mqtt_client.is_connected()
             assert not mqtt_client.state.connected
             MQTTClient.on_connect(mqtt_client, None, None, 0)
             assert mqtt_client.state.connected

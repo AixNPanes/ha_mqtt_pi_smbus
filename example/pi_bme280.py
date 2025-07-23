@@ -1,8 +1,5 @@
 import atexit
 import logging
-import os
-
-import paho.mqtt.client as mqtt
 
 from example.parsing import Parser
 from example.device import BME280, BME280_Device

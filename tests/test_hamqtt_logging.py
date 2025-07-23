@@ -1,11 +1,9 @@
 # tests/test_hamqtt_loging.py
 from argparse import Namespace
 from json.decoder import JSONDecodeError
-import logging
-import pytest
 import unittest
 from unittest import mock
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import patch, mock_open
 
 from ha_mqtt_pi_smbus.hamqtt_logging import loggerConfig
 
@@ -74,9 +72,7 @@ class MockLogging:
 class TestLogging(unittest.TestCase):
     def setUp(self):
 
-        parser = Namespace(
-            logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
-        )
+        Namespace(logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle")
 
     def test_file_not_found(self):
         with patch(
@@ -92,7 +88,7 @@ class TestLogging(unittest.TestCase):
             }"""
         )
         with patch("ha_mqtt_pi_smbus.hamqtt_logging.open", m) as mockopen:
-            cfg = loggerConfig()
+            loggerConfig()
             mockopen.assert_called_once_with("logging.config", "r")
 
     def test_loggerconfig(self):
