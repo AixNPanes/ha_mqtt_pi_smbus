@@ -25,6 +25,7 @@ device = BME280_Device(
     "BME280",  # model name
     bme280,
     parser.bme280["polling_interval"],
+    parser.mqtt["expire_after"],
 )
 
 # MQTT Setup

@@ -79,6 +79,7 @@ class BME280_Device(HADevice):
         model: str,
         smbus_device: SMBusDevice,
         polling_interval: int,
+        expire_after: int = 120
     ):
         super().__init__(
             (
@@ -90,6 +91,7 @@ class BME280_Device(HADevice):
             state_topic,
             manufacturer,
             model,
+            expire_after = expire_after,
         )
         self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.smbus_device = smbus_device

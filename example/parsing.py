@@ -164,6 +164,11 @@ class Parser:
             action="store_true",
         )
         parser.add_argument(
+            "--mqtt_expire_after",
+            help="MQTT will mark a device unavailable if not heaard from",
+            type=int,
+        )
+        parser.add_argument(
             "-a",
             "--bme280_address",
             help="BME280 address (118, 119, 0x67, 0x77",
@@ -171,7 +176,10 @@ class Parser:
             choices=(118, 119),
         )
         parser.add_argument(
-            "-r", "--bme280_bus", help="BME280 I2C bus (1, 2)", type=int, choices=(1, 2)
+            "-r",
+            "--bme280_bus",
+            help="BME280 I2C bus (1, 2)",
+            type=int, choices=(1, 2)
         )
         parser.add_argument(
             "-N",
@@ -254,7 +262,10 @@ class Parser:
             ["mqtt", "auto_discover"],
         )
         self.mqtt["retain"] = False if self.mqtt["disable_retain"] else True
-
+        self.mqtt["expire_after"] = configOrCmdParm(
+            args.mqtt_qos, config, secrets, ["mqtt", "expire_after"],
+            default=120
+        )
         # get BME280 parameters
         self.bme280 = {}
         self.bme280["bus"] = configOrCmdParm(

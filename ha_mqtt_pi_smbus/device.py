@@ -77,6 +77,7 @@ class HASensor:
             "availability_topic": "", # this is set with setDevice()
             "device_class": f"{self.device_class}",
             "state_class": "measurement",
+            "expire_after": 120, # this is set with setDevice()
             "val_tpl": f"{{{{ value_json.{self.device_class} }}}}",
             "unit_of_meas": f"{units}",
             "uniq_id": f"{getObjectId()}-{self.device_class}",
@@ -85,7 +86,8 @@ class HASensor:
         self.discovery_topic = None  # this is set with setDevice() by the HADevice
 
     def setDevice(
-        self, base_name: str, state_topic: str, device_payload: Dict[str, str]
+        self, base_name: str, state_topic: str, device_payload: Dict[str, str],
+        expire_after:int = 120
     ) -> None:
         device_name = f"{getObjectId()}-{self.device_class}"
         self.discovery_topic = (
@@ -98,6 +100,7 @@ class HASensor:
         self.discovery_payload["dev"] = device_payload
         self.discovery_payload["availability_topic"] = \
             self.available_topic
+        self.discovery_payload["expire_after"] = expire_after
 
     def jsonPayload(self) -> str:
         return json.dumps(self.discovery_payload, default=vars)
@@ -175,6 +178,7 @@ class HADevice:
         manufacturer: str,
         model: str,
         base_name: str = None,
+        expire_after: int = 120,
     ):
         basename = base_name
         if basename is None:
@@ -190,7 +194,8 @@ class HADevice:
             "sn": f"{getObjectId()}",
         }
         for sensor in sensors:
-            sensor.setDevice(basename, state_topic, device_payload)
+            sensor.setDevice(basename, state_topic, device_payload,
+                             expire_after)
             self.sensors[sensor.discovery_payload["name"].lower()] = sensor
         self.sensor_names = list(self.sensors.keys())
         self.discovery_topics = {k: v.discovery_topic for k, v in self.sensors.items()}

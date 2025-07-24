@@ -112,12 +112,15 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(self.ha_sensor.discovery_payload["name"], "humidity")
         self.assertEqual(self.ha_sensor.discovery_payload["device_class"], "humidity")
         self.assertEqual(self.ha_sensor.discovery_payload["unit_of_meas"], "mbar")
-        self.assertEqual(len(self.ha_sensor.jsonPayload()), 100 )
+        self.assertEqual(len(self.ha_sensor.jsonPayload()), 250)
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
             '{"name": "humidity", ' +
             '"stat_t": "", ' +
+            '"availability_topic": "", ' +
             '"device_class": "humidity", ' +
+            '"state_class": "measurement", ' +
+            '"expire_after": 120, ' +
             '"val_tpl": "{{ value_json.humidity }}", ' +
             '"unit_of_meas": "mbar", ' +
             '"uniq_id": "b827ebc1f24d-humidity", ' +

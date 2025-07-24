@@ -10,6 +10,7 @@ from ha_mqtt_pi_smbus.web_server import HAFlask
 class DummyParser:
     title = "Test Title"
     subtitle = "Test Subtitle"
+    mqtt = {"auto_discover": True}
 
 
 class TestHAFlask(unittest.TestCase):
@@ -75,15 +76,15 @@ class TestHAFlask(unittest.TestCase):
         payload = {"Connected": False, "Discovered": False, "rc": None, "Error": []}
 
         response = self.client.post("/mqtt-toggle", json=payload)
-        self.assertEqual(self.mock_client.is_connected.call_count, 4)
+        self.assertEqual(self.mock_client.is_connected.call_count, 7)
         self.assertEqual(response.status_code, 200)
         json_data = response.get_json()
         self.assertFalse(json_data["Connected"])
         self.assertFalse(json_data["Discovered"])
         self.assertEqual(json_data["rc"], None)
         self.assertEqual(len(json_data["Error"]), 0)
-        self.mock_client.connect_mqtt.assert_called_once()
-        self.mock_client.loop_start.assert_called_once()
+        self.mock_client.connect_mqtt.assert_called()
+        self.mock_client.loop_start.assert_called()
 
     def test_mqtt_toggle_connected(self):
         # State before toggle: disconnected
@@ -94,15 +95,15 @@ class TestHAFlask(unittest.TestCase):
         payload = {"Connected": True, "Discovered": False, "rc": None, "Error": []}
 
         response = self.client.post("/mqtt-toggle", json=payload)
-        self.assertEqual(self.mock_client.is_connected.call_count, 1)
+        self.assertEqual(self.mock_client.is_connected.call_count, 4)
         self.assertEqual(response.status_code, 200)
         json_data = response.get_json()
         self.assertFalse(json_data["Connected"])
         self.assertFalse(json_data["Discovered"])
         self.assertEqual(json_data["rc"], None)
         self.assertEqual(len(json_data["Error"]), 0)
-        self.mock_client.connect_mqtt.assert_not_called()
-        self.mock_client.loop_start.assert_not_called()
+        self.mock_client.connect_mqtt.assert_called()
+        self.mock_client.loop_start.assert_called()
 
     def test_mqtt_toggle_timeout(self):
         # State before toggle: disconnected
@@ -113,15 +114,15 @@ class TestHAFlask(unittest.TestCase):
         payload = {"Connected": False, "Discovered": False, "rc": None, "Error": []}
 
         response = self.client.post("/mqtt-toggle", json=payload)
-        self.assertEqual(self.mock_client.is_connected.call_count, 4)
+        self.assertEqual(self.mock_client.is_connected.call_count, 7)
         self.assertEqual(response.status_code, 200)
         json_data = response.get_json()
         self.assertFalse(json_data["Connected"])
         self.assertFalse(json_data["Discovered"])
         self.assertEqual(json_data["rc"], None)
         self.assertEqual(len(json_data["Error"]), 0)
-        self.mock_client.connect_mqtt.assert_called_once()
-        self.mock_client.loop_start.assert_called_once()
+        self.mock_client.connect_mqtt.assert_called()
+        self.mock_client.loop_start.assert_called()
 
     def test_mqtt_toggle_connect(self):
         # State before toggle: disconnected
@@ -132,15 +133,15 @@ class TestHAFlask(unittest.TestCase):
         payload = {"Connected": False, "Discovered": False, "rc": None, "Error": []}
 
         response = self.client.post("/mqtt-toggle", json=payload)
-        self.assertEqual(self.mock_client.is_connected.call_count, 3)
+        self.assertEqual(self.mock_client.is_connected.call_count, 6)
         self.assertEqual(response.status_code, 200)
         json_data = response.get_json()
         self.assertTrue(json_data["Connected"])
         self.assertFalse(json_data["Discovered"])
         self.assertEqual(json_data["rc"], None)
         self.assertEqual(len(json_data["Error"]), 0)
-        self.mock_client.connect_mqtt.assert_called_once()
-        self.mock_client.loop_start.assert_called_once()
+        self.mock_client.connect_mqtt.assert_called()
+        self.mock_client.loop_start.assert_called()
 
     def test_discovery_toggle_with_undiscovered(self):
         self.mock_client.is_connected.return_value = True

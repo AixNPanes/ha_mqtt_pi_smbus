@@ -15,6 +15,7 @@ mqtt:
   qos: 0  
   disable_retain: false 
   auto_discover: true
+  expire_after: 119  
 bme280:
   address: 0x76
   port: 1
