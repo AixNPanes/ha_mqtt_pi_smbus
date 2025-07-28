@@ -3,6 +3,7 @@ import logging
 import unittest
 from unittest.mock import MagicMock
 
+from ha_mqtt_pi_smbus.parsing import MQTTConfig
 from ha_mqtt_pi_smbus.state import State
 from ha_mqtt_pi_smbus.web_server import HAFlask
 
@@ -10,7 +11,8 @@ from ha_mqtt_pi_smbus.web_server import HAFlask
 class DummyParser:
     title = "Test Title"
     subtitle = "Test Subtitle"
-    mqtt = {"auto_discover": True}
+    mqtt = MQTTConfig()
+    mqtt.auto_discover = True
 
 
 class TestHAFlask(unittest.TestCase):

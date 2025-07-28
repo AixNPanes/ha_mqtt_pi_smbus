@@ -14,6 +14,7 @@ from paho.mqtt.client import connack_string
 
 from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice
 from ha_mqtt_pi_smbus.environ import getObjectId
+from ha_mqtt_pi_smbus.parsing import MQTTConfig
 from ha_mqtt_pi_smbus.state import State
 
 
@@ -155,7 +156,7 @@ class MQTTClient(mqtt.Client):
         client_prefix: str,
         device: HADevice,
         smbus_device: SMBusDevice,
-        mqtt_config: Dict[str, Any] = None,
+        mqtt_config: MQTTConfig = None,
     ):
         """
         Paameters
@@ -168,7 +169,7 @@ class MQTTClient(mqtt.Client):
             to MQTT
         smbus_device : SMBusDevice
             the physical device instance from which data is obtained
-        mqtt_config : Dict[str, Any]
+        mqtt_config : MQTT
             configuration data provided to the client:
             broker : str
                 host name or IP-address of the MQTT broker
@@ -189,12 +190,12 @@ class MQTTClient(mqtt.Client):
             True,
             None,
         )
-        self.broker_address = mqtt_config["broker"]
-        self.port = mqtt_config["port"]
-        self.username = mqtt_config["username"]
-        self.password = mqtt_config["password"]
-        self.qos = mqtt_config["qos"]
-        self.retain = mqtt_config["retain"]
+        self.broker_address = mqtt_config.broker
+        self.port = mqtt_config.port
+        self.username = mqtt_config.username
+        self.password = mqtt_config.password
+        self.qos = mqtt_config.qos
+        self.retain = mqtt_config.retain
         self.device = device
         self.smbus_device = smbus_device
         self.state = State()

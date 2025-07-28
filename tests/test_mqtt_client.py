@@ -12,6 +12,7 @@ from ha_mqtt_pi_smbus.mqtt_client import (
     MQTT_Publisher_Thread,
 )
 from ha_mqtt_pi_smbus.environ import DEGREE
+from ha_mqtt_pi_smbus.parsing import MQTTConfig
 
 from .mock_data import (
     MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT,
@@ -82,14 +83,14 @@ class TestMQTTClient(unittest.TestCase):
                 client_prefix="me",
                 device=(),
                 smbus_device=mock_smbus,
-                mqtt_config={
-                    "broker": "127.0.0.1",
-                    "port": 1883,
-                    "username": "me",
-                    "password": "mine",
-                    "qos": 1,
-                    "retain": True,
-                },
+                mqtt_config=MQTTConfig(
+                    broker = "127.0.0.1",
+                    port = 1883,
+                    username = "me",
+                    password = "mine",
+                    qos = 1,
+                    retain = True,
+                ),
             )
             rc = mqtt_client.connect_mqtt()
             assert rc == 1
@@ -121,14 +122,14 @@ class TestMQTTClient(unittest.TestCase):
                 client_prefix="me",
                 device=(),
                 smbus_device=mock_smbus,
-                mqtt_config={
-                    "broker": "127.0.0.1",
-                    "port": 1883,
-                    "username": "me",
-                    "password": "mine",
-                    "qos": 1,
-                    "retain": True,
-                },
+                mqtt_config=MQTTConfig(
+                    broker = "127.0.0.1",
+                    port = 1883,
+                    username = "me",
+                    password = "mine",
+                    qos = 1,
+                    retain = True,
+                ),
             )
             thread = MQTT_Publisher_Thread(
                 mqtt_client,
@@ -189,14 +190,14 @@ class TestMQTTClient(unittest.TestCase):
             client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
-            mqtt_config={
-                "broker": "127.0.0.1",
-                "port": 1883,
-                "username": "me",
-                "password": "mine",
-                "qos": 1,
-                "retain": True,
-            },
+            mqtt_config=MQTTConfig(
+                broker = "127.0.0.1",
+                port = 1883,
+                username = "me",
+                password = "mine",
+                qos = 1,
+                retain = True,
+            ),
         )
         obj = {"Connected": False, "Discovered": False, "rc": 0, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -238,14 +239,14 @@ class TestMQTTClient(unittest.TestCase):
             client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
-            mqtt_config={
-                "broker": "127.0.0.1",
-                "port": 1883,
-                "username": "me",
-                "password": "mine",
-                "qos": 1,
-                "retain": True,
-            },
+            mqtt_config=MQTTConfig(
+                broker = "127.0.0.1",
+                port = 1883,
+                username = "me",
+                password = "mine",
+                qos = 1,
+                retain = True,
+            ),
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -277,14 +278,14 @@ class TestMQTTClient(unittest.TestCase):
             client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
-            mqtt_config={
-                "broker": "127.0.0.1",
-                "port": 1883,
-                "username": "me",
-                "password": "mine",
-                "qos": 1,
-                "retain": True,
-            },
+            mqtt_config=MQTTConfig(
+                broker = "127.0.0.1",
+                port = 1883,
+                username = "me",
+                password = "mine",
+                qos = 1,
+                retain = True,
+                ),
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -311,14 +312,14 @@ class TestMQTTClient(unittest.TestCase):
             client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
-            mqtt_config={
-                "broker": "127.0.0.1",
-                "port": 1883,
-                "username": "me",
-                "password": "mine",
-                "qos": 1,
-                "retain": True,
-            },
+            mqtt_config=MQTTConfig(
+                broker = "127.0.0.1",
+                port = 1883,
+                username = "me",
+                password = "mine",
+                qos = 1,
+                retain = True,
+            ),
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -354,14 +355,14 @@ class TestMQTTClient(unittest.TestCase):
             client_prefix="me",
             device=(),
             smbus_device=mock_smbus,
-            mqtt_config={
-                "broker": "127.0.0.1",
-                "port": 1883,
-                "username": "me",
-                "password": "mine",
-                "qos": 1,
-                "retain": True,
-            },
+            mqtt_config=MQTTConfig(
+                broker = "127.0.0.1",
+                port = 1883,
+                username = "me",
+                password = "mine",
+                qos = 1,
+                retain = True,
+                ),
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -414,14 +415,14 @@ class TestMQTTClient(unittest.TestCase):
                     "WASP",
                 ),
                 smbus_device=mock_smbus,
-                mqtt_config={
-                    "broker": "127.0.0.1",
-                    "port": 1883,
-                    "username": "me",
-                    "password": "mine",
-                    "qos": 1,
-                    "retain": True,
-                },
+                mqtt_config=MQTTConfig(
+                    broker = "127.0.0.1",
+                    port = 1883,
+                    username = "me",
+                    password = "mine",
+                    qos = 1,
+                    retain = True,
+                    ),
             )
             obj = {
                 "Connected": False,

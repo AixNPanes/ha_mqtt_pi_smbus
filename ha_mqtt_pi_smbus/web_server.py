@@ -52,10 +52,10 @@ class HAFlask(Flask):
         self.client = client
         self.device = device
         secret_key = secrets.token_hex(32)
-        self.config["SECRET_KEY"] = secret_key
+        self.config.SECRET_KEY = secret_key
         self.title = parser.title
         self.subtitle = parser.subtitle
-        if parser.mqtt['auto_discover']:
+        if parser.mqtt.auto_discover:
             self.connect()
             self.discover()
 
