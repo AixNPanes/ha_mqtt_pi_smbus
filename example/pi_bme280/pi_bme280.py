@@ -1,8 +1,8 @@
 import atexit
 import logging
 
-from example.parsing import BMEParser
-from example.device import BME280, BME280_Device
+from example.pi_bme280.parsing import BMEParser
+from example.pi_bme280.device import BME280, BME280_Device
 from ha_mqtt_pi_smbus.hamqtt_logging import loggerConfig
 from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
 from ha_mqtt_pi_smbus.web_server import HAFlask
