@@ -12,6 +12,33 @@ from ha_mqtt_pi_smbus.device import (
 )
 
 
+class Temperature(HASensor):
+    units: str = f"{chr(176)}C"
+    device_class = "temperature"
+
+    def __init__(self, sensor_name: str = None):
+        super().__init__(
+            self.units, name=sensor_name, device_class=self.device_class
+        )
+
+class Pressure(HASensor):
+    units: str = "mbar"
+    device_class = "pressure"
+
+    def __init__(self, sensor_name: str = None):
+        super().__init__(
+            self.units, name=sensor_name, device_class=self.device_class
+        )
+
+class Humidity(HASensor):
+    units: str = "%"
+    device_class = "humidity"
+
+    def __init__(self, sensor_name: str = None):
+        super().__init__(
+            self.units, name=sensor_name, device_class=self.device_class
+        )
+
 class BME280_Device(HADevice):
     """Definition for a Home Assistant dicscoverable sensor device
 
@@ -44,33 +71,6 @@ class BME280_Device(HADevice):
 
     """
 
-    class Temperature(HASensor):
-        units: str = f"{chr(176)}C"
-        device_class = "temperature"
-
-        def __init__(self, sensor_name: str = None):
-            super().__init__(
-                self.units, name=sensor_name, device_class=self.device_class
-            )
-
-    class Pressure(HASensor):
-        units: str = "mbar"
-        device_class = "pressure"
-
-        def __init__(self, sensor_name: str = None):
-            super().__init__(
-                self.units, name=sensor_name, device_class=self.device_class
-            )
-
-    class Humidity(HASensor):
-        units: str = "%"
-        device_class = "humidity"
-
-        def __init__(self, sensor_name: str = None):
-            super().__init__(
-                self.units, name=sensor_name, device_class=self.device_class
-            )
-
     def __init__(
         self,
         name: str,
@@ -83,9 +83,9 @@ class BME280_Device(HADevice):
     ):
         super().__init__(
             (
-                BME280_Device.Temperature(),
-                BME280_Device.Pressure(),
-                BME280_Device.Humidity(),
+                Temperature(),
+                Pressure(),
+                Humidity(),
             ),
             name,
             state_topic,
@@ -183,10 +183,3 @@ class BME280(SMBusDevice):
             "humidity": round(self.humidity, 1),
             "humidity_units": "%",
         }
-
-
-if __name__ == "__main__":
-    dev = BME280(1, 0x76)
-    print(f"BME280 device: {dev}")
-    dev.sample()
-    print(f"device sample: {dev.data()}")
