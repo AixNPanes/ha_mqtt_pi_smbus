@@ -210,7 +210,7 @@ class MQTTConfig:
                  disable_retain:bool = True,
                  retain:bool = False,
                  auto_discover:bool = True,
-                 expire_after:int = 119):
+                 expire_after:int = 120):
         self.broker = broker
         self.port = port
         self.username = username

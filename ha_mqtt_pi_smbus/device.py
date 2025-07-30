@@ -64,7 +64,13 @@ class HASensor:
 
     """
     
-    def __init__(self, units: str, name: str = None, device_class: str = None):
+    def __init__(
+            self,
+            units: str,
+            name: str = None,
+            device_class: str = None,
+            expire_after:int = 120,
+            ):
         self.name = name
         if self.name is None:
             self.name = type(self).__name__.lower()
@@ -81,12 +87,12 @@ class HASensor:
             'device_class': device_class,
             'unit_of_measurement': units,
             'value_template': value_template,
-            'unique_id': self.unique_id
+            'unique_id': self.unique_id,
+            'expire_after': expire_after
             }
 
     def setDevice(
-        self, base_name: str, state_topic: str, device_payload: Dict[str, str],
-        expire_after:int = 120
+        self, base_name: str, state_topic: str, device_payload: Dict[str, str]
     ) -> None:
         device_name = f"{getObjectId()}-{self.device_class}"
         self.discovery_topic = (
@@ -99,7 +105,6 @@ class HASensor:
         self.discovery_payload["dev"] = device_payload
         self.discovery_payload["availability_topic"] = \
             self.available_topic
-        self.discovery_payload["expire_after"] = expire_after
 
     def jsonPayload(self) -> str:
         return json.dumps(self.discovery_payload, default=vars)
@@ -210,7 +215,6 @@ class HADevice:
         base_name:str = 'homeassistant',
         support_url:str = None, #'http://www.example.com',
         qos:int = 0,
-        expire_after:int = 120,
     ):
         basename = base_name
         if basename is None:

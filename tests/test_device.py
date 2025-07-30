@@ -117,10 +117,10 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(self.ha_sensor.device_class, "temperature")
         self.assertEqual(self.ha_sensor.discovery_payload["device_class"], "temperature")
         self.assertEqual(self.ha_sensor.discovery_payload["unit_of_measurement"], f"{chr(176)}C")
-        self.assertEqual(len(self.ha_sensor.jsonPayload()), 170)
+        self.assertEqual(len(self.ha_sensor.jsonPayload()), 191)
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
-            '{"platform": "sensor", "device_class": "temperature", "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "unique_id": "test_temperature"}'
+            '{"platform": "sensor", "device_class": "temperature", "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "unique_id": "test_temperature", "expire_after": 120}'
         )
 
     def test_ha_device(self):

@@ -16,27 +16,30 @@ class Temperature(HASensor):
     units: str = f"{chr(176)}C"
     device_class = "temperature"
 
-    def __init__(self, sensor_name: str = None):
+    def __init__(self, sensor_name: str = None, expire_after:int = 120):
         super().__init__(
-            self.units, name=sensor_name, device_class=self.device_class
+            self.units, name=sensor_name, device_class=self.device_class,
+            expire_after=expire_after
         )
 
 class Pressure(HASensor):
     units: str = "mbar"
     device_class = "pressure"
 
-    def __init__(self, sensor_name: str = None):
+    def __init__(self, sensor_name: str = None, expire_after:int = 120):
         super().__init__(
-            self.units, name=sensor_name, device_class=self.device_class
+            self.units, name=sensor_name, device_class=self.device_class,
+            expire_after=expire_after
         )
 
 class Humidity(HASensor):
     units: str = "%"
     device_class = "humidity"
 
-    def __init__(self, sensor_name: str = None):
+    def __init__(self, sensor_name: str = None, expire_after:int = 120):
         super().__init__(
-            self.units, name=sensor_name, device_class=self.device_class
+            self.units, name=sensor_name, device_class=self.device_class,
+            expire_after=expire_after
         )
 
 class BME280_Device(HADevice):
@@ -79,19 +82,18 @@ class BME280_Device(HADevice):
         model: str,
         smbus_device: SMBusDevice,
         polling_interval: int,
-        expire_after: int = 120
+        expire_after:int = 120,
     ):
         super().__init__(
             [
-                Temperature(name),
-                Pressure(name),
-                Humidity(name),
+                Temperature(name, expire_after=expire_after),
+                Pressure(name, expire_after=expire_after),
+                Humidity(name, expire_after=expire_after),
                 ],
             name,
             state_topic,
             manufacturer,
             model,
-            expire_after = expire_after,
         )
         self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.smbus_device = smbus_device
