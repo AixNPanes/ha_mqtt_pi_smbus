@@ -21,7 +21,7 @@ bme280 = BME280(bus=parser.bme280.bus, address=parser.bme280.address)
 # Device setup
 device = BME280_Device(
     parser.bme280.sensor_name,
-    "bme280/state",  # state topic
+    "tph280/state",  # state topic
     "Bosch",  # manufacturer name
     "BME280",  # model name
     bme280,
