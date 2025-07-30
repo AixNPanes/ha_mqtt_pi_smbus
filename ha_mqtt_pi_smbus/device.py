@@ -63,6 +63,18 @@ class HASensor:
     In this example the 3 sensors for a Bosch BME280 are defined.
 
     """
+
+    class Availability:     # mutually exclusive with availability_topic
+        payload_available:str = 'available'
+        payload_unavailable:str = 'unavailable'
+        topic:str = 'status'
+        value_template:str = '{{ value_json.avaiable }}'
+
+    availability = None # Availability()
+        #if self.availability is not None:
+        #    self.discovery_payload['availability'] = self.availability
+        #    self.undiscovery_payload1['availability'] = self.availability
+        #    self.undiscovery_payload2['availability'] = self.availability
     
     def __init__(
             self,
@@ -90,21 +102,6 @@ class HASensor:
             'unique_id': self.unique_id,
             'expire_after': expire_after
             }
-
-    def setDevice(
-        self, base_name: str, state_topic: str, device_payload: Dict[str, str]
-    ) -> None:
-        device_name = f"{getObjectId()}-{self.device_class}"
-        self.discovery_topic = (
-            f"{base_name}/sensor/{device_name}/config"
-        )
-        self.available_topic = f"{base_name}/{device_name}/availability"
-        self.available_payload = 'online'
-        self.unavailable_payload = 'offline'
-        self.discovery_payload["stat_t"] = state_topic
-        self.discovery_payload["dev"] = device_payload
-        self.discovery_payload["availability_topic"] = \
-            self.available_topic
 
     def jsonPayload(self) -> str:
         return json.dumps(self.discovery_payload, default=vars)
@@ -180,27 +177,20 @@ class HADevice:
         #support_url:str             # 'https://bla2mqtt.example.com/support'
 
     class Device:
-        #configuration_url:str       #
+        #configuration_url:str       # defined only if set
         #connections:Sequence[str]   #
+        #model_id:str                # 'xya'
+        #suggested_area:str          #
         hw_version:str              # '1.0rev2'
        	identifiers:Sequence[str]   # ['ea334450945afc']
         manufacturer:str            # 'Bla electronics'
         model:str                   # 'xya'
-        #model_id:str                # 'xya'
         name:str                    # 'Kitchen'
         serial_number:str           # 'ea334450945afc'
-        #suggested_area:str          #
         sw_version:str              # '1.0'
-
-    class Availability:     # mutually exclusive with availability_topic
-        payload_available:str = 'available'
-        payload_unavailable:str = 'unavailable'
-        topic:str = 'status'
-        value_template:str = '{{ value_json.avaiable }}'
 
     device = Device()
     origin = Origin()
-    availability = None # Availability()
     state_topic:str
     qos:int
     components:Sequence[HASensor]
@@ -212,6 +202,8 @@ class HADevice:
         state_topic:str,
         manufacturer:str,
         model:str,
+        model_id:str = None,
+        suggested_area = None,
         base_name:str = 'homeassistant',
         support_url:str = None, #'http://www.example.com',
         qos:int = 0,
@@ -222,8 +214,9 @@ class HADevice:
         self.sensors = sensors
         self.origin.name = 'HA MQTT Pi'
         self.origin.sw_version = getOSInfo()['PRETTY_NAME']
+        self.origin.support_url = 'http://www.example.com'
         self.device.hw_version = getCpuInfo()['cpu']['Model']
-        self.device.ids = [ name ]
+        self.device.identifiers = [ name ]
         self.device.name = name
         self.device.manufacturer = manufacturer
         self.device.model = model
@@ -253,12 +246,10 @@ class HADevice:
                 }
         if support_url is not None:
             self.origin.support_url = support_url
-            self.device.support_url = support_url
-            pass # update support_url if present
-        if self.availability is not None:
-            self.discovery_payload['availability'] = self.availability
-            self.undiscovery_payload1['availability'] = self.availability
-            self.undiscovery_payload2['availability'] = self.availability
+        if model_id is not None:
+            self.device.model_id = model_id
+        if suggested_area is not None:
+            self.device.origin.suggested_area = suggested_area
         self.discovery_topic = f'{basename}/device/{self.device.serial_number}/config'
         self.state_topic = state_topic
 
