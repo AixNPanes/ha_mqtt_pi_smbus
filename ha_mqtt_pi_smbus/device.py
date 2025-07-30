@@ -83,7 +83,6 @@ class HASensor:
             'value_template': value_template,
             'unique_id': self.unique_id
             }
-        self.discovery_topic = None  # this is set with setDevice() by the HADevice
 
     def setDevice(
         self, base_name: str, state_topic: str, device_payload: Dict[str, str],
@@ -231,14 +230,14 @@ class HADevice:
         self.discovery_payload = {
                 "device": self.device.__dict__,
                 "origin": self.origin.__dict__,
-                "components": {v.unique_id: v.discovery_payload for v in sensors},
+                "components": {v.unique_id: v.discovery_payload for v in self.sensors},
                 "state_topic": self.state_topic,
                 "qos": self.qos,
                 }
         self.undiscovery_payload1 = {
                 "device": self.device.__dict__,
                 "origin": self.origin.__dict__,
-                "components": {v.unique_id: v.undiscovery_payload for v in sensors},
+                "components": {v.unique_id: v.undiscovery_payload for v in self.sensors},
                 "state_topic": self.state_topic,
                 "qos": self.qos,
                 }

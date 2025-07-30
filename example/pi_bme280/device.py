@@ -82,11 +82,11 @@ class BME280_Device(HADevice):
         expire_after: int = 120
     ):
         super().__init__(
-            (
+            [
                 Temperature(name),
                 Pressure(name),
                 Humidity(name),
-            ),
+                ],
             name,
             state_topic,
             manufacturer,

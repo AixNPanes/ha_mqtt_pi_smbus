@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import random
@@ -84,7 +85,7 @@ class MQTT_Publisher_Thread(threading.Thread):
         while True:
             if not self.do_run:
                 return
-            data = self.smbus_device.data()
+            data = copy.deepcopy(self.smbus_device.data())
             if data["last_update"] != self.data["last_update"]:
                 self.data = data
                 self.client.publish(self.device.state_topic, json.dumps(data),
