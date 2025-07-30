@@ -1,5 +1,6 @@
 # tests/test_routes.py
 from argparse import Namespace
+import logging
 import pytest
 import time
 import unittest
@@ -11,13 +12,18 @@ from ha_mqtt_pi_smbus.device import (
     HADevice,
     SMBusDevice_Sampler_Thread,
 )
+from example.pi_bme280.device import (
+    Temperature,
+    Pressure,
+    Humidity,
+)
 
 from .mock_data import MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT, MOCKED_OPEN
 
 
-class Humidity(HASensor):
-    def __init__(self):
-        super().__init__("mbar")
+#class Humidity(HASensor):
+#    def __init__(self):
+#        super().__init__("mbar")
 
 
 class TestDevice(unittest.TestCase):
@@ -64,14 +70,14 @@ class TestDevice(unittest.TestCase):
             self.smbus_device.sample()
             self.smbus_device._smbus.sample()
 
-            self.ha_sensor = Humidity()
             self.ha_device = HADevice(
-                (Humidity(), Humidity()),
+                (Temperature('test'), Pressure('test'), Humidity('test')),
                 name="Test Device",
                 state_topic="my/topic",
                 manufacturer="manufact.",
                 model="model1234",
             )
+            self.ha_sensor = self.ha_device.sensors[0]
             # SMBus constructor called with bus=2
             mock_smbus_class.assert_called_once_with(2)
 
@@ -107,28 +113,18 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(data["temperature"], 25.5)
 
     def test_ha_sensor(self):
-        self.assertEqual(self.ha_sensor.name, "humidity")
-        self.assertEqual(self.ha_sensor.device_class, "humidity")
-        self.assertEqual(self.ha_sensor.discovery_payload["name"], "humidity")
-        self.assertEqual(self.ha_sensor.discovery_payload["device_class"], "humidity")
-        self.assertEqual(self.ha_sensor.discovery_payload["unit_of_meas"], "mbar")
-        self.assertEqual(len(self.ha_sensor.jsonPayload()), 250)
+        self.assertEqual(self.ha_sensor.name, "test")
+        self.assertEqual(self.ha_sensor.device_class, "temperature")
+        self.assertEqual(self.ha_sensor.discovery_payload["device_class"], "temperature")
+        self.assertEqual(self.ha_sensor.discovery_payload["unit_of_measurement"], f"{chr(176)}C")
+        self.assertEqual(len(self.ha_sensor.jsonPayload()), 170)
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
-            '{"name": "humidity", ' +
-            '"stat_t": "", ' +
-            '"availability_topic": "", ' +
-            '"device_class": "humidity", ' +
-            '"state_class": "measurement", ' +
-            '"expire_after": 120, ' +
-            '"val_tpl": "{{ value_json.humidity }}", ' +
-            '"unit_of_meas": "mbar", ' +
-            '"uniq_id": "b827ebc1f24d-humidity", ' +
-            '"dev": {}}',
+            '{"platform": "sensor", "device_class": "temperature", "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "unique_id": "test_temperature"}'
         )
 
     def test_ha_device(self):
-        self.assertEqual(len(self.ha_device.sensors), 1)
+        self.assertEqual(len(self.ha_device.sensors), 3)
         with pytest.raises(Exception):
             self.ha_device.data()
 

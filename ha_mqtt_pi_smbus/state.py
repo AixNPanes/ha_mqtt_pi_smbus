@@ -81,15 +81,6 @@ class State:
 
     def validate(self, json_data, is_connected):
         route = "validate_state"
-        logging.getLogger("validate_state").error(
-            "%s is_connected: %s" % (route, is_connected)
-        )
-        logging.getLogger("validate_state").error(
-            "%s state: %s" % (route, self.to_dict())
-        )
-        logging.getLogger("validate_state").error(
-            "%s json_data: %s" % (route, json_data)
-        )
         new_state = State(self.to_dict())
         if new_state is not None:
             new_state = State(json_data)

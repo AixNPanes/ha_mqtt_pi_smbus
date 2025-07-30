@@ -294,37 +294,6 @@ class MQTTClient(mqtt.Client):
             )
         return result
 
-    def publish_discovery(self, key: str, sensor: HASensor) -> None:
-        """publish a discovery message
-
-        Parameters
-        ----------
-        key : str
-            the name of the sensor for which discovery is being
-            performed
-        sensor : HASensor
-            the sensor for which discovery is to be initiated
-        """
-        self.publish(
-            sensor.discovery_topic,
-            json.dumps(sensor.discovery_payload),
-            qos=self.qos,
-            retain=self.retain,
-        )
-
-    def clear_discovery(self, key: str, sensor: HASensor) -> None:
-        """publish a clear discovery message for a sensor
-
-        Parameters
-        ----------
-        key : str
-            the name of the sensor for which discovery is being
-            cleared
-        sensor : HASensor
-            the sensor for which discovery is to be cleared
-        """
-        self.publish(sensor.discovery_topic, "", qos=self.qos, retain=self.retain)
-
     def publish_available(self, key: str, sensor: HASensor) -> None:
         """publish an available message
 
@@ -361,7 +330,7 @@ class MQTTClient(mqtt.Client):
             retain=self.retain,
         )
 
-    def publish_discoveries(self, sensors: Dict[str, Any]) -> None:
+    def publish_discoveries(self, device:HADevice) -> None:
         """Publish a discovery message for each sensor in the device
 
         Parameters
@@ -374,11 +343,15 @@ class MQTTClient(mqtt.Client):
             self, self.device, self.smbus_device
         )
         self.publisher_thread.start()
-        for key, sensor in sensors.items():
-            self.publish_discovery(key, sensor)
+        self.publish(
+            device.discovery_topic,
+            json.dumps(device.discovery_payload),
+            qos=self.qos,
+            retain=self.retain,
+        )
         self.state.discovered = True
 
-    def publish_availables(self, sensors: Dict[str, Any]) -> None:
+    def publish_availables(self, device: HADevice) -> None:
         """Publish an available message for each sensor in the device
 
         Parameters
@@ -387,10 +360,11 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        for key, sensor in sensors.items():
-            self.publish_available(key, sensor)
+        return
+        for sensor in device.sensors:
+            self.publish_available(sensor.unique_id, sensor)
 
-    def publish_unavailables(self, sensors: Dict[str, Any]) -> None:
+    def publish_unavailables(self, device: HADevice) -> None:
         """Publish an unvailable message for each sensor in the device
 
         Parameters
@@ -399,10 +373,11 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        for key, sensor in sensors.items():
-            self.publish_unavailable(key, sensor)
+        return
+        for sensor in device.sensors:
+            self.publish_unavailable(sensor.unique_id, sensor)
 
-    def clear_discoveries(self, sensors: Dict[str, Any]) -> None:
+    def clear_discoveries(self, device: HADevice) -> None:
         """Publish a clear discovery message for each sensor in the device
 
         Parameters
@@ -411,8 +386,16 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        for key, sensor in sensors.items():
-            self.clear_discovery(key, sensor)
+        self.publish(
+                device.discovery_topic,
+                json.dumps(device.undiscovery_payload1),
+                qos=self.qos,
+                retain=self.retain)
+        self.publish(
+                device.discovery_topic,
+                json.dumps(device.undiscovery_payload2),
+                qos=self.qos,
+                retain=self.retain)
         self.state.discovered = False
         self.publisher_thread.clear_do_run()
         self.publisher_thread.join()

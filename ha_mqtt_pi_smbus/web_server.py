@@ -24,9 +24,9 @@ class HAFlask(Flask):
     def discover(self):
         # Turn ON
         self.client.loop_start()
-        self.client.publish_discoveries(self.device.sensors)
+        self.client.publish_discoveries(self.device)
         self.client.state.discovered = True
-        self.client.publish_availables(self.device.sensors)
+        self.client.publish_availables(self.device)
 
     def __init__(
         self,
@@ -94,9 +94,9 @@ class HAFlask(Flask):
                 self.discover()
             else:
                 # Turn OFF
-                self.client.publish_unavailables(self.device.sensors)
+                self.client.publish_unavailables(self.device)
                 time.sleep(0.5)
-                self.client.clear_discoveries(self.device.sensors)
+                self.client.clear_discoveries(self.device)
                 time.sleep(0.5)
                 self.client.loop_stop()
                 self.client.state.discovered = False
@@ -108,7 +108,7 @@ class HAFlask(Flask):
         self.__logger.info("%s Shutting down server", route)
         if self.client.state.discovered:
             self.__logger.info("%s Clearing discovery", route)
-            self.client.clear_discoveries(self.device.sensors)
+            self.client.clear_discoveries(self.device)
             time.sleep(0.5)
             self.client.loop_stop()
             self.client.state.discovered = False

@@ -3,7 +3,7 @@ import json
 import logging
 import threading
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Sequence
 
 from smbus2 import SMBus
 
@@ -63,7 +63,7 @@ class HASensor:
     In this example the 3 sensors for a Bosch BME280 are defined.
 
     """
-
+    
     def __init__(self, units: str, name: str = None, device_class: str = None):
         self.name = name
         if self.name is None:
@@ -71,18 +71,18 @@ class HASensor:
         self.device_class = device_class
         if self.device_class is None:
             self.device_class = type(self).__name__.lower()
+        self.unique_id = f'{name}_{device_class}'
+        value_template = f'{{{{ value_json.{self.device_class} }}}}'
+        self.undiscovery_payload = {
+            'platform': 'sensor'
+            }
         self.discovery_payload = {
-            "name": f"{self.name}",
-            "stat_t": "",  # this is set with setDevice() by the HADevice
-            "availability_topic": "", # this is set with setDevice()
-            "device_class": f"{self.device_class}",
-            "state_class": "measurement",
-            "expire_after": 120, # this is set with setDevice()
-            "val_tpl": f"{{{{ value_json.{self.device_class} }}}}",
-            "unit_of_meas": f"{units}",
-            "uniq_id": f"{getObjectId()}-{self.device_class}",
-            "dev": {},  # this is set with setDevice() by the HADevice
-        }
+            'platform': 'sensor',
+            'device_class': device_class,
+            'unit_of_measurement': units,
+            'value_template': value_template,
+            'unique_id': self.unique_id
+            }
         self.discovery_topic = None  # this is set with setDevice() by the HADevice
 
     def setDevice(
@@ -170,38 +170,93 @@ class HADevice:
 
     """
 
+    class Origin:#
+        name:str                    # 'bla2mqtt'
+        sw_version:str              # '2.1'
+        #support_url:str             # 'https://bla2mqtt.example.com/support'
+
+    class Device:
+        #configuration_url:str       #
+        #connections:Sequence[str]   #
+        hw_version:str              # '1.0rev2'
+       	identifiers:Sequence[str]   # ['ea334450945afc']
+        manufacturer:str            # 'Bla electronics'
+        model:str                   # 'xya'
+        #model_id:str                # 'xya'
+        name:str                    # 'Kitchen'
+        serial_number:str           # 'ea334450945afc'
+        #suggested_area:str          #
+        sw_version:str              # '1.0'
+
+    class Availability:     # mutually exclusive with availability_topic
+        payload_available:str = 'available'
+        payload_unavailable:str = 'unavailable'
+        topic:str = 'status'
+        value_template:str = '{{ value_json.avaiable }}'
+
+    device = Device()
+    origin = Origin()
+    availability = None # Availability()
+    state_topic:str
+    qos:int
+    components:Sequence[HASensor]
+
     def __init__(
         self,
-        sensors: List[Dict[str, Any]],
-        name: str,
-        state_topic: str,
-        manufacturer: str,
-        model: str,
-        base_name: str = None,
-        expire_after: int = 120,
+        sensors:list[HASensor],
+        name:str,
+        state_topic:str,
+        manufacturer:str,
+        model:str,
+        base_name:str = 'homeassistant',
+        support_url:str = None, #'http://www.example.com',
+        qos:int = 0,
+        expire_after:int = 120,
     ):
         basename = base_name
         if basename is None:
             basename = "homeassistant"
-        self.sensors = {}
-        device_payload = {
-            "ids": [f"{name}"],
-            "name": f"{name}",
-            "mf": f"{manufacturer}",
-            "mdl": f"{model}",
-            "hw": f'{getCpuInfo()["cpu"]["Model"]}',
-            "sw": f'{getOSInfo()["PRETTY_NAME"]}',
-            "sn": f"{getObjectId()}",
-        }
-        for sensor in sensors:
-            sensor.setDevice(basename, state_topic, device_payload,
-                             expire_after)
-            self.sensors[sensor.discovery_payload["name"].lower()] = sensor
-        self.sensor_names = list(self.sensors.keys())
-        self.discovery_topics = {k: v.discovery_topic for k, v in self.sensors.items()}
+        self.sensors = sensors
+        self.origin.name = 'HA MQTT Pi'
+        self.origin.sw_version = getOSInfo()['PRETTY_NAME']
+        self.device.hw_version = getCpuInfo()['cpu']['Model']
+        self.device.ids = [ name ]
+        self.device.name = name
+        self.device.manufacturer = manufacturer
+        self.device.model = model
+        self.device.serial_number = getObjectId()
+        self.device.sw_version = '0.0.1'
+        self.state_topic = state_topic
+        self.qos = qos
         self.discovery_payload = {
-            k: v.discovery_payload for k, v in self.sensors.items()
-        }
+                "device": self.device.__dict__,
+                "origin": self.origin.__dict__,
+                "components": {v.unique_id: v.discovery_payload for v in sensors},
+                "state_topic": self.state_topic,
+                "qos": self.qos,
+                }
+        self.undiscovery_payload1 = {
+                "device": self.device.__dict__,
+                "origin": self.origin.__dict__,
+                "components": {v.unique_id: v.undiscovery_payload for v in sensors},
+                "state_topic": self.state_topic,
+                "qos": self.qos,
+                }
+        self.undiscovery_payload2 = {
+                "device": self.device.__dict__,
+                "origin": self.origin.__dict__,
+                "state_topic": self.state_topic,
+                "qos": self.qos,
+                }
+        if support_url is not None:
+            self.origin.support_url = support_url
+            self.device.support_url = support_url
+            pass # update support_url if present
+        if self.availability is not None:
+            self.discovery_payload['availability'] = self.availability
+            self.undiscovery_payload1['availability'] = self.availability
+            self.undiscovery_payload2['availability'] = self.availability
+        self.discovery_topic = f'{basename}/device/{self.device.serial_number}/config'
         self.state_topic = state_topic
 
     def data(self) -> Dict[str, Any]:

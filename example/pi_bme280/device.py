@@ -83,9 +83,9 @@ class BME280_Device(HADevice):
     ):
         super().__init__(
             (
-                Temperature(),
-                Pressure(),
-                Humidity(),
+                Temperature(name),
+                Pressure(name),
+                Humidity(name),
             ),
             name,
             state_topic,

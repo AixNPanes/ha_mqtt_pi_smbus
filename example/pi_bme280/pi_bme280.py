@@ -1,14 +1,14 @@
 import atexit
 import logging
 
-from example.pi_bme280.parsing import BMEParser
+from example.pi_bme280.parsing import BME280Parser
 from example.pi_bme280.device import BME280, BME280_Device
 from ha_mqtt_pi_smbus.hamqtt_logging import loggerConfig
 from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
 from ha_mqtt_pi_smbus.web_server import HAFlask
 
 # parse config and command line args
-parser = BMEParser()
+parser = BME280Parser()
 parser.parse_args()
 
 # logger Setup
@@ -16,16 +16,16 @@ loggerConfig()
 logger = logging.getLogger(__name__)
 
 # BME280 Setup
-bme280 = BME280(bus=parser.bme.bus, address=parser.bme.address)
+bme280 = BME280(bus=parser.bme280.bus, address=parser.bme280.address)
 
 # Device setup
 device = BME280_Device(
-    parser.bme.sensor_name,
+    parser.bme280.sensor_name,
     "bme280/state",  # state topic
     "Bosch",  # manufacturer name
     "BME280",  # model name
     bme280,
-    parser.bme.polling_interval,
+    parser.bme280.polling_interval,
     parser.mqtt.expire_after,
 )
 
