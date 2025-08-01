@@ -25,8 +25,9 @@ device = BME280_Device(
     "Bosch",  # manufacturer name
     "BME280",  # model name
     bme280,
-    parser.bme280.polling_interval,
-    parser.mqtt.expire_after,
+    polling_interval=parser.bme280.polling_interval,
+    expire_after=parser.mqtt.expire_after,
+    basename='homeassistant'
 )
 
 # MQTT Setup

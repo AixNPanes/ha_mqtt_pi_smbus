@@ -19,13 +19,17 @@ class Temperature(HASensor):
     def __init__(
             self,
             sensor_name: str = None,
-            expire_after:int = 120
+            basename:str = 'homeassistant',
+            expire_after:int = 120,
+            state_topic = None
             ):
         super().__init__(
             self.units,
             name=sensor_name,
+            basename=basename,
             device_class=self.device_class,
-            expire_after=expire_after
+            expire_after=expire_after,
+            state_topic=state_topic
         )
 
 class Pressure(HASensor):
@@ -35,13 +39,17 @@ class Pressure(HASensor):
     def __init__(
             self,
             sensor_name: str = None,
-            expire_after:int = 120
+            basename:str = 'homeassistant',
+            expire_after:int = 120,
+            state_topic = None
             ):
         super().__init__(
             self.units,
             name=sensor_name,
+            basename=basename,
             device_class=self.device_class,
-            expire_after=expire_after
+            expire_after=expire_after,
+            state_topic=state_topic
         )
 
 class Humidity(HASensor):
@@ -51,13 +59,17 @@ class Humidity(HASensor):
     def __init__(
             self,
             sensor_name: str = None,
-            expire_after:int = 120
+            basename:str = 'homeassistant',
+            expire_after:int = 120,
+            state_topic = None
             ):
         super().__init__(
             self.units,
             name=sensor_name,
+            basename=basename,
             device_class=self.device_class,
-            expire_after=expire_after
+            expire_after=expire_after,
+            state_topic=state_topic
         )
 
 class BME280_Device(HADevice):
@@ -100,21 +112,28 @@ class BME280_Device(HADevice):
         model: str,
         smbus_device: SMBusDevice,
         polling_interval: int,
+        basename:str = 'homeassistant',
         expire_after:int = 120,
     ):
         super().__init__(
             [
                 Temperature(
                     name,
-                    expire_after=expire_after
+                    basename = basename,
+                    expire_after=expire_after,
+                    state_topic=state_topic
                     ),
                 Pressure(
                     name,
-                    expire_after=expire_after
+                    basename = basename,
+                    expire_after=expire_after,
+                    state_topic=state_topic
                     ),
                 Humidity(
                     name,
-                    expire_after=expire_after
+                    basename = basename,
+                    expire_after=expire_after,
+                    state_topic=state_topic
                     ),
                 ],
             name,

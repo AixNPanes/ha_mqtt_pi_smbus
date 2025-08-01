@@ -87,9 +87,13 @@ class MQTT_Publisher_Thread(threading.Thread):
                 return
             data = copy.deepcopy(self.smbus_device.data())
             if data["last_update"] != self.data["last_update"]:
-                self.data = data
-                self.client.publish(self.device.state_topic, json.dumps(data),
-                    qos=self.client.qos, retain=self.client.retain)
+                self.data = copy.deepcopy(data)
+                self.data['state']='OK'
+                self.client.publish(
+                        self.device.state_topic,
+                        json.dumps(self.data),
+                        qos=self.client.qos,
+                        retain=self.client.retain)
             time.sleep(1)
 
     def clear_do_run(self) -> None:
@@ -307,8 +311,8 @@ class MQTTClient(mqtt.Client):
             the sensor for which available is to be initiated
         """
         self.publish(
-            sensor.available_topic,
-            sensor.available_payload,
+            sensor.availability.topic,
+            json.dumps({"availability": sensor.availability.payload_available}),
             qos=self.qos,
             retain=self.retain,
         )
@@ -325,8 +329,8 @@ class MQTTClient(mqtt.Client):
             the sensor for which available is to be initiated
         """
         self.publish(
-            sensor.available_topic,
-            sensor.unavailable_payload,
+            sensor.availability.topic,
+            json.dumps({"availability": sensor.availability.payload_unavailable}),
             qos=self.qos,
             retain=self.retain,
         )
@@ -361,7 +365,6 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        return
         for sensor in device.sensors:
             self.publish_available(sensor.unique_id, sensor)
 
@@ -374,7 +377,6 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        return
         for sensor in device.sensors:
             self.publish_unavailable(sensor.unique_id, sensor)
 
@@ -387,14 +389,10 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
+        self.publish_unavailables(device)
         self.publish(
                 device.discovery_topic,
                 json.dumps(device.undiscovery_payload1),
-                qos=self.qos,
-                retain=self.retain)
-        self.publish(
-                device.discovery_topic,
-                json.dumps(device.undiscovery_payload2),
                 qos=self.qos,
                 retain=self.retain)
         self.state.discovered = False

@@ -65,32 +65,33 @@ class HASensor:
     """
 
     class Availability:     # mutually exclusive with availability_topic
-        payload_available:str = 'available'
-        payload_unavailable:str = 'unavailable'
-        topic:str = 'status'
-        value_template:str = '{{ value_json.avaiable }}'
-
-    availability = None # Availability()
-        #if self.availability is not None:
-        #    self.discovery_payload['availability'] = self.availability
-        #    self.undiscovery_payload1['availability'] = self.availability
-        #    self.undiscovery_payload2['availability'] = self.availability
+        def __init__(self):
+            self.payload_available = 'Available'
+            self.payload_unavailable = 'Unavailable'
+            #topic:str = None       # set by HASensor.__init__()
+            self.value_template = '{{ value_json.availability }}'
+            pass
     
     def __init__(
             self,
             units: str,
             name: str = None,
+            basename:str = 'homeassistant',
             device_class: str = None,
             expire_after:int = 120,
+            state_topic:str = None, 
             ):
         self.name = name
         if self.name is None:
             self.name = type(self).__name__.lower()
         self.device_class = device_class
+        self.basename = basename
         if self.device_class is None:
             self.device_class = type(self).__name__.lower()
         self.unique_id = f'{name}_{device_class}'
         value_template = f'{{{{ value_json.{self.device_class} }}}}'
+        self.availability = self.Availability()
+        self.availability.topic = f'{basename}/{name}/availability'
         self.undiscovery_payload = {
             'platform': 'sensor'
             }
@@ -100,7 +101,8 @@ class HASensor:
             'unit_of_measurement': units,
             'value_template': value_template,
             'unique_id': self.unique_id,
-            'expire_after': expire_after
+            'expire_after': expire_after,
+            'availability': self.availability.__dict__,
             }
 
     def jsonPayload(self) -> str:
