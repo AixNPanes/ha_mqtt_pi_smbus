@@ -166,7 +166,7 @@ class HADevice:
         def __init(self, name:str, smbus_device:SMBusDevice, polling_interval:int):
             super().__init__(name, (Temperature(name), Pressure(name), Humidity(name))
             self.smbus_device = smbus_device
-            self.sampler_thread = SMBus_Sampler_Thread(smbus_device, polling_interval)
+            self.sampler_thread = SMBusDevice_Sampler_Thread(smbus_device, polling_interval)
             self.sampler_thread.start()
         def data(self) -> Dict[str, Any]:
             return self.smbus_device.data()
@@ -412,7 +412,7 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
                     polling_interval:int)
                 super().__init((Temperature(name), Pressure(name), Humidity(name)))
                 self.smbus_device = smbus_device
-                self.sampler_thread = SMBussDevice_Sampler_Thread(
+                self.sampler_thread = SMBusDevice_Sampler_Thread(
                     logger, smbus_device, polling_interval)
                 self.sampler_thread.start()
         """
