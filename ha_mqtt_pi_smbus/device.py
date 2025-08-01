@@ -436,6 +436,7 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         when the thread is started with the thread.start() method.
         (See class example, above.)
         """
+        time.sleep(10) # Wait for startup to get device data out sooner.
         while True:
             for i in range(self.polling_interval):
                 if not self.do_run:

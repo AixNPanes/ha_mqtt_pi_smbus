@@ -344,16 +344,16 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        self.publisher_thread = MQTT_Publisher_Thread(
-            self, self.device, self.smbus_device
-        )
-        self.publisher_thread.start()
         self.publish(
             device.discovery_topic,
             json.dumps(device.discovery_payload),
             qos=self.qos,
             retain=self.retain,
         )
+        self.publisher_thread = MQTT_Publisher_Thread(
+            self, self.device, self.smbus_device
+        )
+        self.publisher_thread.start()
         self.state.discovered = True
 
     def publish_availables(self, device: HADevice) -> None:
