@@ -67,3 +67,14 @@ test("init", async () => {
   expect(onMqttClick).toHaveBeenCalled();
   expect(onDiscoveryClick).toHaveBeenCalled();
 });
+
+test("init_with_defaults", async () => {
+  const scripts = await import("../scripts.js");
+
+  await scripts.init();
+
+  document.dispatchEvent(new Event("DOMContentLoaded"));
+
+  document.getElementById("mqtt-toggle").click();
+  document.getElementById("discovery-toggle").click();
+});

@@ -439,4 +439,6 @@ class TestMQTTClient(unittest.TestCase):
             rc = mqtt_client.subscribe("my/state")
             assert len(rc) == 2
             mqtt_client.publish_discoveries(mqtt_client.device)
+            mqtt_client.publish_availables(mqtt_client.device)
+            mqtt_client.publish_availables(mqtt_client.device)
             mqtt_client.clear_discoveries(mqtt_client.device)

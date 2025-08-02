@@ -375,12 +375,13 @@ export async function discoveryToggleClickEventListener() {
   return state;
 }
 
-export async function init({
-  domInit = initDom,
-  onUpdate = updateButtonsFromStatus,
-  onMqttClick = mqttToggleClickEventListener,
-  onDiscoveryClick = discoveryToggleClickEventListener,
-} = {}) {
+export async function init(
+  {
+    domInit = initDom,
+    onUpdate = updateButtonsFromStatus,
+    onMqttClick = mqttToggleClickEventListener,
+    onDiscoveryClick = discoveryToggleClickEventListener,
+  } = {}) {
   await domInit();
 
   document.addEventListener("DOMContentLoaded", onUpdate);

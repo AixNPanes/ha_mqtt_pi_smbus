@@ -184,7 +184,7 @@ class HADevice:
         #model_id:str                # 'xya'
         #suggested_area:str          #
         hw_version:str              # '1.0rev2'
-       	identifiers:Sequence[str]   # ['ea334450945afc']
+        identifiers:Sequence[str]   # ['ea334450945afc']
         manufacturer:str            # 'Bla electronics'
         model:str                   # 'xya'
         name:str                    # 'Kitchen'
@@ -211,8 +211,6 @@ class HADevice:
         qos:int = 0,
     ):
         basename = base_name
-        if basename is None:
-            basename = "homeassistant"
         self.sensors = sensors
         self.origin.name = 'HA MQTT Pi'
         self.origin.sw_version = getOSInfo()['PRETTY_NAME']
@@ -226,6 +224,12 @@ class HADevice:
         self.device.sw_version = '0.0.1'
         self.state_topic = state_topic
         self.qos = qos
+        if support_url is not None:
+            self.origin.support_url = support_url
+        if model_id is not None:
+            self.device.model_id = model_id
+        if suggested_area is not None:
+            self.origin.suggested_area = suggested_area
         self.discovery_payload = {
                 "device": self.device.__dict__,
                 "origin": self.origin.__dict__,
@@ -246,12 +250,6 @@ class HADevice:
                 "state_topic": self.state_topic,
                 "qos": self.qos,
                 }
-        if support_url is not None:
-            self.origin.support_url = support_url
-        if model_id is not None:
-            self.device.model_id = model_id
-        if suggested_area is not None:
-            self.device.origin.suggested_area = suggested_area
         self.discovery_topic = f'{basename}/device/{self.device.serial_number}/config'
         self.state_topic = state_topic
 
