@@ -56,7 +56,6 @@ def read_yaml(file_path) -> Dict[str, Any]:
             data = yaml.safe_load(file)
             return data
     except FileNotFoundError:
-        logger.error("Error: File not found: %s", file_path)
         return None
     except yaml.YAMLError as e:
         logger.error("Error parsing YAML: %s", e)

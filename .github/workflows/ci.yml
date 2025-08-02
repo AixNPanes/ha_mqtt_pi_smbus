@@ -49,6 +49,10 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
+        permissions:
+          permissions:
+            contents: read
+            pull-requests: write
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage/coverage.xml,coverage-js/clover.xml
