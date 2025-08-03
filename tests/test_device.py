@@ -25,6 +25,7 @@ class TestDevice(unittest.TestCase):
     def setUp(self):
         Namespace(logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle")
 
+        self.maxDiff = None
         self.mocked_open = MOCKED_OPEN
 
         with patch("builtins.open", self.mocked_open), patch(
@@ -66,7 +67,7 @@ class TestDevice(unittest.TestCase):
             self.smbus_device._smbus.sample()
 
             self.ha_device = HADevice(
-                (Temperature('test'), Pressure('test'), Humidity('test')),
+                [Temperature('test'), Pressure('test'), Humidity('test')],
                 name="Test Device",
                 state_topic="my/topic",
                 manufacturer="manufact.",
@@ -113,10 +114,9 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(self.ha_sensor.discovery_payload["device_class"], "temperature")
         self.assertEqual(self.ha_sensor.discovery_payload["unit_of_measurement"], f"{chr(176)}C")
         self.assertEqual(len(self.ha_sensor.jsonPayload()), 376)
-        self.maxDiff = None
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
-            '{"platform": "sensor", "device_class": "temperature", "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "unique_id": "test_temperature", "expire_after": 120, "availability": {"payload_available": "Available", "payload_unavailable": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/test/availability"}}'
+            '{"platform": "sensor", "device_class": "temperature", "unique_id": "test_temperature", "expire_after": 120, "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "availability": {"payload_available": "Available", "payload_unavailable": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/test/availability"}}'
         )
 
     def test_test_ha_sensor(self):
@@ -126,24 +126,23 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(self.ha_sensor.discovery_payload["device_class"], None)
         self.assertEqual(self.ha_sensor.discovery_payload["unit_of_measurement"], 'none')
         self.assertEqual(len(self.ha_sensor.jsonPayload()), 354)
-        self.maxDiff = None
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
-            '{"platform": "sensor", "device_class": null, "unit_of_measurement": "none", "value_template": "{{ value_json.hasensor }}", "unique_id": "None_None", "expire_after": 120, "availability": {"payload_available": "Available", "payload_unavailable": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/None/availability"}}'
+            '{"platform": "sensor", "device_class": null, "unique_id": "None_None", "expire_after": 120, "unit_of_measurement": "none", "value_template": "{{ value_json.hasensor }}", "availability": {"payload_available": "Available", "payload_unavailable": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/None/availability"}}'
         )
 
     def test_ha_device(self):
-        self.assertEqual(len(self.ha_device.sensors), 3)
+        self.assertEqual(len(self.ha_device.sensors), 4)
         with pytest.raises(Exception):
             self.ha_device.data()
 
     def test_ha_device_no_basename(self):
-        self.assertEqual(len(self.ha_device.sensors), 3)
+        self.assertEqual(len(self.ha_device.sensors), 4)
         with pytest.raises(Exception):
             self.ha_device.data()
 
     def test_ha_device_extra_parms(self):
-        self.assertEqual(len(self.ha_device.sensors), 3)
+        self.assertEqual(len(self.ha_device.sensors), 4)
 
         with patch("builtins.open", self.mocked_open), patch(
             "ha_mqtt_pi_smbus.device.SMBus"
@@ -159,7 +158,7 @@ class TestDevice(unittest.TestCase):
                 MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT * 10
             )
             self.ha_device = HADevice(
-                (Temperature('test'), Pressure('test'), Humidity('test')),
+                [Temperature('test'), Pressure('test'), Humidity('test')],
                 name="Test Device",
                 state_topic="my/topic",
                 manufacturer="manufact.",

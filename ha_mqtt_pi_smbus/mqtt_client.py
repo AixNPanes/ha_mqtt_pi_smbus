@@ -14,7 +14,7 @@ import paho.mqtt.properties as mqtt_properties
 from paho.mqtt.client import connack_string
 
 from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice
-from ha_mqtt_pi_smbus.environ import getObjectId
+from ha_mqtt_pi_smbus.environ import getObjectId, getTemperature
 from ha_mqtt_pi_smbus.parsing import MQTTConfig
 from ha_mqtt_pi_smbus.state import State
 
@@ -88,7 +88,7 @@ class MQTT_Publisher_Thread(threading.Thread):
             data = copy.deepcopy(self.smbus_device.data())
             if data["last_update"] != self.data["last_update"]:
                 self.data = copy.deepcopy(data)
-                self.data['state']='OK'
+                self.data['state'] = 'OK'
                 self.client.publish(
                         self.device.state_topic,
                         json.dumps(self.data),
@@ -310,12 +310,24 @@ class MQTTClient(mqtt.Client):
         sensor : HASensor
             the sensor for which available is to be initiated
         """
-        self.publish(
-            sensor.availability.topic,
-            json.dumps({"availability": sensor.availability.payload_available}),
-            qos=self.qos,
-            retain=self.retain,
-        )
+        if sensor.diagnostic:
+            sensor.diagnosticData = {
+                 'status': 'OK',
+                 'cpu_temperature': getTemperature()
+            }
+            self.publish(
+                sensor.discovery_payload['json_attributes_topic'],
+                json.dumps(sensor.diagnosticData),
+                qos=self.qos,
+                retain=self.retain
+            )
+        else:    
+            self.publish(
+                sensor.availability.topic,
+                json.dumps({"availability": sensor.availability.payload_available}),
+                qos=self.qos,
+                retain=self.retain,
+            )
 
     def publish_unavailable(self, key: str, sensor: HASensor) -> None:
         """publish an unavailable message

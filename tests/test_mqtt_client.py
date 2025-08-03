@@ -134,13 +134,13 @@ class TestMQTTClient(unittest.TestCase):
             thread = MQTT_Publisher_Thread(
                 mqtt_client,
                 HADevice(
-                    (
+                    [
                         HASensor(
                             DEGREE, name="temperature", device_class="temperature"
                         ),
                         HASensor("mbar", name="pressure", device_class="pressure"),
                         HASensor("%", name="humidity", device_class="humidity"),
-                    ),
+                        ],
                     "me",
                     "my/state",
                     "God",
@@ -402,13 +402,13 @@ class TestMQTTClient(unittest.TestCase):
             mqtt_client = MQTTClient(
                 client_prefix="me",
                 device=HADevice(
-                    (
+                    [
                         HASensor(
                             DEGREE, name="temperature", device_class="temperature"
                         ),
                         HASensor("mbar", name="pressure", device_class="pressure"),
                         HASensor("%", name="humidity", device_class="humidity"),
-                    ),
+                        ],
                     "me",
                     "my/state",
                     "God",

@@ -32,7 +32,7 @@ class TestDevice(unittest.TestCase):
                 mock_bme280,
                 1,
                 119)
-        self.assertEqual(len(device.sensors), 3)
+        self.assertEqual(len(device.sensors), 4)
 
     @patch('ha_mqtt_pi_smbus.device.getOSInfo', return_value={'PRETTY_NAME':'Linux'})
     @patch('ha_mqtt_pi_smbus.device.getCpuInfo', return_value={'cpu':{'Model':'B'}})

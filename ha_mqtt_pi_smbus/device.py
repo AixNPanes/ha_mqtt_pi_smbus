@@ -81,6 +81,7 @@ class HASensor:
             expire_after:int = 120,
             state_topic:str = None, 
             ):
+        self.diagnostic = False
         self.name = name
         if self.name is None:
             self.name = type(self).__name__.lower()
@@ -89,7 +90,6 @@ class HASensor:
         if self.device_class is None:
             self.device_class = type(self).__name__.lower()
         self.unique_id = f'{name}_{device_class}'
-        value_template = f'{{{{ value_json.{self.device_class} }}}}'
         self.availability = self.Availability()
         self.availability.topic = f'{basename}/{name}/availability'
         self.undiscovery_payload = {
@@ -98,15 +98,30 @@ class HASensor:
         self.discovery_payload = {
             'platform': 'sensor',
             'device_class': device_class,
-            'unit_of_measurement': units,
-            'value_template': value_template,
             'unique_id': self.unique_id,
             'expire_after': expire_after,
+            'unit_of_measurement': units,
+            'value_template': f'{{{{ value_json.{self.device_class} }}}}',
             'availability': self.availability.__dict__,
             }
 
     def jsonPayload(self) -> str:
         return json.dumps(self.discovery_payload, default=vars)
+
+
+class HADiagnosticSensor(HASensor):
+    def __init__(self, name:str = None, device_class:str = None):
+        super().__init__(None, name=name, device_class=device_class)
+        self.unique_id = f'{name}_diagnostic'
+        self.diagnostic = True
+        del self.discovery_payload['device_class']
+        del self.discovery_payload['unit_of_measurement']
+        self.discovery_payload['unique_id'] = self.unique_id
+        self.discovery_payload['value_template'] = "{{ value_json.status ~ ' — ' ~ value_json.cpu_temperature ~ '°C' }}"
+        self.discovery_payload['entity_category'] = 'diagnostic'
+        self.discovery_payload['name'] = 'diagnostic'
+        self.discovery_payload['json_attributes_topic'] = f'{name}/diagnostics/state'
+        self.discovery_payload['state_topic'] = f'{name}/diagnostics/state'
 
 
 class HADevice:
@@ -211,7 +226,8 @@ class HADevice:
         qos:int = 0,
     ):
         basename = base_name
-        self.sensors = sensors
+        self.diagnosticSensor = HADiagnosticSensor(name)
+        self.sensors = sensors + [self.diagnosticSensor]
         self.origin.name = 'HA MQTT Pi'
         self.origin.sw_version = getOSInfo()['PRETTY_NAME']
         self.origin.support_url = 'http://www.example.com'
