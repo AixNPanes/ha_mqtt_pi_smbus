@@ -30,19 +30,49 @@ clean-venv:
 	@echo "Virtual environment cleaned."
 
 # install example service ############################################
-.PHONY: clean-service install-service
+.PHONY: service-clean service-install service-start service-stop service-logs
 
 SERVICE_FILE=/etc/systemd/system/$(SERVICE_NAME).service
 SERVICE_LOG_DIR=/var/log/$(SERVICE_NAME)
-
-clean-service:
+SERVICE_STOP=\
 	@if systemctl is-active --quiet $(SERVICE_NAME).service; then \
 		sudo systemctl stop $(SERVICE_NAME).service; \
 	fi
+SERVICE_DISABLE=\
 	@systemctl is-enabled $(SERVICE_NAME).service > /dev/null 2>&1; \
 	if [ $$? -eq 0 ]; then \
 		sudo systemctl disable $(SERVICE_NAME).service; \
 	fi
+SERVICE_START=\
+	sudo systemctl start pi_bme280.service
+SERVICE_ENABLE=\
+	sudo systemctl enable $(SERVICE_NAME).service
+SERVICE_LOGS=\
+	sudo journalctl -u $(SERVICE_NAME)
+
+service-start:
+	$(SERVICE_START)
+
+service-stop:
+	$(SERVICE_STOP)
+
+service-logs:
+	$(SERVICE_LOGS) | cat
+	@if test -f /var/log/$(SERVICE_NAME)/output.log; then \
+		echo '------------ output.log ------------------------' ;\
+		cat /var/log/$(SERVICE_NAME)/output.log; \
+	fi
+	@if test -f /var/log/$(SERVICE_NAME)/error.log; then \
+		echo '------------ error.log ------------------------'; \
+		cat /var/log/$(SERVICE_NAME)/error.log; \
+	fi
+
+service-logs-follow:
+	$(SERVICE_LOGS) -f
+
+service-clean: service-stop
+	$(SERVICE_STOP)
+	$(SERVICE_DISABLE)
 	@if test -f $(SERVICE_FILE); then \
 		sudo rm $(SERVICE_FILE); \
 	fi
@@ -55,15 +85,15 @@ clean-service:
 		sudo rm /etc/systemd/system/$(SERVICE_NAME).service; \
 	fi
 
-install-service: clean-service
+service-install: service-clean
 	sudo sh -c "sed -e 's!CURDIR!$(CURDIR)!g' -e 's/USER/$(USER)/g' -e 's/SERVICE/$(SERVICE_NAME)/g' example/pi_bme280/pi_bme280.service > /etc/systemd/system/$(SERVICE_NAME).service"
 	sudo mkdir $(SERVICE_LOG_DIR)
 	sudo chown root:root $(SERVICE_LOG_DIR)
 	sudo chmod 755 $(SERVICE_LOG_DIR)
 	sudo systemctl daemon-reexec
 	sudo systemctl daemon-reload
-	sudo systemctl enable $(SERVICE_NAME).service
-	sudo systemctl start $(SERVICE_NAME).service
+	$(SERVICE_ENABLE)
+	$(SERVICE_START)
 
 # setuptools - manage versioning #####################################
 VERSION := $(shell python3 -m setuptools_scm)
