@@ -6,6 +6,8 @@ import sys
 from typing import Any, Dict
 import yaml
 
+from importlib.metadata import version, PackageNotFoundError
+
 
 def deep_merge_dicts(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, Any]:
     """Recursively merges two dictionaries.
@@ -135,6 +137,12 @@ class BasicParser(argparse.ArgumentParser):
             "--subtitle",
             help="the subtitle for the web management interface"
         )
+        self.add_argument(
+            "-v",
+            "--version",
+            action='store_true',
+            help="print the version number"
+        )
 
     def parse_args(self):
         self.args = super().parse_args()
@@ -152,6 +160,15 @@ class BasicParser(argparse.ArgumentParser):
             else self.config['title'] if 'title' in self.config else ""
         self.subtitle = self.args.subtitle if self.args.subtitle \
             else self.config['subtitle'] if 'subtitle' in self.config else ""
+        self.version = self.args.version if self.args.version \
+            else self.config['version'] if 'version' in self.config else ""
+        if self.version:
+            try:
+                __version__ = version("ha_mqtt_pi_smbus")
+            except PackageNotFoundError:
+                __version__ = "0.0.0"
+            print(f'\nVersion: {__version__}\n')
+            sys.exit()
         return self.args        
 
 

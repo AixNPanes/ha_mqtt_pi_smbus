@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from importlib.metadata import version, PackageNotFoundError
 import json
 import logging
 import random
@@ -311,9 +312,14 @@ class MQTTClient(mqtt.Client):
             the sensor for which available is to be initiated
         """
         if sensor.diagnostic:
+            try:
+                __version__ = version("ha_mqtt_pi_smbus")
+            except PackageNotFoundError:
+                __version__ = "0.0.0"
             sensor.diagnosticData = {
                  'status': 'OK',
-                 'cpu_temperature': getTemperature()
+                 'cpu_temperature': getTemperature(),
+                 'version': __version__,
             }
             self.publish(
                 sensor.discovery_payload['json_attributes_topic'],

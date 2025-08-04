@@ -1,4 +1,5 @@
 import datetime
+from importlib.metadata import version, PackageNotFoundError
 import json
 import logging
 import threading
@@ -225,11 +226,15 @@ class HADevice:
         support_url:str = None, #'http://www.example.com',
         qos:int = 0,
     ):
+        try:
+            __version__ = version("ha_mqtt_pi_smbus")
+        except PackageNotFoundError:
+             __version__ = "0.0.0"
         basename = base_name
         self.diagnosticSensor = HADiagnosticSensor(name)
         self.sensors = sensors + [self.diagnosticSensor]
         self.origin.name = 'HA MQTT Pi'
-        self.origin.sw_version = getOSInfo()['PRETTY_NAME']
+        self.origin.sw_version = __version__
         self.origin.support_url = 'http://www.example.com'
         self.device.hw_version = getCpuInfo()['cpu']['Model']
         self.device.identifiers = [ name ]
