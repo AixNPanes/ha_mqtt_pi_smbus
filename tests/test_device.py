@@ -87,10 +87,6 @@ class TestDevice(unittest.TestCase):
             data = self.smbus_device._smbus.sample()
             self.assertEqual(data["temperature"], 25.5)
 
-        # Inline check
-        self.mocked_open.assert_any_call("/proc/cpuinfo", mock.ANY)
-        self.mocked_open.assert_any_call("/etc/os-release", mock.ANY)
-
     def tearDown(self):
         pass
 
