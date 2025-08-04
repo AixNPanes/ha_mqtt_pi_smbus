@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ha_mqtt_pi_smbus"
+description = "Home Assistant MQTT Raspberry PI SMBUS"
+readme = "README.md"
+license = "0BSD"
+authors = [{ name = "Tim Daley", email = "timdaley@earthling.net" }]
+dependencies = []
+requires-python = ">=3.11"
+dynamic = ["version"]
+
+# Leave this out! setuptools-scm will handle it.
+# version = "0.1.0"
+
+[tool.setuptools]
+packages = ["ha_mqtt_pi_smbus"]
+include-package-data = true
+
+[tool.setuptools_scm]
+# Optional: if your tags are like v0.1.0 instead of 0.1.0
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
