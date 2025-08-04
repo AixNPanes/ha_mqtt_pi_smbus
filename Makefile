@@ -1,7 +1,75 @@
+SERVICE_NAME=tph280
+USER=$(shell id -un)
+
+# Build python virtual environment ###################################
+.PHONY: venv clean-venv 
+
+VENV_DIR = .venv
+PYTHON = python3
+
+# Target to create the virtual environment
+$(VENV_DIR)/bin/activate:
+	@echo "Creating virtual environment in $(VENV_DIR)..."
+	$(PYTHON) -m venv $(VENV_DIR)
+	@echo "Virtual environment created."
+
+# Target to ensure the virtual environment exists
+venv: $(VENV_DIR)/bin/activate
+
+# Target to install dependencies
+install: venv
+	@echo "Installing dependencies..."
+	$(VENV_DIR)/bin/pip install -r requirements.txt
+	$(VENV_DIR)/bin/pip install -r requirements-dev.txt
+	@echo "Dependencies installed."
+
+# Target to clean the virtual environment
+clean-venv:
+	@echo "Cleaning virtual environment..."
+	rm -rf $(VENV_DIR)
+	@echo "Virtual environment cleaned."
+
+# install example service ############################################
+.PHONY: clean-service install-service
+
+SERVICE_FILE=/etc/systemd/system/$(SERVICE_NAME).service
+SERVICE_LOG_DIR=/var/log/$(SERVICE_NAME)
+
+clean-service:
+	@if systemctl is-active --quiet $(SERVICE_NAME).service; then \
+		sudo systemctl stop $(SERVICE_NAME).service; \
+	fi
+	@systemctl is-enabled $(SERVICE_NAME).service > /dev/null 2>&1; \
+	if [ $$? -eq 0 ]; then \
+		sudo systemctl disable $(SERVICE_NAME).service; \
+	fi
+	@if test -f $(SERVICE_FILE); then \
+		sudo rm $(SERVICE_FILE); \
+	fi
+	@if test -d $(SERVICE_LOG_DIR); then \
+		sudo rm -rf $(SERVICE_LOG_DIR); \
+	fi
+	sudo systemctl daemon-reload
+	sudo systemctl daemon-reexec
+	@if test -f /etc/systemd/$(SERVICE_NAME).service; then \
+		sudo rm /etc/systemd/system/$(SERVICE_NAME).service; \
+	fi
+
+install-service: clean-service
+	sudo sh -c "sed -e 's!CURDIR!$(CURDIR)!g' -e 's/USER/$(USER)/g' -e 's/SERVICE/$(SERVICE_NAME)/g' example/pi_bme280/pi_bme280.service > /etc/systemd/system/$(SERVICE_NAME).service"
+	sudo mkdir $(SERVICE_LOG_DIR)
+	sudo chown root:root $(SERVICE_LOG_DIR)
+	sudo chmod 755 $(SERVICE_LOG_DIR)
+	sudo systemctl daemon-reexec
+	sudo systemctl daemon-reload
+	sudo systemctl enable $(SERVICE_NAME).service
+	sudo systemctl start $(SERVICE_NAME).service
+
+# setuptools - manage versioning #####################################
 VERSION := $(shell python3 -m setuptools_scm)
 TAG := v$(VERSION)
 
-.PHONY: test test-python test-javascript lint format clean lint-json lint-python lint-js lint-yaml format-python format-js build version tag release suggest-next
+.PHONY: version tag release suggest-next
 
 # Print current version of package
 version:
@@ -25,9 +93,12 @@ release: version tag
 suggest-next:
 	@echo "Suggested next tag: v$$(python3 -m setuptools_scm | awk -F. '{printf "%d.%d.%d\n", $$1, $$2, $$3+1}')"
 
+# Build and test #####################################################
+.PHONY: test test-python test-javascript lint format clean lint-json lint-python lint-js lint-yaml format-python format-js build
+
 # Build
 build:
-	python -m build
+	$(PYTHON) -m build
 
 # Run all tests
 test: test-python test-javascript
@@ -52,6 +123,7 @@ lint-python:
 lint-json:
 	find . -name "*.json" -not -path "./node_modules/*" -not -path "./venv/*" -print0 | \
 		xargs -0 -I {} sh -c 'echo "Checking {}"; jq empty {}'
+
 # YAML lint	
 lint-yaml:
 	find . \( -name "*.yml" -o -name "*.yaml" \) -not -path "./node_modules/*" -not -path "./venv/*" | \
