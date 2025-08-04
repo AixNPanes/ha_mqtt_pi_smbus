@@ -1,6 +1,9 @@
 ---
 # yamllint disable rule:truthy
 name: CI
+permissions:
+  contents: read
+  pull-requests: write  
 
 on:
   push:
