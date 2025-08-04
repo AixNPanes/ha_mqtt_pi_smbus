@@ -1,0 +1,16 @@
+[Unit]
+Description=HA MQTT Pi BME280 Example
+After=network.target
+
+[Service]
+Type=simple
+User=USER
+WorkingDirectory=CURDIR
+ExecStart=/usr/bin/bash -c "source venv/bin/activate;CURDIR/venv/bin/python3 -m example.pi_bme280.pi_bme280"
+StandardOutput=append:/var/log/SERVICE/output.log
+StandardError=append:/var/log/SERVICE/error.log
+Restart=on-failure
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
