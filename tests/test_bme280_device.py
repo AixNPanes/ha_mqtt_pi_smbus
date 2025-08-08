@@ -41,7 +41,7 @@ class TestDevice(unittest.TestCase):
     @patch('ha_mqtt_pi_smbus.device.SMBusDevice')
     def test_bmedevice_data(self, mock_smbusDevice, mock_bme280, mock_getObjectId, mock_getCpuInfo, mock_getOSInfo):
         from example.pi_bme280.device import BME280_Device
-        mock_bme280.data.return_value = {'temperature':99,'pressure':1010,'humidity':99}
+        mock_bme280.getdata.return_value = {'temperature':99,'pressure':1010,'humidity':99}
         device = BME280_Device(
                 'test',
                 'bme280/state',
