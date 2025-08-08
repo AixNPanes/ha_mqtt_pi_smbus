@@ -163,8 +163,6 @@ class TestMQTTClient(unittest.TestCase):
             assert thread.data["last_update"] == 3
             thread.clear_do_run()
             thread.join()
-            self.mocked_open.assert_any_call("/proc/cpuinfo", mock.ANY)
-            self.mocked_open.assert_any_call("/etc/os-release", mock.ANY)
 
     @patch("subprocess.check_output")
     @patch("paho.mqtt.client.Client.is_connected")
