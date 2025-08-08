@@ -122,6 +122,7 @@ class HADiagnosticSensor(HASensor):
         self.discovery_payload['entity_category'] = 'diagnostic'
         self.discovery_payload['name'] = 'diagnostic'
         self.discovery_payload['json_attributes_topic'] = f'{name}/diagnostics/state'
+        self.discovery_payload['json_attributes_template'] = '{"Status": "{{ value_json.status }}", "CPU Temperature": "{{ value_json.cpu_temperature }}", "Version": "{{ value_json.version }}"}'
         self.discovery_payload['state_topic'] = f'{name}/diagnostics/state'
 
 
