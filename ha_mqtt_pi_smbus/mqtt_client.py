@@ -74,7 +74,7 @@ class MQTT_Publisher_Thread(threading.Thread):
         self.smbus_device = smbus_device
         self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.do_run = True
-        self.data = self.smbus_device.data()
+        self.data = self.smbus_device.getdata()
 
     def run(self) -> None:
         """the main execution method for the thread
@@ -86,7 +86,7 @@ class MQTT_Publisher_Thread(threading.Thread):
         while True:
             if not self.do_run:
                 return
-            data = copy.deepcopy(self.smbus_device.data())
+            data = copy.deepcopy(self.smbus_device.getdata())
             if data["last_update"] != self.data["last_update"]:
                 self.data = copy.deepcopy(data)
                 self.data['state'] = 'OK'
@@ -300,17 +300,44 @@ class MQTTClient(mqtt.Client):
             )
         return result
 
-    def publish_available(self, key: str, sensor: HASensor) -> None:
-        """publish an available message
+    def publish_discovery(self, device:HADevice) -> None:
+        """Publish a discovery message for each sensor in the device
 
         Parameters
         ----------
-        key : str
-            the name of the sensor for which available is being
-            performed
-        sensor : HASensor
-            the sensor for which available is to be initiated
+        sensors : Dict[str, Any]
+            a set of sensor_name, sensor pairs
+
         """
+        self.publish(
+            device.discovery_topic,
+            json.dumps(device.discovery_payload),
+            qos=self.qos,
+            retain=self.retain,
+        )
+        self.publisher_thread = MQTT_Publisher_Thread(
+            self, self.device, self.smbus_device
+        )
+        self.publisher_thread.start()
+        self.state.discovered = True
+
+    def publish_available(self, device: HADevice | HASensor) -> None:
+        """Publish an available message for the given sensor or each sensor
+        in the device
+
+        Parameters
+        ----------
+        device : HADevice | HASensor
+            a device or sensor
+
+        """
+        if isinstance(device, HADevice):
+            for sensor in device.sensors:
+                self.publish_available(sensor)
+            return
+        if not isinstance(device, HASensor):
+            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__}) must be an instance of HADevice or HASensor')
+        sensor = device
         if sensor.diagnostic:
             try:
                 __version__ = version("ha_mqtt_pi_smbus")
@@ -335,17 +362,23 @@ class MQTTClient(mqtt.Client):
                 retain=self.retain,
             )
 
-    def publish_unavailable(self, key: str, sensor: HASensor) -> None:
-        """publish an unavailable message
+    def publish_unavailable(self, device: HADevice | HASensor) -> None:
+        """Publish an unvailable message for the sensor or each sensor
+        in the device
 
         Parameters
         ----------
-        key : str
-            the name of the sensor for which available is being
-            performed
-        sensor : HASensor
-            the sensor for which available is to be initiated
+        device : HADevice | HASensor
+            a device or a sensor
+
         """
+        if isinstance(device, HADevice):
+            for sensor in device.sensors:
+                self.publish_unavailable(sensor)
+            return
+        if not isinstance(device, HASensor):
+            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__} must be an instance of HADevice or HASensor')
+        sensor = device
         self.publish(
             sensor.availability.topic,
             json.dumps({"availability": sensor.availability.payload_unavailable}),
@@ -353,52 +386,7 @@ class MQTTClient(mqtt.Client):
             retain=self.retain,
         )
 
-    def publish_discoveries(self, device:HADevice) -> None:
-        """Publish a discovery message for each sensor in the device
-
-        Parameters
-        ----------
-        sensors : Dict[str, Any]
-            a set of sensor_name, sensor pairs
-
-        """
-        self.publish(
-            device.discovery_topic,
-            json.dumps(device.discovery_payload),
-            qos=self.qos,
-            retain=self.retain,
-        )
-        self.publisher_thread = MQTT_Publisher_Thread(
-            self, self.device, self.smbus_device
-        )
-        self.publisher_thread.start()
-        self.state.discovered = True
-
-    def publish_availables(self, device: HADevice) -> None:
-        """Publish an available message for each sensor in the device
-
-        Parameters
-        ----------
-        sensors : Dict[str, Any]
-            a set of sensor_name, sensor pairs
-
-        """
-        for sensor in device.sensors:
-            self.publish_available(sensor.unique_id, sensor)
-
-    def publish_unavailables(self, device: HADevice) -> None:
-        """Publish an unvailable message for each sensor in the device
-
-        Parameters
-        ----------
-        sensors : Dict[str, Any]
-            a set of sensor_name, sensor pairs
-
-        """
-        for sensor in device.sensors:
-            self.publish_unavailable(sensor.unique_id, sensor)
-
-    def clear_discoveries(self, device: HADevice) -> None:
+    def clear_discovery(self, device: HADevice) -> None:
         """Publish a clear discovery message for each sensor in the device
 
         Parameters
@@ -407,7 +395,7 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        self.publish_unavailables(device)
+        self.publish_unavailable(device)
         self.publish(
                 device.discovery_topic,
                 json.dumps(device.undiscovery_payload1),

@@ -41,7 +41,7 @@ class TestDevice(unittest.TestCase):
     @patch('ha_mqtt_pi_smbus.device.SMBusDevice')
     def test_bmedevice_data(self, mock_smbusDevice, mock_bme280, mock_getObjectId, mock_getCpuInfo, mock_getOSInfo):
         from example.pi_bme280.device import BME280_Device
-        mock_bme280.data.return_value = {'temperature':99,'pressure':1010,'humidity':99}
+        mock_bme280.getdata.return_value = {'temperature':99,'pressure':1010,'humidity':99}
         device = BME280_Device(
                 'test',
                 'bme280/state',
@@ -50,7 +50,7 @@ class TestDevice(unittest.TestCase):
                 mock_bme280,
                 1,
                 119)
-        data = device.data()
+        data = device.getdata()
         self.assertTrue('temperature' in data)
         self.assertTrue('pressure' in data)
         self.assertTrue('humidity' in data)
@@ -79,7 +79,7 @@ class TestDevice(unittest.TestCase):
             device.temperature = 1
             device.pressure = 2
             device.humidity = 3
-            data = device.data()
+            data = device.getdata()
             last_update_string = last_update.strftime("%m/%d/%Y %H:%M:%S")
             self.assertEqual(data['last_update'], last_update_string)
             self.assertEqual(data['temperature'], 1)

@@ -122,6 +122,7 @@ class HADiagnosticSensor(HASensor):
         self.discovery_payload['entity_category'] = 'diagnostic'
         self.discovery_payload['name'] = 'diagnostic'
         self.discovery_payload['json_attributes_topic'] = f'{name}/diagnostics/state'
+        self.discovery_payload['json_attributes_template'] = '{"Status": "{{ value_json.status }}", "CPU Temperature": "{{ value_json.cpu_temperature }}", "Version": "{{ value_json.version }}"}'
         self.discovery_payload['state_topic'] = f'{name}/diagnostics/state'
 
 
@@ -157,7 +158,7 @@ class HADevice:
     Note
     ----
     This class is designed to be subclassed and not used directly. The
-    subclass must override the data() method in order to retrieve data
+    subclass must override the getdata() method in order to retrieve data
     from the physical device.
 
     Example
@@ -184,8 +185,8 @@ class HADevice:
             self.smbus_device = smbus_device
             self.sampler_thread = SMBusDevice_Sampler_Thread(smbus_device, polling_interval)
             self.sampler_thread.start()
-        def data(self) -> Dict[str, Any]:
-            return self.smbus_device.data()
+        def getdata(self) -> Dict[str, Any]:
+            return self.smbus_device.getdata()
 
     """
 
@@ -274,8 +275,8 @@ class HADevice:
         self.discovery_topic = f'{basename}/device/{self.device.serial_number}/config'
         self.state_topic = state_topic
 
-    def data(self) -> Dict[str, Any]:
-        raise Exception("Class needs data(self) definition")
+    def getdata(self) -> Dict[str, Any]:
+        raise Exception(f"Class {self.__class__.__module}.{self.__class__.__name__} needs getdata(self) definition")
 
 
 # class SMBusDevice(SMBus):
@@ -330,7 +331,7 @@ class SMBusDevice:
                 self.pressure = data.pressure
                 self.humidity = data.humidity
 
-            def data(self) -> Dict[str, Any]:
+            def getdata(self) -> Dict[str, Any]:
                 return {
                     "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
                     "bus": self.bus,
@@ -367,7 +368,7 @@ class SMBusDevice:
 
     # Override this method return any desired data stored
     # in the 'data' variable as a dict
-    def data(self) -> Dict[str, Any]:
+    def getdata(self) -> Dict[str, Any]:
         """return the previously sampled data to the application
 
         Parameters
@@ -391,7 +392,7 @@ class SMBusDevice:
 
         bme = BME280()
         bme.sample()
-        data = bme.data()
+        data = bme.getdata()
         """
         return {
             "last_update": self.last_update.strftime("%m/%d/%Y %H:%M:%S"),

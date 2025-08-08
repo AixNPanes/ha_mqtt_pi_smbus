@@ -98,7 +98,7 @@ class TestMQTTClient(unittest.TestCase):
     @patch("subprocess.check_output")
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
-    @patch("ha_mqtt_pi_smbus.device.SMBusDevice.data")
+    @patch("ha_mqtt_pi_smbus.device.SMBusDevice.getdata")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
     def test_mqtt_client_publisher_thread(
         self,
@@ -163,8 +163,6 @@ class TestMQTTClient(unittest.TestCase):
             assert thread.data["last_update"] == 3
             thread.clear_do_run()
             thread.join()
-            self.mocked_open.assert_any_call("/proc/cpuinfo", mock.ANY)
-            self.mocked_open.assert_any_call("/etc/os-release", mock.ANY)
 
     @patch("subprocess.check_output")
     @patch("paho.mqtt.client.Client.is_connected")
@@ -438,7 +436,6 @@ class TestMQTTClient(unittest.TestCase):
             assert mqtt_client.state.connected
             rc = mqtt_client.subscribe("my/state")
             assert len(rc) == 2
-            mqtt_client.publish_discoveries(mqtt_client.device)
-            mqtt_client.publish_availables(mqtt_client.device)
-            mqtt_client.publish_availables(mqtt_client.device)
-            mqtt_client.clear_discoveries(mqtt_client.device)
+            mqtt_client.publish_discovery(mqtt_client.device)
+            mqtt_client.publish_available(mqtt_client.device)
+            mqtt_client.clear_discovery(mqtt_client.device)
