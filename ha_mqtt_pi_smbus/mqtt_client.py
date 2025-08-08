@@ -74,7 +74,7 @@ class MQTT_Publisher_Thread(threading.Thread):
         self.smbus_device = smbus_device
         self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.do_run = True
-        self.data = self.smbus_device.data()
+        self.data = self.smbus_device.getdata()
 
     def run(self) -> None:
         """the main execution method for the thread
@@ -86,7 +86,7 @@ class MQTT_Publisher_Thread(threading.Thread):
         while True:
             if not self.do_run:
                 return
-            data = copy.deepcopy(self.smbus_device.data())
+            data = copy.deepcopy(self.smbus_device.getdata())
             if data["last_update"] != self.data["last_update"]:
                 self.data = copy.deepcopy(data)
                 self.data['state'] = 'OK'

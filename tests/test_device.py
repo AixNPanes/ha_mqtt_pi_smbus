@@ -130,12 +130,12 @@ class TestDevice(unittest.TestCase):
     def test_ha_device(self):
         self.assertEqual(len(self.ha_device.sensors), 4)
         with pytest.raises(Exception):
-            self.ha_device.data()
+            self.ha_device.getdata()
 
     def test_ha_device_no_basename(self):
         self.assertEqual(len(self.ha_device.sensors), 4)
         with pytest.raises(Exception):
-            self.ha_device.data()
+            self.ha_device.getdata()
 
     def test_ha_device_extra_parms(self):
         self.assertEqual(len(self.ha_device.sensors), 4)
@@ -173,7 +173,7 @@ class TestDevice(unittest.TestCase):
 
     def test_smbus_device(self):
         self.assertEqual(self.smbus_device.bus, 2)
-        self.assertEqual(self.smbus_device.data()["address"], 118)
+        self.assertEqual(self.smbus_device.getdata()["address"], 118)
         self.assertEqual(self.smbus_device.toJson(), "")
         self.assertEqual(str(self.smbus_device), "bus: 2, address: 118")
 

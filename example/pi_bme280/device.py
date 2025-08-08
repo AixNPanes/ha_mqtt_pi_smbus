@@ -146,8 +146,8 @@ class BME280_Device(HADevice):
         self.sampler_thread = SMBusDevice_Sampler_Thread(smbus_device, polling_interval)
         self.sampler_thread.start()
 
-    def data(self) -> Dict[str, Any]:
-        return self.smbus_device.data()
+    def getdata(self) -> Dict[str, Any]:
+        return self.smbus_device.getdata()
 
 
 class BME280(SMBusDevice):
@@ -204,7 +204,7 @@ class BME280(SMBusDevice):
         self.pressure = data.pressure
         self.humidity = data.humidity
 
-    def data(self) -> Dict[str, Any]:
+    def getdata(self) -> Dict[str, Any]:
         """returns sampled data
 
         The data was either sampled previously by the saple() method

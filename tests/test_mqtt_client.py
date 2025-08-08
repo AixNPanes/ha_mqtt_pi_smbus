@@ -98,7 +98,7 @@ class TestMQTTClient(unittest.TestCase):
     @patch("subprocess.check_output")
     @patch("paho.mqtt.client.Client.is_connected")
     @patch("paho.mqtt.client.Client.connect")
-    @patch("ha_mqtt_pi_smbus.device.SMBusDevice.data")
+    @patch("ha_mqtt_pi_smbus.device.SMBusDevice.getdata")
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
     def test_mqtt_client_publisher_thread(
         self,
