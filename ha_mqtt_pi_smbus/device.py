@@ -68,7 +68,7 @@ class HASensor:
     class Availability:     # mutually exclusive with availability_topic
         def __init__(self):
             self.payload_available = 'Available'
-            self.payload_unavailable = 'Unavailable'
+            self.payload_not_available = 'Unavailable'
             #topic:str = None       # set by HASensor.__init__()
             self.value_template = '{{ value_json.availability }}'
             pass
@@ -111,19 +111,35 @@ class HASensor:
 
 
 class HADiagnosticSensor(HASensor):
-    def __init__(self, name:str = None, device_class:str = None):
+    def __init__(self, name:str = None, device_class:str = None, diagtype:str = None):
         super().__init__(None, name=name, device_class=device_class)
-        self.unique_id = f'{name}_diagnostic'
+        self.unique_id = f'{name}_diagnostic_{diagtype}'
         self.diagnostic = True
         del self.discovery_payload['device_class']
         del self.discovery_payload['unit_of_measurement']
         self.discovery_payload['unique_id'] = self.unique_id
         self.discovery_payload['value_template'] = "{{ value_json.status ~ ' — ' ~ value_json.cpu_temperature ~ '°C' }}"
         self.discovery_payload['entity_category'] = 'diagnostic'
-        self.discovery_payload['name'] = 'diagnostic'
+        self.discovery_payload['name'] = diagtype
         self.discovery_payload['json_attributes_topic'] = f'{name}/diagnostics/state'
         self.discovery_payload['json_attributes_template'] = '{"Status": "{{ value_json.status }}", "CPU Temperature": "{{ value_json.cpu_temperature }}", "Version": "{{ value_json.version }}"}'
         self.discovery_payload['state_topic'] = f'{name}/diagnostics/state'
+
+class HADiagnosticStatus(HADiagnosticSensor):
+    def __init__(self, name:str = None, device_class:str = None):
+        super().__init__(name=name, device_class=device_class, diagtype='status')
+        self.discovery_payload['value_template'] = "{{ value_json.status }}"
+
+class HADiagnosticTemperature(HADiagnosticSensor):
+    def __init__(self, name:str = None, device_class:str = None):
+        super().__init__(name=name, device_class=device_class, diagtype='temperature')
+        self.discovery_payload['value_template'] = "{{ value_json.cpu_temperature }}"
+
+class HADiagnosticVersion(HADiagnosticSensor):
+    def __init__(self, name:str = None, device_class:str = None):
+        super().__init__(name=name, device_class=device_class, diagtype='version')
+
+        self.discovery_payload['value_template'] = "{{ value_json.version }}"
 
 
 class HADevice:
@@ -232,8 +248,12 @@ class HADevice:
         except PackageNotFoundError:
              __version__ = "0.0.0"
         basename = base_name
-        self.diagnosticSensor = HADiagnosticSensor(name)
-        self.sensors = sensors + [self.diagnosticSensor]
+        self.diagnosticSensors = [
+                HADiagnosticStatus(name),
+                HADiagnosticTemperature(name),
+                HADiagnosticVersion(name),
+                ]
+        self.sensors = sensors + self.diagnosticSensors
         self.origin.name = 'HA MQTT Pi'
         self.origin.sw_version = __version__
         self.origin.support_url = 'http://www.example.com'

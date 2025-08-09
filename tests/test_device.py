@@ -112,7 +112,7 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(len(self.ha_sensor.jsonPayload()), 376)
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
-            '{"platform": "sensor", "device_class": "temperature", "unique_id": "test_temperature", "expire_after": 120, "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "availability": {"payload_available": "Available", "payload_unavailable": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/test/availability"}}'
+            '{"platform": "sensor", "device_class": "temperature", "unique_id": "test_temperature", "expire_after": 120, "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "availability": {"payload_available": "Available", "payload_not_available": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/test/availability"}}'
         )
 
     def test_test_ha_sensor(self):
@@ -124,7 +124,7 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(len(self.ha_sensor.jsonPayload()), 354)
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
-            '{"platform": "sensor", "device_class": null, "unique_id": "None_None", "expire_after": 120, "unit_of_measurement": "none", "value_template": "{{ value_json.hasensor }}", "availability": {"payload_available": "Available", "payload_unavailable": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/None/availability"}}'
+            '{"platform": "sensor", "device_class": null, "unique_id": "None_None", "expire_after": 120, "unit_of_measurement": "none", "value_template": "{{ value_json.hasensor }}", "availability": {"payload_available": "Available", "payload_not_available": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/None/availability"}}'
         )
 
     def test_ha_device(self):

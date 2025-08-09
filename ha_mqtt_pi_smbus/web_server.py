@@ -94,7 +94,7 @@ class HAFlask(Flask):
                 self.discover()
             else:
                 # Turn OFF
-                self.client.publish_unavailable(self.device)
+                self.client.publish_not_available(self.device)
                 time.sleep(0.5)
                 self.client.clear_discovery(self.device)
                 time.sleep(0.5)

@@ -362,7 +362,7 @@ class MQTTClient(mqtt.Client):
                 retain=self.retain,
             )
 
-    def publish_unavailable(self, device: HADevice | HASensor) -> None:
+    def publish_not_available(self, device: HADevice | HASensor) -> None:
         """Publish an unvailable message for the sensor or each sensor
         in the device
 
@@ -374,14 +374,14 @@ class MQTTClient(mqtt.Client):
         """
         if isinstance(device, HADevice):
             for sensor in device.sensors:
-                self.publish_unavailable(sensor)
+                self.publish_not_available(sensor)
             return
         if not isinstance(device, HASensor):
             raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__} must be an instance of HADevice or HASensor')
         sensor = device
         self.publish(
             sensor.availability.topic,
-            json.dumps({"availability": sensor.availability.payload_unavailable}),
+            json.dumps({"availability": sensor.availability.payload_not_available}),
             qos=self.qos,
             retain=self.retain,
         )
@@ -395,7 +395,7 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
-        self.publish_unavailable(device)
+        self.publish_not_available(device)
         self.publish(
                 device.discovery_topic,
                 json.dumps(device.undiscovery_payload1),
