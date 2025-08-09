@@ -113,6 +113,7 @@ a:s
             self.assertEqual(configOrCmdParm(None, {'A':{'B': 'Z'}}, ['A', 'C'], required=True), None)
             mock_exit.assert_called_once_with()
 
+
     CONFIG_DATA="""---
 title: title
 web:
@@ -138,7 +139,6 @@ web:
         mock_file1 = mock_open(read_data=self.CONFIG_DATA)
         mock_file2 = mock_open(read_data=self.SECRETS_DATA)
         if file_name == ".config.yaml":
-            logging.getLogger(__name__).error(yaml.safe_load(mock_file1()))
             return mock_file1()  # Call the mock_open instance to get the file handle
         elif file_name == "secrets.yaml":
             logging.getLogger(__name__).error(yaml.safe_load(mock_file2()))
@@ -183,3 +183,14 @@ web:
             self.assertEqual(parser.mqtt.retain, True)
             self.assertEqual(parser.mqtt.auto_discover, True)
             self.assertEqual(parser.mqtt.expire_after, 99)
+
+    @patch('sys.exit')
+    @patch('importlib.metadata.version', side_effect=Exception("error"))
+    @patch('builtins.open')
+    def test_version(self, mock_builtins_open, mock_version, mock_exit):
+        mocker = MagicMock()
+        mock_builtins_open.side_effect=self.mock_open_side_effect
+        with patch('sys.argv', ['me', '--version']):
+            parser = Parser()
+            parser.parse_args()
+            self.assertTrue(parser.version)

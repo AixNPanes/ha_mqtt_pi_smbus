@@ -109,7 +109,7 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(self.ha_sensor.device_class, "temperature")
         self.assertEqual(self.ha_sensor.discovery_payload["device_class"], "temperature")
         self.assertEqual(self.ha_sensor.discovery_payload["unit_of_measurement"], f"{chr(176)}C")
-        self.assertEqual(len(self.ha_sensor.jsonPayload()), 376)
+        self.assertEqual(len(self.ha_sensor.jsonPayload()), 378)
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
             '{"platform": "sensor", "device_class": "temperature", "unique_id": "test_temperature", "expire_after": 120, "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "availability": {"payload_available": "Available", "payload_not_available": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/test/availability"}}'
@@ -121,24 +121,24 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(self.ha_sensor.device_class, "hasensor")
         self.assertEqual(self.ha_sensor.discovery_payload["device_class"], None)
         self.assertEqual(self.ha_sensor.discovery_payload["unit_of_measurement"], 'none')
-        self.assertEqual(len(self.ha_sensor.jsonPayload()), 354)
+        self.assertEqual(len(self.ha_sensor.jsonPayload()), 356)
         self.assertEqual(
             self.ha_sensor.jsonPayload(),
             '{"platform": "sensor", "device_class": null, "unique_id": "None_None", "expire_after": 120, "unit_of_measurement": "none", "value_template": "{{ value_json.hasensor }}", "availability": {"payload_available": "Available", "payload_not_available": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/None/availability"}}'
         )
 
     def test_ha_device(self):
-        self.assertEqual(len(self.ha_device.sensors), 4)
+        self.assertEqual(len(self.ha_device.sensors), 8)
         with pytest.raises(Exception):
             self.ha_device.getdata()
 
     def test_ha_device_no_basename(self):
-        self.assertEqual(len(self.ha_device.sensors), 4)
+        self.assertEqual(len(self.ha_device.sensors), 8)
         with pytest.raises(Exception):
             self.ha_device.getdata()
 
     def test_ha_device_extra_parms(self):
-        self.assertEqual(len(self.ha_device.sensors), 4)
+        self.assertEqual(len(self.ha_device.sensors), 8)
 
         with patch("builtins.open", self.mocked_open), patch(
             "ha_mqtt_pi_smbus.device.SMBus"

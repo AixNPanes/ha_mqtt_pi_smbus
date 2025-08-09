@@ -1,5 +1,6 @@
 # tests/test_routes.py
 from argparse import Namespace
+import logging
 import subprocess
 import unittest
 from unittest.mock import patch
@@ -11,6 +12,8 @@ from ha_mqtt_pi_smbus.environ import (
     getObjectId,
     getCpuInfo,
     getOSInfo,
+    getUptime,
+    getLastRestart,
 )
 
 from .mock_data import MOCKED_OPEN
@@ -112,3 +115,21 @@ class TestDevice(unittest.TestCase):
         with patch("builtins.open", self.mocked_open):
             osinf = getOSInfo()
             assert osinf["ID"] == "debian"
+
+    def test_uptime(self):
+        fake_uptime_output = "up 2 days, 7 hours, 0 minutes"
+        with patch(
+            "ha_mqtt_pi_smbus.environ.subprocess.check_output",
+            return_value=fake_uptime_output.encode("utf-8"),
+        ):
+            uptime = getUptime()
+            assert uptime == "up 2 days, 7 hours, 0 minutes"
+
+    def test_last_restart(self):
+        fake_last_restart_output = "2020-01-01 01:02:03"
+        with patch(
+            "ha_mqtt_pi_smbus.environ.subprocess.check_output",
+            return_value=fake_last_restart_output.encode("utf-8"),
+        ):
+            uptime = getLastRestart()
+            assert uptime == "2020-01-01 01:02:03"

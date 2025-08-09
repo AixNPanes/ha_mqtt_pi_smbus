@@ -15,7 +15,7 @@ import paho.mqtt.properties as mqtt_properties
 from paho.mqtt.client import connack_string
 
 from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice
-from ha_mqtt_pi_smbus.environ import getObjectId, getTemperature
+from ha_mqtt_pi_smbus.environ import getObjectId, getTemperature, getUptime, getLastRestart
 from ha_mqtt_pi_smbus.parsing import MQTTConfig
 from ha_mqtt_pi_smbus.state import State
 
@@ -164,15 +164,18 @@ class MQTTClient(mqtt.Client):
 
     def on_message(client, userdata, xxx, msg) -> None:
         payload = msg.payload.decode("utf-8").strip().lower()
-        if payload == "online":
-            client.__logger.info("Home Assistant is ONLINE")
-            client.publish_discovery(client.device);
-            client.publish_available(client.device)
-        elif payload == "offline":
-            client.__logger.warning("Home Assistant is OFFLINE")
-            client.is_discovered = False
+        if msg.topic == client.status_topic:
+            if payload == "online":
+                client.__logger.info("Home Assistant is ONLINE")
+                client.publish_discovery(client.device);
+                client.publish_available(client.device)
+            elif payload == "offline":
+                client.__logger.warning("Home Assistant is OFFLINE")
+                client.is_discovered = False
+            else:
+                client.__logger.debug(f"HA status unknown payload: {payload}")
         else:
-            client.__logger.debug(f"HA status unknown payload: {payload}")
+            client.__logger.debug(f"message unknown topic: {msg.topic}")
 
     def __init__(
         self,
@@ -356,7 +359,7 @@ class MQTTClient(mqtt.Client):
                 self.publish_available(sensor)
             return
         if not isinstance(device, HASensor):
-            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__}) must be an instance of HADevice or HASensor')
+            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__}) must be an instance of HADevice or HASensor')  # pragma: no cover
         sensor = device
         if sensor.diagnostic:
             try:
@@ -367,6 +370,8 @@ class MQTTClient(mqtt.Client):
                  'status': 'OK',
                  'cpu_temperature': getTemperature(),
                  'version': __version__,
+                 'uptime': getUptime(),
+                 'last_restart': getLastRestart(),
             }
             self.publish(
                 sensor.discovery_payload['json_attributes_topic'],
@@ -397,7 +402,7 @@ class MQTTClient(mqtt.Client):
                 self.publish_not_available(sensor)
             return
         if not isinstance(device, HASensor):
-            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__} must be an instance of HADevice or HASensor')
+            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__} must be an instance of HADevice or HASensor')   # pragma: no cover
         sensor = device
         self.publish(
             sensor.availability.topic,

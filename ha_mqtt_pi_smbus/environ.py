@@ -1,3 +1,4 @@
+import logging
 import subprocess
 from typing import Any, Dict
 
@@ -213,3 +214,49 @@ def getOSInfo() -> Dict[str, Any]:
             value = token[1].strip().strip('"')
             info[name] = value
     return info
+
+
+def getUptime() -> str:
+    """get the time since the system was rebooted
+
+    Parameters - none
+
+    Returns
+    -------
+    a str containing the time since the system was rebooted
+
+    Example
+    ------
+    >>> from environ import getUptime
+    >>> print(f'The uptime is {getUptime("")}')
+    The Mac address for wlan0 is b8:27:eb:94:a7:18
+    >>>
+    """
+    try:
+        return subprocess.check_output(["uptime", "-p"]).decode("utf-8")
+    except subprocess.CalledProcessError:   # pragma: no cover
+        return None                         # pragma: no cover
+
+
+def getLastRestart() -> str:
+    """get the Mac address of the specified interface
+
+    Parameters
+    ----------
+    none
+
+    Returns
+    -------
+    a str the date and time of the last reboot
+
+    Example
+    ------
+    >>> from environ import getTemperature
+    >>> print(f'The last restart time is {getLastRestart()}')
+    The Mac address for wlan0 is b8:27:eb:94:a7:18
+    >>>
+    """
+    try:
+        return subprocess.check_output(["uptime", "-s"]).decode("utf-8")
+    except subprocess.CalledProcessError:   # pragma: no cover
+        return None                         # pragma: no cover

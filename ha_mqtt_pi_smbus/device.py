@@ -138,8 +138,19 @@ class HADiagnosticTemperature(HADiagnosticSensor):
 class HADiagnosticVersion(HADiagnosticSensor):
     def __init__(self, name:str = None, device_class:str = None):
         super().__init__(name=name, device_class=device_class, diagtype='version')
-
         self.discovery_payload['value_template'] = "{{ value_json.version }}"
+
+class HADiagnosticUptime(HADiagnosticSensor):
+    def __init__(self, name:str = None, device_class:str = None):
+        super().__init__(name=name, device_class=device_class, diagtype='uptime')
+        self.discovery_payload['value_template'] = "{{ value_json.uptime }}"
+
+
+class HADiagnosticLastRestart(HADiagnosticSensor):
+    def __init__(self, name:str = None, device_class:str = None):
+        super().__init__(name=name, device_class=device_class, diagtype='last-restart')
+        self.discovery_payload['value_template'] = "{{ value_json.last_restart }}"
+
 
 
 class HADevice:
@@ -252,6 +263,8 @@ class HADevice:
                 HADiagnosticStatus(name),
                 HADiagnosticTemperature(name),
                 HADiagnosticVersion(name),
+                HADiagnosticUptime(name),
+                HADiagnosticLastRestart(name),
                 ]
         self.sensors = sensors + self.diagnosticSensors
         self.origin.name = 'HA MQTT Pi'

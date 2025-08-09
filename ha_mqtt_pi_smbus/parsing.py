@@ -161,7 +161,7 @@ class BasicParser(argparse.ArgumentParser):
         self.subtitle = self.args.subtitle if self.args.subtitle \
             else self.config['subtitle'] if 'subtitle' in self.config else ""
         self.version = self.args.version if self.args.version \
-            else self.config['version'] if 'version' in self.config else ""
+            else 'version' in self.config
         if self.version:
             try:
                 __version__ = version("ha_mqtt_pi_smbus")
@@ -215,6 +215,7 @@ class MQTTConfig:
     retain: bool
     auto_discover: bool
     expire_after: int
+    status_topic: str
 
     def __init__(self,
                  broker:str = 'localhost',
@@ -226,7 +227,8 @@ class MQTTConfig:
                  disable_retain:bool = True,
                  retain:bool = False,
                  auto_discover:bool = True,
-                 expire_after:int = 120):
+                 expire_after:int = 120,
+                 status_topic:str = 'homeassistant/status'):
         self.broker = broker
         self.port = port
         self.username = username
@@ -237,6 +239,7 @@ class MQTTConfig:
         self.retain = not disable_retain
         self.auto_discover = auto_discover
         self.expire_after = expire_after
+        self.status_topic = status_topic
 
 
 class MQTTParser(WebParser):

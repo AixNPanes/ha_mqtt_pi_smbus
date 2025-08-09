@@ -5,6 +5,8 @@ import unittest
 from unittest import mock
 from unittest.mock import patch
 
+from paho.mqtt.client import MQTTMessage
+
 from ha_mqtt_pi_smbus.device import HADevice, HASensor
 from ha_mqtt_pi_smbus.mqtt_client import (
     State,
@@ -439,3 +441,84 @@ class TestMQTTClient(unittest.TestCase):
             mqtt_client.publish_discovery(mqtt_client.device)
             mqtt_client.publish_available(mqtt_client.device)
             mqtt_client.clear_discovery(mqtt_client.device)
+
+    @patch('ha_mqtt_pi_smbus.environ.getMacAddress', return_value='12:34:56')
+    @patch('ha_mqtt_pi_smbus.environ.getObjectId', return_value='123456')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery')
+    def test_on_message_online(self, mock_discovery, mock_available, mock_object_id, mock_mac_address):
+        config = MQTTConfig()
+        client = MQTTClient(None, None, None, config)
+        client.is_discovered = True
+        msg = MQTTMessage(topic=client.status_topic.encode('utf-8'))
+        msg.payload = b'online'
+        client.on_message(None, None, msg)
+        mock_discovery.assert_called_once()
+        mock_available.assert_called_once()
+
+    @patch('ha_mqtt_pi_smbus.environ.getMacAddress', return_value='12:34:56')
+    @patch('ha_mqtt_pi_smbus.environ.getObjectId', return_value='123456')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery')
+    def test_on_message_offline(self, mock_discovery, mock_available, mock_object_id, mock_mac_address):
+        config = MQTTConfig()
+        client = MQTTClient(None, None, None, config)
+        client.is_discovered = True
+        msg = MQTTMessage(topic=client.status_topic.encode('utf-8'))
+        msg.payload = b'offline'
+        client.on_message(None, None, msg)
+        self.assertFalse(client.is_discovered)
+
+    @patch('ha_mqtt_pi_smbus.environ.getMacAddress', return_value='12:34:56')
+    @patch('ha_mqtt_pi_smbus.environ.getObjectId', return_value='123456')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery')
+    def test_on_message_bad(self, mock_discovery, mock_available, mock_object_id, mock_mac_address):
+        config = MQTTConfig()
+        client = MQTTClient(None, None, None, config)
+        client.is_discovered = True
+        msg = MQTTMessage(topic=client.status_topic.encode('utf-8'))
+        msg.payload = b'bad'
+        client.on_message(None, None, msg)
+        self.assertTrue(client.is_discovered)
+        mock_discovery.assert_not_called()
+        mock_available.assert_not_called()
+
+    @patch('ha_mqtt_pi_smbus.environ.getMacAddress', return_value='12:34:56')
+    @patch('ha_mqtt_pi_smbus.environ.getObjectId', return_value='123456')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available')
+    @patch('ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery')
+    def test_on_message_badtopic(self, mock_discovery, mock_available, mock_object_id, mock_mac_address):
+        config = MQTTConfig()
+        client = MQTTClient(None, None, None, config)
+        client.is_discovered = True
+        msg = MQTTMessage(topic=b'bad')
+        msg.payload = b'bad'
+        client.on_message(None, None, msg)
+        self.assertTrue(client.is_discovered)
+        mock_discovery.assert_not_called()
+        mock_available.assert_not_called()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
