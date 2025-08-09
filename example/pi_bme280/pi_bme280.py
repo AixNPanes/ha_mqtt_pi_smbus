@@ -12,11 +12,13 @@ app = None
 
 # shutdown callback
 def shutdown_server():
+    global app
     logging.getLogger(__name__).info("Shutting down server")
     if app is not None:
         app.shutdown_server()
 
 def main(args):
+    global app
     atexit.register(shutdown_server)  # register shutdown
 
     # parse config and command line args
