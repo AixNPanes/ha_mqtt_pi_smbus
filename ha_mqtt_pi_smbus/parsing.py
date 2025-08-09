@@ -295,6 +295,12 @@ class MQTTParser(WebParser):
             help="MQTT will mark a device unavailable if not heaard from",
             type=int,
         )
+        self.add_argument(
+            "--mqtt_status_topic",
+            help="MQTT status topic for Last Will and testament, normally homeassistant/status, but configurable from Home Assistan MQTT1",
+            type=str,
+            default='homeassistant/status',
+        )
 
     def parse_args(self):
         self.args = super().parse_args()
@@ -326,9 +332,12 @@ class MQTTParser(WebParser):
         self.mqtt.auto_discover = self.args.mqtt_auto_discover \
             if self.args.mqtt_auto_discover \
                 else mqtt['auto_discover'] if 'auto_discover' in mqtt else False
-        self.mqtt.expire_after = self.args_mqtt.expire_after \
+        self.mqtt.expire_after = self.args.mqtt_expire_after \
             if self.args.mqtt_expire_after \
                 else mqtt['expire_after'] if 'expire_after' in mqtt else 120
+        self.mqtt.status_topic = self.args.mqtt_status_topic \
+            if self.args.mqtt_status_topic \
+                else mqtt['status_topic'] if 'status_topic' in mqtt else 'homeassistant/status'
         return self.args
 
 

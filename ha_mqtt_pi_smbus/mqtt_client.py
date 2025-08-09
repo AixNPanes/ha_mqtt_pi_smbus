@@ -86,15 +86,16 @@ class MQTT_Publisher_Thread(threading.Thread):
         while True:
             if not self.do_run:
                 return
-            data = copy.deepcopy(self.smbus_device.getdata())
-            if data["last_update"] != self.data["last_update"]:
-                self.data = copy.deepcopy(data)
-                self.data['state'] = 'OK'
-                self.client.publish(
-                        self.device.state_topic,
-                        json.dumps(self.data),
-                        qos=self.client.qos,
-                        retain=self.client.retain)
+            if self.client.is_discovered:
+                data = copy.deepcopy(self.smbus_device.getdata())
+                if data["last_update"] != self.data["last_update"]:
+                    self.data = copy.deepcopy(data)
+                    self.data['state'] = 'OK'
+                    self.client.publish(
+                            self.device.state_topic,
+                            json.dumps(self.data),
+                            qos=self.client.qos,
+                            retain=self.client.retain)
             time.sleep(1)
 
     def clear_do_run(self) -> None:
@@ -147,15 +148,31 @@ class MQTTClient(mqtt.Client):
         client.state.rc = rc
         if rc == 0:
             client.state.connected = True
+            client.__logger.info("Connected to MQTT broker")
+            client.subscribe(client.status_topic)
+            client.__logger.debug(f"Subscribed to HA status topic: {client.status_topic}")
+
         else:
             client.state.error = [connack_string(rc)]
 
-    def on_disconnect(client, userdata, flabs, rc, Properties=None) -> None:
+    def on_disconnect(client, userdata, flags, rc, Properties=None) -> None:
         if rc == 0:
             # client.close()
             client.state.connected = False
         else:
             client.state.error = [connack_string(rc)]
+
+    def on_message(client, userdata, xxx, msg) -> None:
+        payload = msg.payload.decode("utf-8").strip().lower()
+        if payload == "online":
+            client.__logger.info("Home Assistant is ONLINE")
+            client.publish_discovery(client.device);
+            client.publish_available(client.device)
+        elif payload == "offline":
+            client.__logger.warning("Home Assistant is OFFLINE")
+            client.is_discovered = False
+        else:
+            client.__logger.debug(f"HA status unknown payload: {payload}")
 
     def __init__(
         self,
@@ -202,6 +219,7 @@ class MQTTClient(mqtt.Client):
         self.password = mqtt_config.password
         self.qos = mqtt_config.qos
         self.retain = mqtt_config.retain
+        self.status_topic = mqtt_config.status_topic
         self.device = device
         self.smbus_device = smbus_device
         self.state = State()
@@ -209,6 +227,7 @@ class MQTTClient(mqtt.Client):
         self.connected_flag = False
         self.on_connect = MQTTClient.on_connect
         self.on_disconnect = MQTTClient.on_disconnect
+        self.on_messagee = MQTTClient.on_message
         self.publisher_thread = None
         super().user_data_set(self)
         self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
@@ -309,8 +328,9 @@ class MQTTClient(mqtt.Client):
             a set of sensor_name, sensor pairs
 
         """
+        self.device = device
         self.publish(
-            device.discovery_topic,
+            self.device.discovery_topic,
             json.dumps(device.discovery_payload),
             qos=self.qos,
             retain=self.retain,
