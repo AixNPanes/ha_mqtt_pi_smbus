@@ -73,19 +73,24 @@ class TestLogging(TestCase):
         loggerConfig()
         mock_logging_open.assert_called_once_with("logging.config", "r")
 
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.open", return_value="""{
+    @patch(
+        "ha_mqtt_pi_smbus.hamqtt_logging.open",
+        return_value="""{
                 "version": 1
-            }""")
+            }""",
+    )
     def test_no_disable_existing_loggers(selfi, mockopen):
-            loggerConfig()
-            mockopen.assert_called_once_with("logging.config", "r")
+        loggerConfig()
+        mockopen.assert_called_once_with("logging.config", "r")
 
     @patch("ha_mqtt_pi_smbus.hamqtt_logging.open", return_value="bad json content")
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.json.load", side_effect = JSONDecodeError("Expecting value", "bad json content", 0))
-
+    @patch(
+        "ha_mqtt_pi_smbus.hamqtt_logging.json.load",
+        side_effect=JSONDecodeError("Expecting value", "bad json content", 0),
+    )
     def test_loggerconfig(self, mock_json_load, mock_logging_open):
         loggerConfig()
-    
+
         # Assert open called
         mock_logging_open.assert_called_once_with("logging.config", "r")
         mock_json_load.assert_not_called()

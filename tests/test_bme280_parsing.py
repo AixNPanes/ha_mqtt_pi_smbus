@@ -13,8 +13,7 @@ from .mock_data import (
 )
 
 
-
-CONFIG_DATA="""---
+CONFIG_DATA = """---
 title: title
 web:
     address: 1.2.3.4
@@ -35,18 +34,20 @@ bme280:
     polling_interval: 1
 """
 
+
 class TestParser(TestCase):
-    @patch('ha_mqtt_pi_smbus.parsing.readfile', return_value=CONFIG_DATA)
-    @patch('sys.argv', ['me', '-c', '.config.yaml'])
+    @patch("ha_mqtt_pi_smbus.parsing.readfile", return_value=CONFIG_DATA)
+    @patch("sys.argv", ["me", "-c", ".config.yaml"])
     def test_bmeparser(self, mock_read):
         from example.pi_bme280.parsing import BME280Parser
         from ha_mqtt_pi_smbus.environ import readfile
+
         parser = BME280Parser()
         parser.parse_args()
         self.assertEqual(mock_read.call_count, 2)
-        self.assertEqual(parser.title, 'title')
-        self.assertEqual(parser.subtitle, '')
+        self.assertEqual(parser.title, "title")
+        self.assertEqual(parser.subtitle, "")
         self.assertEqual(parser.bme280.address, 118)
         self.assertEqual(parser.bme280.bus, 1)
-        self.assertEqual(parser.bme280.sensor_name, 'test')
+        self.assertEqual(parser.bme280.sensor_name, "test")
         self.assertEqual(parser.bme280.polling_interval, 1)

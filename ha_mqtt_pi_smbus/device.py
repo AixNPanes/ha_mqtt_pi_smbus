@@ -65,23 +65,23 @@ class HASensor:
 
     """
 
-    class Availability:     # mutually exclusive with availability_topic
+    class Availability:  # mutually exclusive with availability_topic
         def __init__(self):
-            self.payload_available = 'Available'
-            self.payload_not_available = 'Unavailable'
-            #topic:str = None       # set by HASensor.__init__()
-            self.value_template = '{{ value_json.availability }}'
+            self.payload_available = "Available"
+            self.payload_not_available = "Unavailable"
+            # topic:str = None       # set by HASensor.__init__()
+            self.value_template = "{{ value_json.availability }}"
             pass
-    
+
     def __init__(
-            self,
-            units: str,
-            name: str = None,
-            basename:str = 'homeassistant',
-            device_class: str = None,
-            expire_after:int = 120,
-            state_topic:str = None, 
-            ):
+        self,
+        units: str,
+        name: str = None,
+        basename: str = "homeassistant",
+        device_class: str = None,
+        expire_after: int = 120,
+        state_topic: str = None,
+    ):
         self.diagnostic = False
         self.name = name
         if self.name is None:
@@ -90,67 +90,74 @@ class HASensor:
         self.basename = basename
         if self.device_class is None:
             self.device_class = type(self).__name__.lower()
-        self.unique_id = f'{name}_{device_class}'
+        self.unique_id = f"{name}_{device_class}"
         self.availability = self.Availability()
-        self.availability.topic = f'{basename}/{name}/availability'
-        self.undiscovery_payload = {
-            'platform': 'sensor'
-            }
+        self.availability.topic = f"{basename}/{name}/availability"
+        self.undiscovery_payload = {"platform": "sensor"}
         self.discovery_payload = {
-            'platform': 'sensor',
-            'device_class': device_class,
-            'unique_id': self.unique_id,
-            'expire_after': expire_after,
-            'unit_of_measurement': units,
-            'value_template': f'{{{{ value_json.{self.device_class} }}}}',
-            'availability': self.availability.__dict__,
-            }
+            "platform": "sensor",
+            "device_class": device_class,
+            "unique_id": self.unique_id,
+            "expire_after": expire_after,
+            "unit_of_measurement": units,
+            "value_template": f"{{{{ value_json.{self.device_class} }}}}",
+            "availability": self.availability.__dict__,
+        }
 
     def jsonPayload(self) -> str:
         return json.dumps(self.discovery_payload, default=vars)
 
 
 class HADiagnosticSensor(HASensor):
-    def __init__(self, name:str = None, device_class:str = None, diagtype:str = None):
+    def __init__(
+        self, name: str = None, device_class: str = None, diagtype: str = None
+    ):
         super().__init__(None, name=name, device_class=device_class)
-        self.unique_id = f'{name}_diagnostic_{diagtype}'
+        self.unique_id = f"{name}_diagnostic_{diagtype}"
         self.diagnostic = True
-        del self.discovery_payload['device_class']
-        del self.discovery_payload['unit_of_measurement']
-        self.discovery_payload['unique_id'] = self.unique_id
-        self.discovery_payload['value_template'] = "{{ value_json.status ~ ' — ' ~ value_json.cpu_temperature ~ '°C' }}"
-        self.discovery_payload['entity_category'] = 'diagnostic'
-        self.discovery_payload['name'] = diagtype
-        self.discovery_payload['json_attributes_topic'] = f'{name}/diagnostics/state'
-        self.discovery_payload['json_attributes_template'] = '{"Status": "{{ value_json.status }}", "CPU Temperature": "{{ value_json.cpu_temperature }}", "Version": "{{ value_json.version }}"}'
-        self.discovery_payload['state_topic'] = f'{name}/diagnostics/state'
+        del self.discovery_payload["device_class"]
+        del self.discovery_payload["unit_of_measurement"]
+        self.discovery_payload["unique_id"] = self.unique_id
+        self.discovery_payload["value_template"] = (
+            "{{ value_json.status ~ ' — ' ~ value_json.cpu_temperature ~ '°C' }}"
+        )
+        self.discovery_payload["entity_category"] = "diagnostic"
+        self.discovery_payload["name"] = diagtype
+        self.discovery_payload["json_attributes_topic"] = f"{name}/diagnostics/state"
+        self.discovery_payload["json_attributes_template"] = (
+            '{"Status": "{{ value_json.status }}", "CPU Temperature": "{{ value_json.cpu_temperature }}", "Version": "{{ value_json.version }}"}'
+        )
+        self.discovery_payload["state_topic"] = f"{name}/diagnostics/state"
+
 
 class HADiagnosticStatus(HADiagnosticSensor):
-    def __init__(self, name:str = None, device_class:str = None):
-        super().__init__(name=name, device_class=device_class, diagtype='status')
-        self.discovery_payload['value_template'] = "{{ value_json.status }}"
+    def __init__(self, name: str = None, device_class: str = None):
+        super().__init__(name=name, device_class=device_class, diagtype="status")
+        self.discovery_payload["value_template"] = "{{ value_json.status }}"
+
 
 class HADiagnosticTemperature(HADiagnosticSensor):
-    def __init__(self, name:str = None, device_class:str = None):
-        super().__init__(name=name, device_class=device_class, diagtype='temperature')
-        self.discovery_payload['value_template'] = "{{ value_json.cpu_temperature }}"
+    def __init__(self, name: str = None, device_class: str = None):
+        super().__init__(name=name, device_class=device_class, diagtype="temperature")
+        self.discovery_payload["value_template"] = "{{ value_json.cpu_temperature }}"
+
 
 class HADiagnosticVersion(HADiagnosticSensor):
-    def __init__(self, name:str = None, device_class:str = None):
-        super().__init__(name=name, device_class=device_class, diagtype='version')
-        self.discovery_payload['value_template'] = "{{ value_json.version }}"
+    def __init__(self, name: str = None, device_class: str = None):
+        super().__init__(name=name, device_class=device_class, diagtype="version")
+        self.discovery_payload["value_template"] = "{{ value_json.version }}"
+
 
 class HADiagnosticUptime(HADiagnosticSensor):
-    def __init__(self, name:str = None, device_class:str = None):
-        super().__init__(name=name, device_class=device_class, diagtype='uptime')
-        self.discovery_payload['value_template'] = "{{ value_json.uptime }}"
+    def __init__(self, name: str = None, device_class: str = None):
+        super().__init__(name=name, device_class=device_class, diagtype="uptime")
+        self.discovery_payload["value_template"] = "{{ value_json.uptime }}"
 
 
 class HADiagnosticLastRestart(HADiagnosticSensor):
-    def __init__(self, name:str = None, device_class:str = None):
-        super().__init__(name=name, device_class=device_class, diagtype='last-restart')
-        self.discovery_payload['value_template'] = "{{ value_json.last_restart }}"
-
+    def __init__(self, name: str = None, device_class: str = None):
+        super().__init__(name=name, device_class=device_class, diagtype="last-restart")
+        self.discovery_payload["value_template"] = "{{ value_json.last_restart }}"
 
 
 class HADevice:
@@ -217,67 +224,67 @@ class HADevice:
 
     """
 
-    class Origin:#
-        name:str                    # 'bla2mqtt'
-        sw_version:str              # '2.1'
-        #support_url:str             # 'https://bla2mqtt.example.com/support'
+    class Origin:  #
+        name: str  # 'bla2mqtt'
+        sw_version: str  # '2.1'
+        # support_url:str             # 'https://bla2mqtt.example.com/support'
 
     class Device:
-        #configuration_url:str       # defined only if set
-        #connections:Sequence[str]   #
-        #model_id:str                # 'xya'
-        #suggested_area:str          #
-        hw_version:str              # '1.0rev2'
-        identifiers:Sequence[str]   # ['ea334450945afc']
-        manufacturer:str            # 'Bla electronics'
-        model:str                   # 'xya'
-        name:str                    # 'Kitchen'
-        serial_number:str           # 'ea334450945afc'
-        sw_version:str              # '1.0'
+        # configuration_url:str       # defined only if set
+        # connections:Sequence[str]   #
+        # model_id:str                # 'xya'
+        # suggested_area:str          #
+        hw_version: str  # '1.0rev2'
+        identifiers: Sequence[str]  # ['ea334450945afc']
+        manufacturer: str  # 'Bla electronics'
+        model: str  # 'xya'
+        name: str  # 'Kitchen'
+        serial_number: str  # 'ea334450945afc'
+        sw_version: str  # '1.0'
 
     device = Device()
     origin = Origin()
-    state_topic:str
-    qos:int
-    components:Sequence[HASensor]
+    state_topic: str
+    qos: int
+    components: Sequence[HASensor]
 
     def __init__(
         self,
-        sensors:list[HASensor],
-        name:str,
-        state_topic:str,
-        manufacturer:str,
-        model:str,
-        model_id:str = None,
-        suggested_area = None,
-        base_name:str = 'homeassistant',
-        support_url:str = None, #'http://www.example.com',
-        qos:int = 0,
+        sensors: list[HASensor],
+        name: str,
+        state_topic: str,
+        manufacturer: str,
+        model: str,
+        model_id: str = None,
+        suggested_area=None,
+        base_name: str = "homeassistant",
+        support_url: str = None,  #'http://www.example.com',
+        qos: int = 0,
     ):
         try:
             __version__ = version("ha_mqtt_pi_smbus")
         except PackageNotFoundError:
-             __version__ = "0.0.0"
+            __version__ = "0.0.0"
         basename = base_name
         self.diagnosticSensors = [
-                HADiagnosticStatus(name),
-                HADiagnosticTemperature(name),
-                HADiagnosticVersion(name),
-                HADiagnosticUptime(name),
-                HADiagnosticLastRestart(name),
-                ]
+            HADiagnosticStatus(name),
+            HADiagnosticTemperature(name),
+            HADiagnosticVersion(name),
+            HADiagnosticUptime(name),
+            HADiagnosticLastRestart(name),
+        ]
         self.sensors = sensors + self.diagnosticSensors
-        self.origin.name = 'HA MQTT Pi'
+        self.origin.name = "HA MQTT Pi"
         self.origin.sw_version = __version__
-        self.origin.support_url = 'http://www.example.com'
+        self.origin.support_url = "http://www.example.com"
         cpuinfo = getCpuInfo()
-        self.device.hw_version = cpuinfo['cpu']['Model']
-        self.device.identifiers = [ name ]
+        self.device.hw_version = cpuinfo["cpu"]["Model"]
+        self.device.identifiers = [name]
         self.device.name = name
         self.device.manufacturer = manufacturer
         self.device.model = model
         self.device.serial_number = getObjectId()
-        self.device.sw_version = '0.0.1'
+        self.device.sw_version = "0.0.1"
         self.state_topic = state_topic
         self.qos = qos
         if support_url is not None:
@@ -287,30 +294,32 @@ class HADevice:
         if suggested_area is not None:
             self.origin.suggested_area = suggested_area
         self.discovery_payload = {
-                "device": self.device.__dict__,
-                "origin": self.origin.__dict__,
-                "components": {v.unique_id: v.discovery_payload for v in self.sensors},
-                "state_topic": self.state_topic,
-                "qos": self.qos,
-                }
+            "device": self.device.__dict__,
+            "origin": self.origin.__dict__,
+            "components": {v.unique_id: v.discovery_payload for v in self.sensors},
+            "state_topic": self.state_topic,
+            "qos": self.qos,
+        }
         self.undiscovery_payload1 = {
-                "device": self.device.__dict__,
-                "origin": self.origin.__dict__,
-                "components": {v.unique_id: v.undiscovery_payload for v in self.sensors},
-                "state_topic": self.state_topic,
-                "qos": self.qos,
-                }
+            "device": self.device.__dict__,
+            "origin": self.origin.__dict__,
+            "components": {v.unique_id: v.undiscovery_payload for v in self.sensors},
+            "state_topic": self.state_topic,
+            "qos": self.qos,
+        }
         self.undiscovery_payload2 = {
-                "device": self.device.__dict__,
-                "origin": self.origin.__dict__,
-                "state_topic": self.state_topic,
-                "qos": self.qos,
-                }
-        self.discovery_topic = f'{basename}/device/{self.device.serial_number}/config'
+            "device": self.device.__dict__,
+            "origin": self.origin.__dict__,
+            "state_topic": self.state_topic,
+            "qos": self.qos,
+        }
+        self.discovery_topic = f"{basename}/device/{self.device.serial_number}/config"
         self.state_topic = state_topic
 
     def getdata(self) -> Dict[str, Any]:
-        raise Exception(f"Class {self.__class__.__module}.{self.__class__.__name__} needs getdata(self) definition")
+        raise Exception(
+            f"Class {self.__class__.__module}.{self.__class__.__name__} needs getdata(self) definition"
+        )
 
 
 # class SMBusDevice(SMBus):
@@ -490,7 +499,7 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         when the thread is started with the thread.start() method.
         (See class example, above.)
         """
-        time.sleep(10) # Wait for startup to get device data out sooner.
+        time.sleep(10)  # Wait for startup to get device data out sooner.
         while True:
             for i in range(self.polling_interval):
                 if not self.do_run:

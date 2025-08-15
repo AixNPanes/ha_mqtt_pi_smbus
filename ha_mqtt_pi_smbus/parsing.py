@@ -10,6 +10,7 @@ from importlib.metadata import version, PackageNotFoundError
 
 from ha_mqtt_pi_smbus.environ import get_version, readfile
 
+
 def deep_merge_dicts(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, Any]:
     """Recursively merges two dictionaries.
 
@@ -57,9 +58,9 @@ def read_yaml(file_path) -> Dict[str, Any]:
     try:
         data = readfile(file_path)
         return yaml.safe_load(data)
-#        with open(file_path, "r") as file:
-#            data = yaml.safe_load(file)
-#            return data
+    #        with open(file_path, "r") as file:
+    #            data = yaml.safe_load(file)
+    #            return data
     except FileNotFoundError:
         return None
     except yaml.YAMLError as e:
@@ -105,6 +106,7 @@ def configOrCmdParm(
         cfg = cfg[n]
     return cfg
 
+
 class BasicParser(argparse.ArgumentParser):
     config: str
     secrets: str
@@ -121,9 +123,7 @@ class BasicParser(argparse.ArgumentParser):
             + "operations, the device wil not appear in Home Assistant.",
         )
         self.add_argument(
-            "-c",
-            "--config",
-            help="config file name (YAML), default(.config.yaml)"
+            "-c", "--config", help="config file name (YAML), default(.config.yaml)"
         )
         self.add_argument(
             "-s",
@@ -132,19 +132,13 @@ class BasicParser(argparse.ArgumentParser):
             + "and overrides entries in config",
         )
         self.add_argument(
-            "-t",
-            "--title",
-            help="the title for the web management interface"
+            "-t", "--title", help="the title for the web management interface"
         )
         self.add_argument(
-            "--subtitle",
-            help="the subtitle for the web management interface"
+            "--subtitle", help="the subtitle for the web management interface"
         )
         self.add_argument(
-            "-v",
-            "--version",
-            action='store_true',
-            help="print the version number"
+            "-v", "--version", action="store_true", help="print the version number"
         )
 
     def parse_args(self):
@@ -152,28 +146,34 @@ class BasicParser(argparse.ArgumentParser):
 
         # determine config/secrets filenames and read
         self.config = deep_merge_dicts(
-            read_yaml(
-                self.args.config if self.args.config else '.config.yaml')
-            , read_yaml(
-                self.args.secrets if self.args.secrets else '.secrets.yaml')
-            )
+            read_yaml(self.args.config if self.args.config else ".config.yaml"),
+            read_yaml(self.args.secrets if self.args.secrets else ".secrets.yaml"),
+        )
 
         # determine title/subtitle from command, if supplied, otherwise config
-        self.title = self.args.title if self.args.title \
-            else self.config['title'] if 'title' in self.config else ""
-        self.subtitle = self.args.subtitle if self.args.subtitle \
-            else self.config['subtitle'] if 'subtitle' in self.config else ""
-        self.version = self.args.version if self.args.version \
-            else 'version' in self.config
+        self.title = (
+            self.args.title
+            if self.args.title
+            else self.config["title"] if "title" in self.config else ""
+        )
+        self.subtitle = (
+            self.args.subtitle
+            if self.args.subtitle
+            else self.config["subtitle"] if "subtitle" in self.config else ""
+        )
+        self.version = (
+            self.args.version if self.args.version else "version" in self.config
+        )
         if self.version:
-            print(f'\nVersion: {get_version()}\n')
+            print(f"\nVersion: {get_version()}\n")
             sys.exit()
-        return self.args        
+        return self.args
 
 
 class WebConfig:
     address: str
     port: int
+
 
 class WebParser(BasicParser):
     def __init__(self):
@@ -191,17 +191,24 @@ class WebParser(BasicParser):
             type=int,
         )
 
-    def parse_args(self):    
+    def parse_args(self):
         self.args = super().parse_args()
 
         # get web port/address
         self.web = WebConfig()
-        web = self.config['web'] if 'web' in self.config else []
-        self.web.port = self.args.web_port if self.args.web_port \
-            else web['port'] if 'port' in web else 8080
-        self.web.address = self.args.web_address if self.args.web_address \
-            else web['address'] if 'address' in web else "0.0.0.0"
-        return self.args        
+        web = self.config["web"] if "web" in self.config else []
+        self.web.port = (
+            self.args.web_port
+            if self.args.web_port
+            else web["port"] if "port" in web else 8080
+        )
+        self.web.address = (
+            self.args.web_address
+            if self.args.web_address
+            else web["address"] if "address" in web else "0.0.0.0"
+        )
+        return self.args
+
 
 class MQTTConfig:
     broker: str
@@ -216,18 +223,20 @@ class MQTTConfig:
     expire_after: int
     status_topic: str
 
-    def __init__(self,
-                 broker:str = 'localhost',
-                 port:int = 1883,
-                 username:str = 'me',
-                 password:str = 'mine',
-                 polling_interval:int = 1,
-                 qos:int = 0,
-                 disable_retain:bool = True,
-                 retain:bool = False,
-                 auto_discover:bool = True,
-                 expire_after:int = 120,
-                 status_topic:str = 'homeassistant/status'):
+    def __init__(
+        self,
+        broker: str = "localhost",
+        port: int = 1883,
+        username: str = "me",
+        password: str = "mine",
+        polling_interval: int = 1,
+        qos: int = 0,
+        disable_retain: bool = True,
+        retain: bool = False,
+        auto_discover: bool = True,
+        expire_after: int = 120,
+        status_topic: str = "homeassistant/status",
+    ):
         self.broker = broker
         self.port = port
         self.username = username
@@ -244,29 +253,12 @@ class MQTTConfig:
 class MQTTParser(WebParser):
     def __init__(self):
         super().__init__()
+        self.add_argument("-b", "--mqtt_broker", help="MQTT Broker hostname or address")
+        self.add_argument("-n", "--mqtt_port", help="MQTT Broker port number", type=int)
         self.add_argument(
-            "-b",
-            "--mqtt_broker",
-            help="MQTT Broker hostname or address"
+            "-u", "--mqtt_username", "--username", "--user", help="MQTT username"
         )
-        self.add_argument(
-            "-n",
-            "--mqtt_port",
-            help="MQTT Broker port number", type=int
-        )
-        self.add_argument(
-            "-u",
-            "--mqtt_username",
-            "--username",
-            "--user",
-            help="MQTT username"
-        )
-        self.add_argument(
-            "-p",
-            "--mqtt_password",
-            "--password",
-            help="MQTT password"
-        )
+        self.add_argument("-p", "--mqtt_password", "--password", help="MQTT password")
         self.add_argument(
             "-i",
             "--mqtt_polling_interval",
@@ -301,7 +293,7 @@ class MQTTParser(WebParser):
             "--mqtt_status_topic",
             help="MQTT status topic for Last Will and testament, normally homeassistant/status, but configurable from Home Assistan MQTT1",
             type=str,
-            default='homeassistant/status',
+            default="homeassistant/status",
         )
 
     def parse_args(self):
@@ -309,37 +301,62 @@ class MQTTParser(WebParser):
 
         # get MQTT parameters
         self.mqtt = MQTTConfig()
-        mqtt = self.config['mqtt'] if 'mqtt' in self.config else []
-        self.mqtt.broker = self.args.mqtt_broker if self.args.mqtt_broker \
-            else mqtt['broker'] if 'broker' in mqtt else 'localhost'
-        self.mqtt.port = self.args.mqtt_port if self.args.mqtt_port \
-            else mqtt['port'] if 'port' in mqtt else 1883
-        self.mqtt.username = self.args.mqtt_username \
-            if self.args.mqtt_username \
-                else mqtt['username'] if 'username'in mqtt else None
-        self.mqtt.password = self.args.mqtt_password \
-            if self.args.mqtt_password \
-                else mqtt['password'] if 'password' in mqtt else None
-        self.mqtt.polling_interval = self.args.mqtt_polling_interval \
-            if self.args.mqtt_polling_interval \
-                else mqtt['polling_interval'] if 'polling_interval'in mqtt \
-                    else 1
-        self.mqtt.qos = self.args.mqtt_qos if self.args.mqtt_qos \
-            else mqtt['qos'] if 'qos' in mqtt else 0
-        self.mqtt.disable_retain = self.args.mqtt_disable_retain \
-            if not self.args.mqtt_disable_retain \
-                else mqtt['disable_retain'] if 'disable_retain'in mqtt \
-                    else False
+        mqtt = self.config["mqtt"] if "mqtt" in self.config else []
+        self.mqtt.broker = (
+            self.args.mqtt_broker
+            if self.args.mqtt_broker
+            else mqtt["broker"] if "broker" in mqtt else "localhost"
+        )
+        self.mqtt.port = (
+            self.args.mqtt_port
+            if self.args.mqtt_port
+            else mqtt["port"] if "port" in mqtt else 1883
+        )
+        self.mqtt.username = (
+            self.args.mqtt_username
+            if self.args.mqtt_username
+            else mqtt["username"] if "username" in mqtt else None
+        )
+        self.mqtt.password = (
+            self.args.mqtt_password
+            if self.args.mqtt_password
+            else mqtt["password"] if "password" in mqtt else None
+        )
+        self.mqtt.polling_interval = (
+            self.args.mqtt_polling_interval
+            if self.args.mqtt_polling_interval
+            else mqtt["polling_interval"] if "polling_interval" in mqtt else 1
+        )
+        self.mqtt.qos = (
+            self.args.mqtt_qos
+            if self.args.mqtt_qos
+            else mqtt["qos"] if "qos" in mqtt else 0
+        )
+        self.mqtt.disable_retain = (
+            self.args.mqtt_disable_retain
+            if not self.args.mqtt_disable_retain
+            else mqtt["disable_retain"] if "disable_retain" in mqtt else False
+        )
         self.mqtt.retain = False if self.mqtt.disable_retain else True
-        self.mqtt.auto_discover = self.args.mqtt_auto_discover \
-            if self.args.mqtt_auto_discover \
-                else mqtt['auto_discover'] if 'auto_discover' in mqtt else False
-        self.mqtt.expire_after = self.args.mqtt_expire_after \
-            if self.args.mqtt_expire_after \
-                else mqtt['expire_after'] if 'expire_after' in mqtt else 120
-        self.mqtt.status_topic = self.args.mqtt_status_topic \
-            if self.args.mqtt_status_topic \
-                else mqtt['status_topic'] if 'status_topic' in mqtt else 'homeassistant/status'
+        self.mqtt.auto_discover = (
+            self.args.mqtt_auto_discover
+            if self.args.mqtt_auto_discover
+            else mqtt["auto_discover"] if "auto_discover" in mqtt else False
+        )
+        self.mqtt.expire_after = (
+            self.args.mqtt_expire_after
+            if self.args.mqtt_expire_after
+            else mqtt["expire_after"] if "expire_after" in mqtt else 120
+        )
+        self.mqtt.status_topic = (
+            self.args.mqtt_status_topic
+            if self.args.mqtt_status_topic
+            else (
+                mqtt["status_topic"]
+                if "status_topic" in mqtt
+                else "homeassistant/status"
+            )
+        )
         return self.args
 
 
@@ -347,6 +364,6 @@ class Parser(MQTTParser):
     def __init__(self):
         super().__init__()
 
-    def parse_args(self):    
+    def parse_args(self):
         self.args = super().parse_args()
         return self.args

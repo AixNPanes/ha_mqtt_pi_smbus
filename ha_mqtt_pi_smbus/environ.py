@@ -10,11 +10,11 @@ DEGREE = chr(176)
 
 
 def readfile(file_name) -> str:
-    with open(file_name, 'r') as file_object:
+    with open(file_name, "r") as file_object:
         return file_object.read()
 
 
-def get_command_data(args:list[str]) -> str:
+def get_command_data(args: list[str]) -> str:
     try:
         return subprocess.check_output(args).decode("utf-8")
     except subprocess.CalledProcessError:
@@ -58,7 +58,7 @@ def getCpuInfo() -> Dict[str, Any]:
         >>>
     """
     info = {}
-    content = readfile('/proc/cpuinfo')
+    content = readfile("/proc/cpuinfo")
     groups = content.split("\n\n")
     processors = {}
     for group in groups:
@@ -103,7 +103,7 @@ def getTemperature() -> float:
     The temperature of the Raspberry Pi is 50.464°C
     >>>
     """
-    return float(readfile('/sys/class/thermal/thermal_zone0/temp')) / 1000.0
+    return float(readfile("/sys/class/thermal/thermal_zone0/temp")) / 1000.0
 
 
 def getOSInfo() -> Dict[str, Any]:
@@ -131,7 +131,7 @@ def getOSInfo() -> Dict[str, Any]:
     >>>
     """
     info = {}
-    content = readfile('/etc/os-release')
+    content = readfile("/etc/os-release")
     for line in content.split("\n"):
         token = line.split("=")
         if len(token) == 2:
@@ -139,6 +139,7 @@ def getOSInfo() -> Dict[str, Any]:
             value = token[1].strip().strip('"')
             info[name] = value
     return info
+
 
 def getMacAddressByInterface(interface) -> str:
     """get the Mac address of the specified interface
@@ -226,6 +227,7 @@ def getObjectId() -> str:
     """
     return getMacAddress().replace(":", "")
 
+
 def getUptime() -> str:
     """get the time since the system was rebooted
 
@@ -268,16 +270,18 @@ def getLastRestart() -> str:
 
 def _get_pyproject_version():
     # Try pyproject first in dev
-    pyproject_file = pathlib.Path('pyproject.toml')
+    pyproject_file = pathlib.Path("pyproject.toml")
     if pyproject_file.exists():
         pyproject = tomllib.loads(readfile(pyproject_file))
-        if 'version' in pyproject:
-            return pyproject['version']
+        if "version" in pyproject:
+            return pyproject["version"]
     return None
+
 
 def _get_setuptools_version():
     # Try setuptools
     return get_command_data(["python3", "-m", "setuptools_scm"])
+
 
 def _get_metadata_version():
     # Then try installed metadata
@@ -286,13 +290,16 @@ def _get_metadata_version():
     except importlib.metadata.PackageNotFoundError:
         return None
 
+
 def _get_package_version():
     # Fallback to __version__
     try:
         from . import __version__
+
         return __version__
     except ImportError:
         return None
+
 
 def get_version():
     version = _get_pyproject_version()
@@ -308,4 +315,3 @@ def get_version():
     if version is not None:
         return version
     return "0.0.0-dev"
-    

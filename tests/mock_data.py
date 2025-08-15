@@ -75,7 +75,7 @@ MOCK_IFCONFIG_ETH0_DATA = """eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  m
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 """
 
-MOCK_IFCONFIG_DATA = MOCK_IFCONFIG_WLAN0_DATA + '\n\n' + MOCK_IFCONFIG_ETH0_DATA
+MOCK_IFCONFIG_DATA = MOCK_IFCONFIG_WLAN0_DATA + "\n\n" + MOCK_IFCONFIG_ETH0_DATA
 
 MOCK_DEVICE_DATA = {
     "last_update": "06/27/2025 17:01:05",
@@ -91,20 +91,20 @@ MOCK_DEVICE_DATA = {
 
 MOCK_PYPROJECT_DATA = b'version = "v0.1.2"'
 
-#MOCK_OPEN_CPUINFO_DATA = mock_open(
+# MOCK_OPEN_CPUINFO_DATA = mock_open(
 #        read_data=MOCK_CPUINFO_DATA
 #        ).return_value
-#MOCK_OPEN_OSRELEASE_DATA = mock_open(
+# MOCK_OPEN_OSRELEASE_DATA = mock_open(
 #        read_data=MOCK_OSRELEASE_DATA
 #        ).return_value
-#MOCK_OPEN_SYS_CLASS_THERMAL_DATA = mock_open(
+# MOCK_OPEN_SYS_CLASS_THERMAL_DATA = mock_open(
 #        read_data=MOCK_SYS_CLASS_THERMAL_THERMAL_ZONE0_TEMP
 #        ).return_value
-#MOCK_OPEN_PYPROJECT_DATA = mock_open(
+# MOCK_OPEN_PYPROJECT_DATA = mock_open(
 #        read_data=MOCK_PYPROJECT_DATA
 #        ).return_value
 
-#def mock_open_side_effect(file, *args, **kwargs):
+# def mock_open_side_effect(file, *args, **kwargs):
 #    fname = Path(file_name).name
 #
 #    mocks = {
@@ -118,14 +118,14 @@ MOCK_PYPROJECT_DATA = b'version = "v0.1.2"'
 #    except KeyError:
 #        raise FileNotFoundError(f"File not found: {file_name}")
 
-#MOCKED_OPEN = MagicMock(side_effect=mock_open_side_effect)
+# MOCKED_OPEN = MagicMock(side_effect=mock_open_side_effect)
 
 MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT = [
     MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
     MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
 ]
 
-MOCK_CONFIG_DATA="""
+MOCK_CONFIG_DATA = """
 ---
 title: Bosch BME280
 subtitle: Temperature, Pressure, Humidity Sensors

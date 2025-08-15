@@ -17,60 +17,63 @@ class Temperature(HASensor):
     device_class = "temperature"
 
     def __init__(
-            self,
-            sensor_name: str = None,
-            basename:str = 'homeassistant',
-            expire_after:int = 120,
-            state_topic = None
-            ):
+        self,
+        sensor_name: str = None,
+        basename: str = "homeassistant",
+        expire_after: int = 120,
+        state_topic=None,
+    ):
         super().__init__(
             self.units,
             name=sensor_name,
             basename=basename,
             device_class=self.device_class,
             expire_after=expire_after,
-            state_topic=state_topic
+            state_topic=state_topic,
         )
+
 
 class Pressure(HASensor):
     units: str = "mbar"
     device_class = "pressure"
 
     def __init__(
-            self,
-            sensor_name: str = None,
-            basename:str = 'homeassistant',
-            expire_after:int = 120,
-            state_topic = None
-            ):
+        self,
+        sensor_name: str = None,
+        basename: str = "homeassistant",
+        expire_after: int = 120,
+        state_topic=None,
+    ):
         super().__init__(
             self.units,
             name=sensor_name,
             basename=basename,
             device_class=self.device_class,
             expire_after=expire_after,
-            state_topic=state_topic
+            state_topic=state_topic,
         )
+
 
 class Humidity(HASensor):
     units: str = "%"
     device_class = "humidity"
 
     def __init__(
-            self,
-            sensor_name: str = None,
-            basename:str = 'homeassistant',
-            expire_after:int = 120,
-            state_topic = None
-            ):
+        self,
+        sensor_name: str = None,
+        basename: str = "homeassistant",
+        expire_after: int = 120,
+        state_topic=None,
+    ):
         super().__init__(
             self.units,
             name=sensor_name,
             basename=basename,
             device_class=self.device_class,
             expire_after=expire_after,
-            state_topic=state_topic
+            state_topic=state_topic,
         )
+
 
 class BME280_Device(HADevice):
     """Definition for a Home Assistant dicscoverable sensor device
@@ -112,30 +115,30 @@ class BME280_Device(HADevice):
         model: str,
         smbus_device: SMBusDevice,
         polling_interval: int,
-        basename:str = 'homeassistant',
-        expire_after:int = 120,
+        basename: str = "homeassistant",
+        expire_after: int = 120,
     ):
         super().__init__(
             [
                 Temperature(
                     name,
-                    basename = basename,
+                    basename=basename,
                     expire_after=expire_after,
-                    state_topic=state_topic
-                    ),
+                    state_topic=state_topic,
+                ),
                 Pressure(
                     name,
-                    basename = basename,
+                    basename=basename,
                     expire_after=expire_after,
-                    state_topic=state_topic
-                    ),
+                    state_topic=state_topic,
+                ),
                 Humidity(
                     name,
-                    basename = basename,
+                    basename=basename,
                     expire_after=expire_after,
-                    state_topic=state_topic
-                    ),
-                ],
+                    state_topic=state_topic,
+                ),
+            ],
             name,
             state_topic,
             manufacturer,

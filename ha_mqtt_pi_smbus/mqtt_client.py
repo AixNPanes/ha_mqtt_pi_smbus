@@ -15,13 +15,19 @@ import paho.mqtt.properties as mqtt_properties
 from paho.mqtt.client import connack_string
 
 from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice
-from ha_mqtt_pi_smbus.environ import getObjectId, getTemperature, getUptime, getLastRestart
+from ha_mqtt_pi_smbus.environ import (
+    getObjectId,
+    getTemperature,
+    getUptime,
+    getLastRestart,
+)
 from ha_mqtt_pi_smbus.parsing import MQTTConfig
 from ha_mqtt_pi_smbus.state import State
 
 
 def getTemp():
     return getTemperature()
+
 
 class MQTT_Publisher_Thread(threading.Thread):
     """
@@ -93,12 +99,13 @@ class MQTT_Publisher_Thread(threading.Thread):
                 data = copy.deepcopy(self.smbus_device.getdata())
                 if data["last_update"] != self.data["last_update"]:
                     self.data = copy.deepcopy(data)
-                    self.data['state'] = 'OK'
+                    self.data["state"] = "OK"
                     self.client.publish(
-                            self.device.state_topic,
-                            json.dumps(self.data),
-                            qos=self.client.qos,
-                            retain=self.client.retain)
+                        self.device.state_topic,
+                        json.dumps(self.data),
+                        qos=self.client.qos,
+                        retain=self.client.retain,
+                    )
             time.sleep(1)
 
     def clear_do_run(self) -> None:
@@ -153,7 +160,9 @@ class MQTTClient(mqtt.Client):
             client.state.connected = True
             client.__logger.info("Connected to MQTT broker")
             client.subscribe(client.status_topic)
-            client.__logger.debug(f"Subscribed to HA status topic: {client.status_topic}")
+            client.__logger.debug(
+                f"Subscribed to HA status topic: {client.status_topic}"
+            )
 
         else:
             client.state.error = [connack_string(rc)]
@@ -170,7 +179,7 @@ class MQTTClient(mqtt.Client):
         if msg.topic == client.status_topic:
             if payload == "online":
                 client.__logger.info("Home Assistant is ONLINE")
-                client.publish_discovery(client.device);
+                client.publish_discovery(client.device)
                 client.publish_available(client.device)
             elif payload == "offline":
                 client.__logger.warning("Home Assistant is OFFLINE")
@@ -309,9 +318,16 @@ class MQTTClient(mqtt.Client):
             A set of properties for the message, if desired
         """
         route = "publish"
-        self.__logger.info('%s publishing to Topic = %s, Payload = %s, ' + \
-                "QOS = %s, Retain = %s, Properties = %s",
-                           route, topic, message, qos, retain, properties)
+        self.__logger.info(
+            "%s publishing to Topic = %s, Payload = %s, "
+            + "QOS = %s, Retain = %s, Properties = %s",
+            route,
+            topic,
+            message,
+            qos,
+            retain,
+            properties,
+        )
         result = super().publish(topic, message, qos, retain, properties)
         status = result[0]
         mid = result[1]
@@ -325,7 +341,7 @@ class MQTTClient(mqtt.Client):
             )
         return result
 
-    def publish_discovery(self, device:HADevice) -> None:
+    def publish_discovery(self, device: HADevice) -> None:
         """Publish a discovery message for each sensor in the device
 
         Parameters
@@ -362,7 +378,9 @@ class MQTTClient(mqtt.Client):
                 self.publish_available(sensor)
             return
         if not isinstance(device, HASensor):
-            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__}) must be an instance of HADevice or HASensor')  # pragma: no cover
+            raise Exception(
+                f"device ({self.__class__.__module__}.{self.__class__.__name__}) must be an instance of HADevice or HASensor"
+            )  # pragma: no cover
         sensor = device
         if sensor.diagnostic:
             try:
@@ -370,21 +388,21 @@ class MQTTClient(mqtt.Client):
             except PackageNotFoundError:
                 __version__ = "0.0.0"
             temperature = getTemperature()
-            logging.getLogger(__name__).error('temperature: %d', temperature)
+            logging.getLogger(__name__).error("temperature: %d", temperature)
             sensor.diagnosticData = {
-                 'status': 'OK',
-                 'cpu_temperature': temperature,
-                 'version': __version__,
-                 'uptime': getUptime(),
-                 'last_restart': getLastRestart(),
+                "status": "OK",
+                "cpu_temperature": temperature,
+                "version": __version__,
+                "uptime": getUptime(),
+                "last_restart": getLastRestart(),
             }
             self.publish(
-                sensor.discovery_payload['json_attributes_topic'],
+                sensor.discovery_payload["json_attributes_topic"],
                 json.dumps(sensor.diagnosticData),
                 qos=self.qos,
-                retain=self.retain
+                retain=self.retain,
             )
-        else:    
+        else:
             self.publish(
                 sensor.availability.topic,
                 json.dumps({"availability": sensor.availability.payload_available}),
@@ -407,7 +425,9 @@ class MQTTClient(mqtt.Client):
                 self.publish_not_available(sensor)
             return
         if not isinstance(device, HASensor):
-            raise Exception(f'device ({self.__class__.__module__}.{self.__class__.__name__} must be an instance of HADevice or HASensor')   # pragma: no cover
+            raise Exception(
+                f"device ({self.__class__.__module__}.{self.__class__.__name__} must be an instance of HADevice or HASensor"
+            )  # pragma: no cover
         sensor = device
         self.publish(
             sensor.availability.topic,
@@ -427,10 +447,11 @@ class MQTTClient(mqtt.Client):
         """
         self.publish_not_available(device)
         self.publish(
-                device.discovery_topic,
-                json.dumps(device.undiscovery_payload1),
-                qos=self.qos,
-                retain=self.retain)
+            device.discovery_topic,
+            json.dumps(device.undiscovery_payload1),
+            qos=self.qos,
+            retain=self.retain,
+        )
         self.state.discovered = False
         self.publisher_thread.clear_do_run()
         self.publisher_thread.join()
