@@ -1,13 +1,8 @@
-# tests/test_mqtt_client.py
-from argparse import Namespace
-import io
+# tests/test_bme280_parsing.py
 import logging
 import sys
-import pytest
-import time
-import unittest
-from unittest import mock
-from unittest.mock import patch, mock_open, MagicMock
+from unittest import TestCase
+from unittest.mock import patch, mock_open
 import yaml
 
 from .mock_data import (
@@ -40,21 +35,7 @@ bme280:
     polling_interval: 1
 """
 
-def mock_open_side_effect(file_name, *args, **kwargs):
-    mock_file1 = mock_open(read_data=CONFIG_DATA)
-    if file_name == ".config.yaml":
-        return mock_file1()  # Call the mock_open instance to get the file handle
-    else:
-        # Handle cases for other files or raise an error if unexpected
-        raise FileNotFoundError(f"File not found: {file_name}")
-
-class TestParser(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
+class TestParser(TestCase):
     @patch('ha_mqtt_pi_smbus.parsing.readfile', return_value=CONFIG_DATA)
     @patch('sys.argv', ['me', '-c', '.config.yaml'])
     def test_bmeparser(self, mock_read):

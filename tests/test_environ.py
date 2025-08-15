@@ -27,13 +27,8 @@ from ha_mqtt_pi_smbus.environ import (
     get_version,
 )
 
-#from .mock_data import MOCKED_OPEN
-
 
 class TestDevice(unittest.TestCase):
-    def setUp(self):
-        pass
-
     def test_readfile(self):
         null = readfile('/dev/null')
         self.assertEqual(len(null), 0)

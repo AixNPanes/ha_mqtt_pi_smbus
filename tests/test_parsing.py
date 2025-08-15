@@ -1,14 +1,10 @@
-# tests/test_mqtt_client.py
-from argparse import Namespace
-import io
+# tests/test_parsing.py
 import logging
 import sys
 from pathlib import Path
-import pytest
 import time
-import unittest
-from unittest import mock
-from unittest.mock import patch, mock_open, MagicMock
+from unittest import TestCase
+from unittest.mock import patch, mock_open
 import yaml
 
 from ha_mqtt_pi_smbus.parsing import Parser, deep_merge_dicts, read_yaml, auto_int, ipaddress, configOrCmdParm, BasicParser, WebParser, MQTTParser, Parser
@@ -57,16 +53,7 @@ def mock_open_side_effect(self, file_name, *args, **kwargs):
     else:
        raise FileNotFoundError(f"File not found: {file_name}")
 
-class TestParser(unittest.TestCase):
-    def setUp(self):
-        #self.parser = Namespace(
-        #    logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle"
-        #)
-        pass
-
-    def tearDown(self):
-        pass
-
+class TestParser(TestCase):
     def test_deep_merge_dicts(self):
         dict1 = {
                 "a": "a",

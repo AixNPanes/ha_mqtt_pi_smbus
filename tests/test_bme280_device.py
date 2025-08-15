@@ -1,18 +1,10 @@
-# tests/test_mqtt_client.py
-from argparse import Namespace
+# tests/test_bme280_device.py
 import datetime
 import logging
-import pytest
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 class TestDevice(TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     @patch('example.pi_bme280.device.BME280')
     @patch('ha_mqtt_pi_smbus.device.getCpuInfo', return_value={'cpu':{'Model':'B'}})
     @patch('ha_mqtt_pi_smbus.device.getObjectId', side_effect=['b827eb94a718'] * 10)

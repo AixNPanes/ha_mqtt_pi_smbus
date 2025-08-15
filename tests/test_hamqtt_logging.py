@@ -1,8 +1,6 @@
-# tests/test_hamqtt_loging.py
-from argparse import Namespace
+# tests/test_hamqtt_logging.py
 from json.decoder import JSONDecodeError
-import unittest
-from unittest import mock
+from unittest import TestCase
 from unittest.mock import patch, mock_open
 
 from ha_mqtt_pi_smbus.hamqtt_logging import loggerConfig
@@ -69,55 +67,33 @@ class MockLogging:
         raise FileNotFoundError()
 
 
-class TestLogging(unittest.TestCase):
-    def setUp(self):
+class TestLogging(TestCase):
+    @patch("ha_mqtt_pi_smbus.hamqtt_logging.open", side_effect=FileNotFoundError)
+    def test_file_not_found(self, mock_logging_open):
+        loggerConfig()
+        mock_logging_open.assert_called_once_with("logging.config", "r")
 
-        Namespace(logginglevel="DEBUG", title="Test Title", subtitle="Test Subtitle")
-
-    def test_file_not_found(self):
-        with patch(
-            "ha_mqtt_pi_smbus.hamqtt_logging.open", side_effect=FileNotFoundError
-        ) as mock_open:
-            loggerConfig()
-            mock_open.assert_called_once_with("logging.config", "r")
-
-    def test_no_disable_existing_loggers(self):
-        m = mock_open(
-            read_data="""{
+    @patch("ha_mqtt_pi_smbus.hamqtt_logging.open", return_value="""{
                 "version": 1
-            }"""
-        )
-        with patch("ha_mqtt_pi_smbus.hamqtt_logging.open", m) as mockopen:
+            }""")
+    def test_no_disable_existing_loggers(selfi, mockopen):
             loggerConfig()
             mockopen.assert_called_once_with("logging.config", "r")
 
-    def test_loggerconfig(self):
-        m = mock_open(read_data="bad json content")
+    @patch("ha_mqtt_pi_smbus.hamqtt_logging.open", return_value="bad json content")
+    @patch("ha_mqtt_pi_smbus.hamqtt_logging.json.load", side_effect = JSONDecodeError("Expecting value", "bad json content", 0))
 
-        # Patch open and json.load
-        with patch("ha_mqtt_pi_smbus.hamqtt_logging.open", m):
-            with patch("ha_mqtt_pi_smbus.hamqtt_logging.json.load") as mock_json_load:
-                # Make json.load() raise JSONDecodeError with valid args
-                mock_json_load.side_effect = JSONDecodeError(
-                    "Expecting value", "bad json content", 0
-                )
+    def test_loggerconfig(self, mock_json_load, mock_logging_open):
+        loggerConfig()
+    
+        # Assert open called
+        mock_logging_open.assert_called_once_with("logging.config", "r")
+        mock_json_load.assert_not_called()
 
-                loggerConfig()
+    @patch("ha_mqtt_pi_smbus.hamqtt_logging.open", return_value="anything")
+    @patch("ha_mqtt_pi_smbus.hamqtt_logging.json.load", side_effect=TypeError("Oops!"))
+    def test_loggerconfig_generic_exception(self, mock_json_load, mock_logging_open):
+        loggerConfig()
 
-                # Assert open called
-                m.assert_called_once_with("logging.config", "r")
-                mock_json_load.assert_called_once()
-
-    def test_loggerconfig_generic_exception(self):
-        m = mock_open(read_data="anything")
-
-        # Patch open to succeed
-        with patch("ha_mqtt_pi_smbus.hamqtt_logging.open", m):
-            # Patch json.load to raise an *unexpected* exception
-            with patch("ha_mqtt_pi_smbus.hamqtt_logging.json.load") as mock_json_load:
-                mock_json_load.side_effect = TypeError("Oops!")
-
-                loggerConfig()
-
-                m.assert_called_once_with("logging.config", "r")
-                mock_json_load.assert_called_once()
+        mock_logging_open.assert_called_once_with("logging.config", "r")
+        mock_json_load.assert_not_called()

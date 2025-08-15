@@ -1,6 +1,6 @@
 # tests/test_web_server.py
 import logging
-import unittest
+from unittest import TestCase
 from unittest.mock import MagicMock
 
 from ha_mqtt_pi_smbus.parsing import MQTTConfig
@@ -15,7 +15,7 @@ class DummyParser:
     mqtt.auto_discover = True
 
 
-class TestHAFlask(unittest.TestCase):
+class TestHAFlask(TestCase):
 
     def setUp(self):
         parser = DummyParser()
@@ -44,10 +44,6 @@ class TestHAFlask(unittest.TestCase):
 
     def test_index(self):
         self.mock_client.is_connected.return_value = True
-        # with self.app.test_request_context(
-        #   '/',
-        #   method='GET',
-        #   content_type='text/plain'):
         with self.client.get("/", content_type="text/plain") as response:
             self.logger.debug(response)
             # response = self.app.dispatch_request()

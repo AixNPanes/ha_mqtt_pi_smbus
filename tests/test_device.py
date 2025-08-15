@@ -1,12 +1,9 @@
-# tests/test_routes.py
-from argparse import Namespace
+# tests/test_devices.py
 import datetime
 import logging
-import pytest
 import time
-import unittest
-from unittest import mock
-from unittest.mock import MagicMock, patch
+from unittest import TestCase
+from unittest.mock import patch
 
 from .mock_data import MOCK_CPUINFO_DATA
 
@@ -23,13 +20,7 @@ CPUINFO = {
             }
         }
 
-class TestDevice(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
+class TestDevice(TestCase):
     @patch('ha_mqtt_pi_smbus.environ.getObjectId', return_value='0123456789abcdef')
     @patch('ha_mqtt_pi_smbus.environ.getCpuInfo', return_value=CPUINFO)
     def test_ha_sensor_base(self, mock_cpuinfo, mock_objectid):

@@ -1,13 +1,11 @@
 # tests/test_state.py
 import logging
-import unittest
+from unittest import TestCase
 
 from ha_mqtt_pi_smbus.state import State, StateErrorEnum
 
 
-class TestState(unittest.TestCase):
-    def setUp(self):
-        self.logger = logging.getLogger("validate")
+class TestState(TestCase):
 
     def test_state_init(self):
         state = State()
@@ -167,7 +165,5 @@ class TestState(unittest.TestCase):
         self.assertEqual(state.error_code[1], StateErrorEnum.DISCOVERED_INCONSISTENT)
         self.assertNotEqual(state.error, None)
         self.assertEqual(len(state.error), 2)
-        self.logger.debug(state.error[0])
-        self.logger.debug(state.error[1])
         self.assertEqual(state.error[0], StateErrorEnum.CONNECTED_INCONSISTENT_1.value)
         self.assertEqual(state.error[1], StateErrorEnum.DISCOVERED_INCONSISTENT.value)
