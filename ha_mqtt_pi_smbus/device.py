@@ -270,7 +270,8 @@ class HADevice:
         self.origin.name = 'HA MQTT Pi'
         self.origin.sw_version = __version__
         self.origin.support_url = 'http://www.example.com'
-        self.device.hw_version = getCpuInfo()['cpu']['Model']
+        cpuinfo = getCpuInfo()
+        self.device.hw_version = cpuinfo['cpu']['Model']
         self.device.identifiers = [ name ]
         self.device.name = name
         self.device.manufacturer = manufacturer

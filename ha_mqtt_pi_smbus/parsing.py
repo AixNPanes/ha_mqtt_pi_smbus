@@ -8,6 +8,7 @@ import yaml
 
 from importlib.metadata import version, PackageNotFoundError
 
+from ha_mqtt_pi_smbus.environ import get_version, readfile
 
 def deep_merge_dicts(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, Any]:
     """Recursively merges two dictionaries.
@@ -54,9 +55,11 @@ def read_yaml(file_path) -> Dict[str, Any]:
     """
     logger = logging.getLogger(__name__)
     try:
-        with open(file_path, "r") as file:
-            data = yaml.safe_load(file)
-            return data
+        data = readfile(file_path)
+        return yaml.safe_load(data)
+#        with open(file_path, "r") as file:
+#            data = yaml.safe_load(file)
+#            return data
     except FileNotFoundError:
         return None
     except yaml.YAMLError as e:
@@ -163,11 +166,7 @@ class BasicParser(argparse.ArgumentParser):
         self.version = self.args.version if self.args.version \
             else 'version' in self.config
         if self.version:
-            try:
-                __version__ = version("ha_mqtt_pi_smbus")
-            except PackageNotFoundError:
-                __version__ = "0.0.0"
-            print(f'\nVersion: {__version__}\n')
+            print(f'\nVersion: {get_version()}\n')
             sys.exit()
         return self.args        
 

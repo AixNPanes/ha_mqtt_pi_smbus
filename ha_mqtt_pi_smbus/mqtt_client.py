@@ -20,6 +20,9 @@ from ha_mqtt_pi_smbus.parsing import MQTTConfig
 from ha_mqtt_pi_smbus.state import State
 
 
+def getTemp():
+    return getTemperature()
+
 class MQTT_Publisher_Thread(threading.Thread):
     """
     A class used to represent a thread which, at intervals, publishes
@@ -366,9 +369,11 @@ class MQTTClient(mqtt.Client):
                 __version__ = version("ha_mqtt_pi_smbus")
             except PackageNotFoundError:
                 __version__ = "0.0.0"
+            temperature = getTemperature()
+            logging.getLogger(__name__).error('temperature: %d', temperature)
             sensor.diagnosticData = {
                  'status': 'OK',
-                 'cpu_temperature': getTemperature(),
+                 'cpu_temperature': temperature,
                  'version': __version__,
                  'uptime': getUptime(),
                  'last_restart': getLastRestart(),
