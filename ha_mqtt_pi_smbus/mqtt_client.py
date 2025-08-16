@@ -160,6 +160,7 @@ class MQTTClient(mqtt.Client):
             client.state.connected = True
             client.__logger.info("Connected to MQTT broker")
             client.subscribe(client.status_topic)
+            client.subscribe(f'{client.config_topic}/get')
             client.__logger.debug(
                 f"Subscribed to HA status topic: {client.status_topic}"
             )
@@ -186,6 +187,9 @@ class MQTTClient(mqtt.Client):
                 client.is_discovered = False
             else:
                 client.__logger.debug(f"HA status unknown payload: {payload}")
+        elif msg.topic == f'{client.config_topic}/get':
+            logging.getLogger(__name__).error('on_message publishing config')
+            client.publish_config(client.device)
         else:
             client.__logger.debug(f"message unknown topic: {msg.topic}")
 
@@ -194,7 +198,7 @@ class MQTTClient(mqtt.Client):
         client_prefix: str,
         device: HADevice,
         smbus_device: SMBusDevice,
-        mqtt_config: MQTTConfig = None,
+        parser: Parser = None,
     ):
         """
         Paameters
@@ -228,6 +232,11 @@ class MQTTClient(mqtt.Client):
             True,
             None,
         )
+        if parser is None:
+            raise Exception("parser cannot be None")
+        self.parser = parser
+        mqtt_config = self.parser.mqtt
+        self.config_topic = device.config_topic
         self.broker_address = mqtt_config.broker
         self.port = mqtt_config.port
         self.username = mqtt_config.username
@@ -363,6 +372,23 @@ class MQTTClient(mqtt.Client):
         self.publisher_thread.start()
         self.state.discovered = True
 
+    def publish_config(self, device: HADevice) -> None:
+        """Publish an available message for the given sensor or each sensor
+        in the device
+
+        Parameters
+        ----------
+        device : HADevice | HASensor
+            a device or sensor
+
+        """
+        self.publish(
+            f'{self.config_topic}/state',
+            json.dumps(self.parser.sanitize()),
+            qos=self.qos,
+            retain=self.retain,
+        )
+
     def publish_available(self, device: HADevice | HASensor) -> None:
         """Publish an available message for the given sensor or each sensor
         in the device
@@ -388,7 +414,6 @@ class MQTTClient(mqtt.Client):
             except PackageNotFoundError:
                 __version__ = "0.0.0"
             temperature = getTemperature()
-            logging.getLogger(__name__).error("temperature: %d", temperature)
             sensor.diagnosticData = {
                 "status": "OK",
                 "cpu_temperature": temperature,

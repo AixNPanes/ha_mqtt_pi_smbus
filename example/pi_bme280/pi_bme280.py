@@ -47,7 +47,7 @@ def main(args):
     )
 
     # MQTT Setup
-    client = MQTTClient("bme280", device, bme280, parser.mqtt)
+    client = MQTTClient("bme280", device, bme280, parser)
 
     # define the Flask web server
     app = HAFlask(__name__, parser, client, device)

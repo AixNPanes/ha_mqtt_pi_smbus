@@ -30,7 +30,7 @@ clean-venv:
 	@echo "Virtual environment cleaned."
 
 # install example service ############################################
-.PHONY: service-clean service-install service-start service-stop service-logs
+.PHONY: service-uninstall service-install service-start service-stop service-logs
 
 SERVICE_FILE=/etc/systemd/system/$(SERVICE_NAME).service
 SERVICE_LOG_DIR=/var/log/$(SERVICE_NAME)
@@ -70,7 +70,7 @@ service-logs:
 service-logs-follow:
 	$(SERVICE_LOGS) -f
 
-service-clean: service-stop
+service-uninstall: service-stop
 	$(SERVICE_STOP)
 	$(SERVICE_DISABLE)
 	@if test -f $(SERVICE_FILE); then \

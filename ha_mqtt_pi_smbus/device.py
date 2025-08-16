@@ -315,6 +315,7 @@ class HADevice:
         }
         self.discovery_topic = f"{basename}/device/{self.device.serial_number}/config"
         self.state_topic = state_topic
+        self.config_topic = "device/config"
 
     def getdata(self) -> Dict[str, Any]:
         raise Exception(

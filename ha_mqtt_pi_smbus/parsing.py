@@ -1,4 +1,4 @@
-import argparse
+from argparse import ArgumentParser
 import copy
 import logging
 import socket
@@ -85,29 +85,7 @@ def ipaddress(ip: str):
         print(f"Invalid ipaddress ({ip}): {e}")
 
 
-def configOrCmdParm(
-    arg,
-    cfg: Dict[str, Any],
-    cfg_name: list,
-    default: str = None,
-    required: bool = False,
-) -> str:
-    """
-    Read yaml from the file specified by file_path
-    """
-    if arg:
-        return arg
-    for n in cfg_name:
-        if n not in cfg:
-            if required:
-                print(f"parameter '{' '.join(cfg_name)}' required")
-                sys.exit()
-            return default
-        cfg = cfg[n]
-    return cfg
-
-
-class BasicParser(argparse.ArgumentParser):
+class BasicParser(ArgumentParser):
     config: str
     secrets: str
     title: str
@@ -367,3 +345,18 @@ class Parser(MQTTParser):
     def parse_args(self):
         self.args = super().parse_args()
         return self.args
+
+
+    def sanitize(self):
+        config_copy = copy.deepcopy(self.config)
+        if 'mqtt' in config_copy:
+            mqtt_config = config_copy['mqtt']
+            if 'broker' in mqtt_config:
+                mqtt_config['broker'] = "broker"
+            if 'port' in mqtt_config is not None:
+                mqtt_config['port'] = "port"
+            if 'username' in mqtt_config is not None:
+                mqtt_config['username'] = "username"
+            if 'password' in mqtt_config is not None:
+                mqtt_config['password'] = "password"
+        return config_copy

@@ -13,7 +13,6 @@ from ha_mqtt_pi_smbus.parsing import (
     read_yaml,
     auto_int,
     ipaddress,
-    configOrCmdParm,
     BasicParser,
     WebParser,
     MQTTParser,
@@ -136,30 +135,6 @@ a:a
         self.assertEqual(ipaddress("127.0.0.1").hex(), "7f000001")
         self.assertEqual(ipaddress("192.168.1.211").hex(), "c0a801d3")
         self.assertEqual(ipaddress("256.168.1.211"), None)
-
-    @patch.object(sys, "exit")
-    def test_configOrCmdParam_arg(self, mock_exit):
-        self.assertEqual(configOrCmdParm(1, {}, ()), 1)
-        self.assertEqual(
-            configOrCmdParm(
-                1,
-                {"A": {"B": 1}},
-                ["A", "B"],
-            ),
-            1,
-        )
-        self.assertEqual(
-            configOrCmdParm(
-                None,
-                {"A": {"B": "Z"}},
-                ["A", "B"],
-            ),
-            "Z",
-        )
-        self.assertEqual(
-            configOrCmdParm(None, {"A": {"B": "Z"}}, ["A", "C"], required=True), None
-        )
-        mock_exit.assert_called_once_with()
 
     @patch("sys.argv", ["me", "-c", ".config.yaml", "-s", "secrets.yaml"])
     @patch(

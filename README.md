@@ -9,11 +9,12 @@
 
 ## 🚀 Features
 
-- MQTT connect/disconnect toggle
-- Discovery toggle for device scanning
-- Flask backend with async MQTT updates
-- Simple JavaScript UI with status badges
-- Unit tested (Python + JavaScript) with coverage reports
+- 🔌 MQTT connect/disconnect toggle
+- 🔎 Home Assistant discovery support
+- 🌐 Flask backend with status UI
+- 📊 Device diagnostics (via MQTT sensors)
+- 🧪 Unit tested (Python + JavaScript) with coverage reports
+- ⚙️ Systemd service helpers for easy installation on Raspberry Pi
 
 ---
 
@@ -52,6 +53,18 @@ flask run
 
 Visit http://localhost:5000 (or your configured host).
 
+🛠 Systemd Service Helpers
+This project includes Makefile targets for running the example app as a user-mode systemd service (no root required):
+
+Command	Description
+make service-install	Install systemd service
+make service-uninstall	Remove systemd service
+make service-start	Start the service
+make service-stop	Stop the service
+make service-status	Show current status
+make service-logs	Dump logs from journal + /var/log
+make service-logs-follow	Stream logs live
+
 ## 🧪 Running tests
 
 Python tests
@@ -71,6 +84,28 @@ All tests
 ```
 make test
 ```
+
+🛠 Debugging with device/config/state
+When testing MQTT discovery, Home Assistant provides a helpful debug topic:
+
+device/config/state
+If you subscribe to this topic (for example, with mosquitto_sub):
+
+mosquitto_sub -v -t 'homeassistant/#' | grep config/state
+
+You may also subscribe to the device/config/state topic in the "Configure" for the MQTT integration in Home Assistant. If you then publish a message on the topic device/config/get (the message content is ignored), Home Assistant will publish the parsed device configuration it currently holds for your entity.  Note: for security reasons, the MQTT broker, port, username and password will be returned as generic values if they exist in the configuration.
+
+This is useful for:
+
+✅ Verifying that discovery messages are being received
+
+✅ Checking that fields like name, unique_id, device_class, and state_topic were parsed correctly
+
+✅ Debugging mismatches between your published config and what HA actually registered
+
+⚠️ These messages are for debugging only — they aren’t intended for automations.
+
+
 
 ## ✅ Continuous Integration
 
