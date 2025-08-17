@@ -160,7 +160,7 @@ class MQTTClient(mqtt.Client):
             client.state.connected = True
             client.__logger.info("Connected to MQTT broker")
             client.subscribe(client.status_topic)
-            client.subscribe(f'{client.config_topic}/get')
+            client.subscribe(f"{client.config_topic}/get")
             client.__logger.debug(
                 f"Subscribed to HA status topic: {client.status_topic}"
             )
@@ -187,8 +187,8 @@ class MQTTClient(mqtt.Client):
                 client.is_discovered = False
             else:
                 client.__logger.debug(f"HA status unknown payload: {payload}")
-        elif msg.topic == f'{client.config_topic}/get':
-            logging.getLogger(__name__).error('on_message publishing config')
+        elif msg.topic == f"{client.config_topic}/get":
+            logging.getLogger(__name__).error("on_message publishing config")
             client.publish_config(client.device)
         else:
             client.__logger.debug(f"message unknown topic: {msg.topic}")
@@ -383,7 +383,7 @@ class MQTTClient(mqtt.Client):
 
         """
         self.publish(
-            f'{self.config_topic}/state',
+            f"{self.config_topic}/state",
             json.dumps(self.parser.sanitize()),
             qos=self.qos,
             retain=self.retain,

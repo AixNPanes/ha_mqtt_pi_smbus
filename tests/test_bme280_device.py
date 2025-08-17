@@ -34,13 +34,13 @@ class TestDevice(TestCase):
 
     @patch("ha_mqtt_pi_smbus.device.getCpuInfo", return_value={"cpu": {"Model": "B"}})
     @patch("ha_mqtt_pi_smbus.device.getObjectId", side_effect=["b827eb94a718"] * 10)
-    @patch("example.pi_bme280.device.BME280")
     @patch(
-        "example.pi_bme280.device.BME280_Device.getdata",
+        "example.pi_bme280.device.BME280.getdata",
         return_value={"temperature": 99, "pressure": 1010, "humidity": 99},
     )
+    @patch("example.pi_bme280.device.BME280")
     def test_bmedevice_data(
-        self, mock_getdata, mock_bme280, mock_getObjectId, mock_getCpuInfo
+        self, mock_bme280, mock_getdata, mock_getObjectId, mock_getCpuInfo
     ):
         from example.pi_bme280.device import BME280_Device
 
@@ -48,6 +48,7 @@ class TestDevice(TestCase):
             "test", "bme280/state", "Bosch", "BME280", mock_bme280, 1, 119
         )
         data = device.getdata()
+        mock_getdata.assert_called_once()
         self.assertTrue("temperature" in data)
         self.assertTrue("pressure" in data)
         self.assertTrue("humidity" in data)

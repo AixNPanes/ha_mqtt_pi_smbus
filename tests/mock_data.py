@@ -150,3 +150,68 @@ bme280:
   sensor_name: tph280
   polling_interval: 60
 """
+
+MOCK_OSRELEASE_DATA = """
+PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+NAME="Debian GNU/Linux"
+VERSION_ID="12"
+VERSION="12 (bookworm)"
+VERSION_CODENAME=bookworm
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+"""
+
+MOCK_LOGGING_CONFIG_DATA = {
+    "version": 1,
+    "formatters": {
+        "default": {
+            "format": "[%(asctime)s] - %(levelname)s in %(name)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "wsgi": {
+            "class": "logging.StreamHandler",
+            "stream": "ext://flask.logging.wsgi_errors_stream",
+            "formatter": "default",
+        },
+    },
+    "root": {
+        "level": "WARNING",
+        "handlers": ["wsgi"],
+    },
+    "loggers": {
+        "mqtt_client": {
+            "level": "WARNING",
+            "handlers": ["wsgi"],
+            "propagate": False,
+        },
+        "web_server": {
+            "level": "DEBUG",
+            "handlers": ["wsgi"],
+            "propagate": False,
+        },
+        "example.pi_bme280": {
+            "level": "ERROR",
+            "handlers": ["wsgi"],
+            "propagate": False,
+        },
+        "paho.mqtt.client": {
+            "level": "ERROR",
+            "handlers": ["wsgi"],
+            "propagate": False,
+        },
+        "flask.app": {
+            "level": "ERROR",
+            "handlers": ["wsgi"],
+            "propagate": False,
+        },
+        "werkzeug": {
+            "level": "ERROR",
+            "handlers": ["wsgi"],
+            "propagate": False,
+        },
+    },
+}

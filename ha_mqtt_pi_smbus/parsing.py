@@ -346,17 +346,16 @@ class Parser(MQTTParser):
         self.args = super().parse_args()
         return self.args
 
-
     def sanitize(self):
         config_copy = copy.deepcopy(self.config)
-        if 'mqtt' in config_copy:
-            mqtt_config = config_copy['mqtt']
-            if 'broker' in mqtt_config:
-                mqtt_config['broker'] = "broker"
-            if 'port' in mqtt_config is not None:
-                mqtt_config['port'] = "port"
-            if 'username' in mqtt_config is not None:
-                mqtt_config['username'] = "username"
-            if 'password' in mqtt_config is not None:
-                mqtt_config['password'] = "password"
+        if "mqtt" in config_copy:
+            mqtt_config = config_copy["mqtt"]
+            if "broker" in mqtt_config:
+                mqtt_config["broker"] = "broker"
+            if "port" in mqtt_config is not None:
+                mqtt_config["port"] = "port"
+            if "username" in mqtt_config is not None:
+                mqtt_config["username"] = "username"
+            if "password" in mqtt_config is not None:
+                mqtt_config["password"] = "password"
         return config_copy

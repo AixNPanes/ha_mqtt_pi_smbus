@@ -3,6 +3,8 @@ from json.decoder import JSONDecodeError
 import logging
 import logging.config
 
+from ha_mqtt_pi_smbus.environ import readfile
+
 
 def loggerConfig() -> str:
     """logging configuration
@@ -78,9 +80,9 @@ def loggerConfig() -> str:
     }
 
     try:
-        with open("logging.config", "r") as config_file:
-            logging_config = json.load(config_file)  # For JSON
-            # config = yaml.safe_load(f) # For YAML
+        config_file = readfile("logging.config")
+        logging_config = json.loads(config_file)  # For JSON
+        # config = yaml.safe_load(f) # For YAML
         if "disable_existing_loggers" not in logging_config:
             logging_config["disable_existing_loggers"] = False
     except FileNotFoundError:
