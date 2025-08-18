@@ -14,62 +14,74 @@ from ha_mqtt_pi_smbus.environ import getCpuInfo, getOSInfo, getObjectId
 class HASensor:
     """Definition for a Home Assistant discoverable sensor
 
-    Parameters
-    ----------
-    units : str
-        The string representing the default units for the device. This
-        must be a valid unit type for the associated Home Assistant
-        sensor type.
-    name : str
-        The name of the device. This name will be displayed in Home
-        Assistant as the device name. The default is the class name
-        converted to lower case, ie. class Temperature(HASensor) has a
-        device name of temperature by default.
-    device_class : str
-        The Home Assistant class of the device. This device class
-        describes the type of sensor. The default is the class name
-        converted to lower case, ie. class Temperature(HASensor) has a
-        device class of temperature by default.
+        Parameters
+        ----------
+        units : str
+            The string representing the default units for the device. This
+            must be a valid unit type for the associated Home Assistant
+            sensor type.
+        name : str
+            The name of the device. This name will be displayed in Home
+            Assistant as the device name. The default is the class name
+            converted to lower case, ie. class Temperature(HASensor) has a
+            device name of temperature by default.
+        basename : str
+            The prefix for topics sent to Home Assistant MQTT. Default:
+            "homeassistant"
+        device_class : str
+            The Home Assistant class of the device. This device class
+            describes the type of sensor. The default is the class name
+            converted to lower case, ie. class Temperature(HASensor) has a
+            device class of temperature by default.
+        expire_after : int
+            The expiry in seconds for a sensor before it is marked unavailable
+            by MQTT. Default: 120
+    :
+        Note
+        ----
+        This class should be subclassed and not used directly. The
+        subclass name, converted to lower case becomes the default device class
+        of the sensor, ie. the 'Temperature' class would represent a
+        'temperature' sensor. This name must be a valid Home Assistant
+        sensor class.
 
-    Note
-    ----
-    This class should be subclassed and not used directly. The
-    subclass name, converted to lower case becomes the device class of
-    the sensor, ie. the 'Temperature' class would represent a
-    'temperature' sensor. This name must be a valid Home Assistant
-    sensor class.
+        Example
+        -------
+        from ha_device import HASensor
 
-    Example
-    -------
-    from ha_device import HASensor
+        class Temperature(HASensor):
+            units = f'{chr(176)}C'
+            device_class = 'temperature'
+            def __init(self, name:str):
+                super.__init(self.units, name = name, device_class = self.device_class)
 
-    class Temperature(HASensor):
-        units = f'{chr(176)}C'
-        device_class = 'temperature'
-        def __init(self, name:str):
-            super.__init(self.units, name = name, device_class = self.device_class)
+        class Pressure(HASensor):
+            units = 'mbar'
+            device_class = 'pressure'
+            def __init(self, name:str):
+                super.__init(self.units, name = name, device_class = self.device_class)
 
-    class Pressure(HASensor):
-        units = 'mbar'
-        device_class = 'pressure'
-        def __init(self, name:str):
-            super.__init(self.units, name = name, device_class = self.device_class)
+        class Humidity(HASensor):
+            units = '%'
+            device_class = 'humidity'
+            def __init(self, name:str):
+                super.__init(self.units, name = name, device_class = self.device_class)
 
-    class Humidity(HASensor):
-        units = '%'
-        device_class = 'humidity'
-        def __init(self, name:str):
-            super.__init(self.units, name = name, device_class = self.device_class)
-
-    In this example the 3 sensors for a Bosch BME280 are defined.
+        In this example the 3 sensors for a Bosch BME280 are defined.
 
     """
 
     class Availability:  # mutually exclusive with availability_topic
+        """Definition for Availability subsection of Discovery payloadA
+
+        Parameters
+        ----------
+        None
+        """
+
         def __init__(self):
             self.payload_available = "Available"
             self.payload_not_available = "Unavailable"
-            # topic:str = None       # set by HASensor.__init__()
             self.value_template = "{{ value_json.availability }}"
             pass
 
@@ -80,7 +92,6 @@ class HASensor:
         basename: str = "homeassistant",
         device_class: str = None,
         expire_after: int = 120,
-        state_topic: str = None,
     ):
         self.diagnostic = False
         self.name = name
@@ -105,10 +116,33 @@ class HASensor:
         }
 
     def jsonPayload(self) -> str:
+        """Return the discovery_payload as a json string
+
+        Parameters
+        ----------
+        None
+        """
         return json.dumps(self.discovery_payload, default=vars)
 
 
 class HADiagnosticSensor(HASensor):
+    """Definition for a Home Assistant discoverable diagnostic sensor.
+    This sensor provides extra diagnostic information to the standard
+    display of an MQTT device.
+
+    Parameters
+    ----------
+    name : str
+        The name of the device. This name will be displayed in Home
+        Assistant as the device name. Default: None
+    device_class : str
+        The Home Assistant class of the device. This device class
+        describes the type of sensor. Default: None
+    diagtype : str
+        The type of the diagnostic. Default:
+        None
+    """
+
     def __init__(
         self, name: str = None, device_class: str = None, diagtype: str = None
     ):
@@ -131,30 +165,110 @@ class HADiagnosticSensor(HASensor):
 
 
 class HADiagnosticStatus(HADiagnosticSensor):
+    """Definition for a Home Assistant Status diagnostic sensor.
+
+    Parameters
+    ----------
+    name : str
+        The name of the device. This name will be displayed in Home
+        Assistant as the device name. Default: None
+    device_class : str
+        The Home Assistant class of the device. This device class
+        describes the type of sensor. Default: None
+    diagtype : str
+        The name of the diagnostic on the MQTT device display. Default:
+        'status'
+    """
+
+    def __init__(self, name: str = None, device_class: str = None):
+        super().__init__(name=name, device_class=device_class, diagtype="status")
+        self.discovery_payload["value_template"] = "{{ value_json.status }}"
+
+
+class HADiagnosticVersion(HADiagnosticSensor):
+    """Definition for a Home Assistant Version diagnostic sensor. It displays
+    the current version of the HA MQTT Pi SMBus software module.
+
+    Parameters
+    ----------
+    name : str
+        The name of the device. This name will be displayed in Home
+        Assistant as the device name. Default: None
+    device_class : str
+        The Home Assistant class of the device. This device class
+        describes the type of sensor. Default: None
+    diagtype : str
+        The name of the diagnostic on the MQTT device display. Default:
+        'status'
+    """
+
     def __init__(self, name: str = None, device_class: str = None):
         super().__init__(name=name, device_class=device_class, diagtype="status")
         self.discovery_payload["value_template"] = "{{ value_json.status }}"
 
 
 class HADiagnosticTemperature(HADiagnosticSensor):
+    """Definition for a Home Assistant Temperature diagnostic sensor. It
+    displays the CPU Termperature of the Raspberry Pi.
+
+    Parameters
+    ----------
+    name : str
+        The name of the device. This name will be displayed in Home
+        Assistant as the device name. Default: None
+    device_class : str
+        The Home Assistant class of the device. This device class
+        describes the type of sensor. Default: None
+    diagtype : str
+        The name of the diagnostic on the MQTT device display. Default:
+        'status'
+    """
+
     def __init__(self, name: str = None, device_class: str = None):
         super().__init__(name=name, device_class=device_class, diagtype="temperature")
         self.discovery_payload["value_template"] = "{{ value_json.cpu_temperature }}"
 
 
-class HADiagnosticVersion(HADiagnosticSensor):
-    def __init__(self, name: str = None, device_class: str = None):
-        super().__init__(name=name, device_class=device_class, diagtype="version")
-        self.discovery_payload["value_template"] = "{{ value_json.version }}"
-
-
 class HADiagnosticUptime(HADiagnosticSensor):
+    """Definition for a Home Assistant Uptime diagnostic sensor. It displays
+    the current uptime of the Raspberry Pi operating system.
+
+    Parameters
+    ----------
+    name : str
+        The name of the device. This name will be displayed in Home
+        Assistant as the device name. Default: None
+    device_class : str
+        The Home Assistant class of the device. This device class
+        describes the type of sensor. Default: None
+    diagtype : str
+        The name of the diagnostic on the MQTT device display. Default:
+        'status'
+    """
+
     def __init__(self, name: str = None, device_class: str = None):
         super().__init__(name=name, device_class=device_class, diagtype="uptime")
         self.discovery_payload["value_template"] = "{{ value_json.uptime }}"
 
 
 class HADiagnosticLastRestart(HADiagnosticSensor):
+    """Definition for a Home Assistant Restart diagnostic sensor. It displays
+    the time and date of the last restart of the Raspberry Pi operating
+    system.
+
+    Parameters
+    ----------
+    name : str
+        The name of the device. This name will be displayed in Home
+        Assistant as the device name. Default: None
+    device_class : str
+        The Home Assistant class of the device. This device class
+        describes the type of sensor. Default: None
+    diagtype : str
+        The name of the diagnostic on the MQTT device display. Default:
+        'status'
+    """
+
     def __init__(self, name: str = None, device_class: str = None):
         super().__init__(name=name, device_class=device_class, diagtype="last-restart")
         self.discovery_payload["value_template"] = "{{ value_json.last_restart }}"
@@ -168,26 +282,32 @@ class HADevice:
     Parameters
     ----------
     sensors : List[HASensor]
-
         The list of sensors defined for the device.
-
     state_topic : str
         The state topic that will be used in the message to send data to
         Home Assistant. Note that this state topic should be unique for
         each device.
     manufacturer : str
-        The name of the manufacturer of the sensor. This will be
+        The name of the manufacturer of the device. This will be
         displayed in the Home Assistant detail for the device. For the
         Bosch BME280 sensor, this would be 'Bosch'.
     model : str
-        The name of the model of the sensor. This will be displayed in
+        The name of the model of the device. This will be displayed in
         the Home Assistant detail for the device. For the Bosch BME280
         sensor, this would be 'BME280'.
+    suggested_area : str
+        The suggested area of the device. This will be used to assign
+        the device to an area in Home Assistant. Default: None
     base_name : str
         The base part of the discovery message. This field must match
         the setting in Home Assistant Settings -> Devices and services
         -> Integrations -> MQTT consiguration section Configure
         -> CONFIGURE MQTT OPTIONS -> Enable discovery [Discovery prefix]
+    support_url : str
+        The support URL to be displayed for the device.  Default: None
+    qos : int
+        The Quality of Service for the messages for the device. It must
+        be 0, 1, or 2. See MQTT documentation for details. Default: 0
 
     Note
     ----
@@ -225,14 +345,27 @@ class HADevice:
     """
 
     class Origin:  #
+        """Definition for Origin subsection of Discovery payloadA
+
+        Parameters
+        ----------
+        None
+        """
+
         name: str  # 'bla2mqtt'
         sw_version: str  # '2.1'
         # support_url:str             # 'https://bla2mqtt.example.com/support'
 
     class Device:
+        """Definition for Device subsection of Discovery payloadA
+
+        Parameters
+        ----------
+        None
+        """
+
         # configuration_url:str       # defined only if set
         # connections:Sequence[str]   #
-        # model_id:str                # 'xya'
         # suggested_area:str          #
         hw_version: str  # '1.0rev2'
         identifiers: Sequence[str]  # ['ea334450945afc']
@@ -255,7 +388,6 @@ class HADevice:
         state_topic: str,
         manufacturer: str,
         model: str,
-        model_id: str = None,
         suggested_area=None,
         base_name: str = "homeassistant",
         support_url: str = None,  #'http://www.example.com',
@@ -289,8 +421,6 @@ class HADevice:
         self.qos = qos
         if support_url is not None:
             self.origin.support_url = support_url
-        if model_id is not None:
-            self.device.model_id = model_id
         if suggested_area is not None:
             self.origin.suggested_area = suggested_area
         self.discovery_payload = {
@@ -325,71 +455,67 @@ class HADevice:
 
 # class SMBusDevice(SMBus):
 class SMBusDevice:
-    bus: int = None
-    address = None
-    last_update: datetime.datetime = datetime.datetime.now()
+    """Definition for a physical SMBus device.
+
+    Parameters
+    ----------
+    bus : int
+        The number of the SMBus (I2C) bus (1 or 2). The default is 1
+    address : int
+        The address of the device on the I2C bus. The default is
+        118 (0x76).
+
+    Note
+    ----
+    This class is designed to be subclassed and not used directly.
+    The subclass must override the sample() and data() methods in
+    order to sample the device data adn return the data to the
+    application, respectively.
+
+    Example
+    -------
+    import datetime
+    import bme280
+    from smbus2 import SMBus
+
+    class BME280(SMBusDevice):
+        last_update = datetime.datetime.now()
+        temperature:float = -32.0 * 5.0 / 9.0
+        pressure:float = 0.0
+        humidity:float = 0.0
+
+        def __init(self, bus:int = 1, address:int = 0x76):
+            super().__init__(bus)
+            self.bus = bus
+            self.address = address
+            self._calibration_params =
+                bme280.load_calibration_params(self, self.address)
+
+        def sample(self) -> None:
+            super().sample()
+            data = bme280.sample(
+                self, self.address, self._calibration_params)
+            last_update = datetime.datetime.now()
+            self.temperature = data.temperature
+            self.pressure = data.pressure
+            self.humidity = data.humidity
+
+        def getdata(self) -> Dict[str, Any]:
+            return {
+                "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
+                "bus": self.bus,
+                "address": self.address,
+                "temperature": round(self.temperature, 1),
+                "temperature_units": f'{chr(176)}C',
+                "pressure": round(self.pressure, 1),
+                "pressure_units": "mbar",
+                "humidity": round(self.humidity, 1),
+                "humidity_units": "%",
+                }
+
+    """
 
     def __init__(self, bus: int = 1, address: int = 0x76):
-        """Definition for SMBus device specific to sensors
-
-        Parameters
-        ----------
-        bus : int
-            The number of the SMBus (I2C) bus (1 or 2). The default is 1
-        address : int
-            The address of the device on the I2C bus. The default is
-            118 (0x76).
-
-        Note
-        ----
-        This class is designed to be subclassed and not used directly.
-        The subclass must override the sample() and data() methods in
-        order to sample the device data adn return the data to the
-        application, respectively.
-
-        Example
-        -------
-        import datetime
-        import bme280
-        from smbus2 import SMBus
-
-        class BME280(SMBusDevice):
-            last_update = datetime.datetime.now()
-            temperature:float = -32.0 * 5.0 / 9.0
-            pressure:float = 0.0
-            humidity:float = 0.0
-
-            def __init(self, bus:int = 1, address:int = 0x76):
-                super().__init__(bus)
-                self.bus = bus
-                self.address = address
-                self._calibration_params =
-                    bme280.load_calibration_params(self, self.address)
-
-            def sample(self) -> None:
-                super().sample()
-                data = bme280.sample(
-                    self, self.address, self._calibration_params)
-                last_update = datetime.datetime.now()
-                self.temperature = data.temperature
-                self.pressure = data.pressure
-                self.humidity = data.humidity
-
-            def getdata(self) -> Dict[str, Any]:
-                return {
-                    "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
-                    "bus": self.bus,
-                    "address": self.address,
-                    "temperature": round(self.temperature, 1),
-                    "temperature_units": f'{chr(176)}C',
-                    "pressure": round(self.pressure, 1),
-                    "pressure_units": "mbar",
-                    "humidity": round(self.humidity, 1),
-                    "humidity_units": "%",
-                    }
-
-        """
-        # super().__init__(bus)
         self.bus = bus
         self.address = address
         self._smbus = SMBus(bus)

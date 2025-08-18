@@ -136,11 +136,9 @@ class TestDevice(TestCase):
             manufacturer="manufact.",
             model="model1234",
             support_url="http://www.example.com/support",
-            model_id="souped_up",
             suggested_area="race track",
         )
         self.assertEqual(ha_device.origin.support_url, "http://www.example.com/support")
-        self.assertEqual(ha_device.device.model_id, "souped_up")
         self.assertEqual(ha_device.origin.suggested_area, "race track")
 
     @patch("ha_mqtt_pi_smbus.device.datetime.datetime", MockDatetime)
@@ -149,6 +147,7 @@ class TestDevice(TestCase):
         from ha_mqtt_pi_smbus.device import SMBus, SMBusDevice
 
         smbus_device = SMBusDevice(bus=2, address=0x71)
+        smbus_device.last_update = datetime.datetime.now()
         self.assertEqual(smbus_device.bus, 2)
         self.assertEqual(smbus_device.address, 113)
         self.assertEqual(smbus_device.getdata()["bus"], 2)

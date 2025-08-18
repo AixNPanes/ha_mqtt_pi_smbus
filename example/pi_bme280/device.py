@@ -21,7 +21,6 @@ class Temperature(HASensor):
         sensor_name: str = None,
         basename: str = "homeassistant",
         expire_after: int = 120,
-        state_topic=None,
     ):
         super().__init__(
             self.units,
@@ -29,7 +28,6 @@ class Temperature(HASensor):
             basename=basename,
             device_class=self.device_class,
             expire_after=expire_after,
-            state_topic=state_topic,
         )
 
 
@@ -42,7 +40,6 @@ class Pressure(HASensor):
         sensor_name: str = None,
         basename: str = "homeassistant",
         expire_after: int = 120,
-        state_topic=None,
     ):
         super().__init__(
             self.units,
@@ -50,7 +47,6 @@ class Pressure(HASensor):
             basename=basename,
             device_class=self.device_class,
             expire_after=expire_after,
-            state_topic=state_topic,
         )
 
 
@@ -63,7 +59,6 @@ class Humidity(HASensor):
         sensor_name: str = None,
         basename: str = "homeassistant",
         expire_after: int = 120,
-        state_topic=None,
     ):
         super().__init__(
             self.units,
@@ -71,7 +66,6 @@ class Humidity(HASensor):
             basename=basename,
             device_class=self.device_class,
             expire_after=expire_after,
-            state_topic=state_topic,
         )
 
 
@@ -124,19 +118,16 @@ class BME280_Device(HADevice):
                     name,
                     basename=basename,
                     expire_after=expire_after,
-                    state_topic=state_topic,
                 ),
                 Pressure(
                     name,
                     basename=basename,
                     expire_after=expire_after,
-                    state_topic=state_topic,
                 ),
                 Humidity(
                     name,
                     basename=basename,
                     expire_after=expire_after,
-                    state_topic=state_topic,
                 ),
             ],
             name,
