@@ -86,6 +86,14 @@ def ipaddress(ip: str):
 
 
 class BasicParser(ArgumentParser):
+    """Parse root level command line parameters and merge with config files
+
+    Parameters
+    ----------
+    see : ArgumentParser
+
+    """
+
     config: str
     secrets: str
     title: str
@@ -120,6 +128,7 @@ class BasicParser(ArgumentParser):
         )
 
     def parse_args(self):
+        """Parse commandline arguments and merge with config files"""
         self.args = super().parse_args()
 
         # determine config/secrets filenames and read
@@ -154,6 +163,14 @@ class WebConfig:
 
 
 class WebParser(BasicParser):
+    """Parse web command line parameters and merge with config files
+
+    Parameters
+    ----------
+    None
+
+    """
+
     def __init__(self):
         super().__init__()
         self.add_argument(
@@ -229,6 +246,14 @@ class MQTTConfig:
 
 
 class MQTTParser(WebParser):
+    """Parse MQTT command line parameters and merge with config files
+
+    Parameters
+    ----------
+    None
+
+    """
+
     def __init__(self):
         super().__init__()
         self.add_argument("-b", "--mqtt_broker", help="MQTT Broker hostname or address")
@@ -339,6 +364,14 @@ class MQTTParser(WebParser):
 
 
 class Parser(MQTTParser):
+    """Parse all command line parameters and merge with config files
+
+    Parameters
+    ----------
+    None
+
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -347,6 +380,14 @@ class Parser(MQTTParser):
         return self.args
 
     def sanitize(self):
+        """Make a copy of the config parameter and change all the sensitive
+        ones to the the same value as  their keys
+
+        Parameters
+        ----------
+        None
+
+        """
         config_copy = copy.deepcopy(self.config)
         if "mqtt" in config_copy:
             mqtt_config = config_copy["mqtt"]
