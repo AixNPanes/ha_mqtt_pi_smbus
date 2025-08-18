@@ -10,11 +10,32 @@ DEGREE = chr(176)
 
 
 def readfile(file_name) -> str:
+    """Read a file
+
+    Parameters
+    ----------
+    file_name : str
+        The name of the file to be read
+    """
     with open(file_name, "r") as file_object:
         return file_object.read()
 
 
 def get_command_data(args: list[str]) -> str:
+    """Issue a command to the underlying operating system and return the
+    result as a UTF-8 encoded string
+
+    Parameters
+    ----------
+    args : list[str]
+        An array containing the name of the command and the arguments
+        to that command as elements of an array
+
+    Return
+    ------
+    str : A string with the results of the command encoded as UTF-8. None
+        if there is an error.
+    """
     try:
         return subprocess.check_output(args).decode("utf-8")
     except subprocess.CalledProcessError:
@@ -269,6 +290,18 @@ def getLastRestart() -> str:
 
 
 def _get_pyproject_version():
+    """get the module's software version from pyproject.toml
+
+    Parameters
+    ----------
+    none
+
+    Returns
+    -------
+    str : the version contained in the pyproject.toml file or None in the
+    event of an error
+    ------
+    """
     # Try pyproject first in dev
     pyproject_file = pathlib.Path("pyproject.toml")
     if pyproject_file.exists():
@@ -279,11 +312,32 @@ def _get_pyproject_version():
 
 
 def _get_setuptools_version():
+    """Get the module's software version from the setuptools_scm module
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    str : the version returned by the setuptools_scm module 
+    """
     # Try setuptools
     return get_command_data(["python3", "-m", "setuptools_scm"])
 
 
 def _get_metadata_version():
+    """get the version contained in the package metadata
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    str : the version contained in the package metadata or None if no
+    package metadata is available
+    """
     # Then try installed metadata
     try:
         return importlib.metadata.version("yourpackage")
@@ -292,7 +346,16 @@ def _get_metadata_version():
 
 
 def _get_package_version():
-    # Fallback to __version__
+    """get the version from the package __version__ attribute
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    str : the version contained from the package __version__ attribute
+    """
     try:
         from . import __version__
 
@@ -302,6 +365,18 @@ def _get_package_version():
 
 
 def get_version():
+    """get the package version from one of the available methods for
+    retrieving the version
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    str : the version number or "0.0.0-dev" if no version number can be
+    otherwise obtained
+    """
     version = _get_pyproject_version()
     if version is not None:
         return version
