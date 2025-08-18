@@ -22,6 +22,16 @@ class StateErrorEnum(Enum):
     )
 
     def __new__(cls, code, value):
+        """Construct new enum member
+
+        Parameters
+        ----------
+        code : int
+            the ordinal number of the enum member
+        value : str
+            the value of the enum member
+
+        """
         # Create a new enum instance
         obj = object.__new__(cls)
         # Assign the first value as the canonical value
@@ -71,15 +81,43 @@ class State:
             self.error = obj["Error"]
 
     def add_error_code(self, error_code):
+        """Add error_code to the error_code list
+
+        Parameters
+        ----------
+        error_code : str
+            the error code to add to the list of erroro_code.
+        """
         if error_code is not None:
             if error_code not in self.error_code:
                 self.error_code.append(error_code)
 
     def translate_error_codes(self):
+        """Translate the error codes to StateErrorEnum's in the error
+        list
+
+        Parameters
+        ----------
+        None
+        """
         for error_code in self.error_code:
             self.error.append(StateErrorEnum(error_code).value)
 
     def validate(self, json_data, is_connected):
+        """Validate that the status in the json_data is xonsistent
+        with the provided connected state.
+
+        Parameters
+        ----------
+        json_data : State
+            The current MQTT State.
+        is_connected : bool
+            The current connection state
+
+        Return
+        ------
+        State : a new state that is corrected to match the connection state
+        """
         route = "validate_state"
         new_state = State(self.to_dict())
         if new_state is not None:
@@ -104,6 +142,16 @@ class State:
         return new_state
 
     def to_dict(self):
+        """Translate the MQTT State to a dict
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+        dict : the value of the MQTT state of the object as a dict
+        """
         if not isinstance(self.error, list):
             self.__logger.exception("self.error is str (%s)" % (type(self.error)))
         if self.rc is not None and not isinstance(self.rc, ReasonCode):

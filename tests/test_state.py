@@ -1,5 +1,4 @@
 # tests/test_state.py
-import logging
 from unittest import TestCase
 
 from ha_mqtt_pi_smbus.state import State, StateErrorEnum

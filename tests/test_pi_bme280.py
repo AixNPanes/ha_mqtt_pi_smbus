@@ -1,6 +1,5 @@
 # tests/test_pi_bme280.py
 from io import StringIO
-import logging
 import sys
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
@@ -24,7 +23,6 @@ class TestPiBME280(TestCase):
     ):
         sys.modules.pop("example.pi_bme280.pi_bme280", None)
         from example.pi_bme280.pi_bme280 import main
-        from example.pi_bme280.parsing import Parser
 
         main([])
         mock_parser.assert_called_once()
@@ -49,13 +47,11 @@ class TestPiBME280(TestCase):
         mock_atexit_register,
     ):
         sys.modules.pop("example.pi_bme280.pi_bme280", None)
-        from example.pi_bme280.pi_bme280 import main, shutdown_server
-        from example.pi_bme280.parsing import Parser
 
     @patch("example.pi_bme280.pi_bme280.app")
     def test_pi_bme280_shutdown(self, mock_app):
         mock_app.shutdown_server.return_value = 0
-        from example.pi_bme280.pi_bme280 import main, shutdown_server, app
+        from example.pi_bme280.pi_bme280 import shutdown_server
 
         shutdown_server()
         mock_app.shutdown_server.assert_called_once()
@@ -73,7 +69,6 @@ class TestPiBME280(TestCase):
         mock_flask.return_value = mock_app
         sys.modules.pop("example.pi_bme280.pi_bme280", None)
         from example.pi_bme280.pi_bme280 import main
-        from example.pi_bme280.parsing import Parser
 
         main([])
         self.assertIn("mock generic error", self.mock_stdout.getvalue())

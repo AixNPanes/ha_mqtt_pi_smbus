@@ -1,31 +1,22 @@
 # tests/test_parsing.py
-import logging
-import sys
+# import logging
+# import sys
 from pathlib import Path
-import time
+
+# import time
 from unittest import TestCase
 from unittest.mock import patch, mock_open
 import yaml
 
 from ha_mqtt_pi_smbus.parsing import (
-    Parser,
     deep_merge_dicts,
     read_yaml,
     auto_int,
     ipaddress,
     BasicParser,
     WebParser,
-    MQTTParser,
     Parser,
 )
-
-from .mock_data import (
-    MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT,
-    MOCK_IFCONFIG_WLAN0_DATA,
-    MOCK_IFCONFIG_ETH0_DATA,
-    # MOCKED_OPEN,
-)
-
 
 CONFIG_DATA = """---
 title: title

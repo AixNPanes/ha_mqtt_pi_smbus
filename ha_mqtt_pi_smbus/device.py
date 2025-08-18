@@ -4,7 +4,7 @@ import json
 import logging
 import threading
 import time
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, Sequence
 
 from smbus2 import SMBus
 

@@ -1,10 +1,3 @@
-import argparse
-import logging
-import socket
-import sys
-from typing import Any, Dict
-import yaml
-
 from ha_mqtt_pi_smbus.parsing import Parser, auto_int
 
 
