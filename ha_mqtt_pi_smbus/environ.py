@@ -320,7 +320,7 @@ def _get_setuptools_version():
 
     Returns
     -------
-    str : the version returned by the setuptools_scm module 
+    str : the version returned by the setuptools_scm module
     """
     # Try setuptools
     return get_command_data(["python3", "-m", "setuptools_scm"])

@@ -26,6 +26,18 @@ from ha_mqtt_pi_smbus.state import State
 
 
 def getTemp():
+    """Get CPU Temperature
+
+    A Convenience method
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    float : the temperature
+    """
     return getTemperature()
 
 
@@ -176,6 +188,7 @@ class MQTTClient(mqtt.Client):
             client.state.error = [connack_string(rc)]
 
     def on_message(client, userdata, xxx, msg) -> None:
+        """Callback function to handle received messages"""
         payload = msg.payload.decode("utf-8").strip().lower()
         if msg.topic == client.status_topic:
             if payload == "online":
@@ -270,6 +283,7 @@ class MQTTClient(mqtt.Client):
         return mqttErrorCode
 
     def is_connected(self) -> bool | None:
+        """Return true if the MQTT client is connected to the MQTT broker"""
         connected = super().is_connected()
         if connected == self.state.connected:
             return connected
@@ -286,6 +300,7 @@ class MQTTClient(mqtt.Client):
         return mqttErrorCode
 
     def is_discovered(self) -> bool:
+        """Return true if the HA Device has been discovered"""
         return self.state.discovered
 
     def subscribe(self, topic: str) -> None:
