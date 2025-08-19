@@ -10,7 +10,30 @@ from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
 
 
 class HAFlask(Flask):
+    """Wrap the Flask class to provide functons for MQTT
+
+    Parameters
+    ----------
+    import_name : str
+        the Flask import_name
+    parser : ha_mqtt_pi_smbus.parsing.AParser
+        the parser variable from which to retrieve configuration
+    client : ha_mqtt_pi_smbus.mqtt_client.MQTTClient
+        the MQTT client to us to commuicate with the MQTT broker
+    device : ha_mqtt_pi_smbus.device.HADevice
+        the SMBus device which is to be presented to Home Assistant
+    _debug_step_count : int
+        the maximum number of .5 second intervals over which the web
+        server will wait before giving put.  Default 20,
+    """
+
     def connect(self):
+        """Connect to the MQTT broker
+
+        Parameters
+        ----------
+        None
+        """
         # Connect and start loop
         self.client.connect_mqtt()
         self.client.loop_start()
@@ -22,6 +45,12 @@ class HAFlask(Flask):
             time.sleep(0.5)
 
     def discover(self):
+        """Send discovery payload to MQTT broker
+
+        Parameters
+        ----------
+        None
+        """
         # Turn ON
         self.client.loop_start()
         self.client.publish_discovery(self.device)
@@ -60,6 +89,8 @@ class HAFlask(Flask):
             self.discover()
 
     def _register_routes(self):
+        """Define the Flask web routes"""
+
         @self.route("/", methods=["GET"])
         def index():
             return render_template(
@@ -102,8 +133,13 @@ class HAFlask(Flask):
                 self.client.state.discovered = False
             return jsonify(self.client.state.to_dict())
 
-    # to handle ctrl-c, clear discoveries, and shut things down
     def shutdown_server(self):
+        """Handle ctrl-c, clear discoveries, and shut things down
+
+        Parameters
+        ----------
+        None
+        """
         route = "Shutdown"
         self.__logger.info("%s Shutting down server", route)
         if self.client.state.discovered:
