@@ -13,6 +13,7 @@ app = None
 
 # shutdown callback
 def shutdown_server():
+    """Shutdown the web_server"""
     global app
     logging.getLogger(__name__).info("Shutting down server")
     if app is not None:
@@ -20,6 +21,7 @@ def shutdown_server():
 
 
 def main(args):
+    """Main application for HA MQTT Pi SMBus BME280"""
     global app
     atexit.register(shutdown_server)  # register shutdown
 

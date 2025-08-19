@@ -13,6 +13,19 @@ from ha_mqtt_pi_smbus.device import (
 
 
 class Temperature(HASensor):
+    """Definition for a Bosch BME280 Temperature Sensor on Home Assistant MQTT 
+    Raspberry Pi SMBus software
+
+    Parameters
+    ----------
+    name : str
+        the name of the HADevice of which this sensor is a part. Default: None
+    basename : str
+        the basename of the MQTT topics sent to MQTT. Default: "homeassistant"
+    expire_after : int
+        the expiry for sensor, after which the sensor will be marked
+        unavailable
+    """
     units: str = f"{chr(176)}C"
     device_class = "temperature"
 
@@ -32,6 +45,19 @@ class Temperature(HASensor):
 
 
 class Pressure(HASensor):
+    """Definition for a Bosch BME280 Pressure Sensor on Home Assistant MQTT 
+    Raspberry Pi SMBus software
+
+    Parameters
+    ----------
+    name : str
+        the name of the HADevice of which this sensor is a part. Default: None
+    basename : str
+        the basename of the MQTT topics sent to MQTT. Default: "homeassistant"
+    expire_after : int
+        the expiry for sensor, after which the sensor will be marked
+        unavailable
+    """
     units: str = "mbar"
     device_class = "pressure"
 
@@ -51,6 +77,19 @@ class Pressure(HASensor):
 
 
 class Humidity(HASensor):
+    """Definition for a Bosch BME280 Humidity Sensor on Home Assistant MQTT 
+    Raspberry Pi SMBus software
+
+    Parameters
+    ----------
+    name : str
+        the name of the HADevice of which this sensor is a part. Default: None
+    basename : str
+        the basename of the MQTT topics sent to MQTT. Default: "homeassistant"
+    expire_after : int
+        the expiry for sensor, after which the sensor will be marked
+        unavailable
+    """
     units: str = "%"
     device_class = "humidity"
 
@@ -74,7 +113,7 @@ class BME280_Device(HADevice):
 
     Parameters
     ----------
-    sensor_name : str
+    name : str
         The name of the device containing the sensor. This name is the
         display name for the device in Home Assistant.
     state_topic : str
@@ -93,6 +132,12 @@ class BME280_Device(HADevice):
     polling_interval : int
         The interval at which data will be sampled from the device and
         placed in the device object.
+    basename : str
+        The basename of the MQTT topics used to communicate to Home
+        Assistant. Default: "homeassistant"
+    expire_after : int
+        the expiry for the device, after which the sensor in the device 
+        will be marked unavailable
 
     Example
     -------

@@ -9,6 +9,8 @@ class BME280Config:
 
 
 class BME280Parser(Parser):
+    """Parse BME280 specific parameters and merge with config files
+    """
     def __init__(self):
         super().__init__()
         self.add_argument(
@@ -32,6 +34,7 @@ class BME280Parser(Parser):
         )
 
     def parse_args(self):
+        """Parse commandline arguments and merge with config files"""
         self.args = super().parse_args()
 
         # get BME280 parameters
