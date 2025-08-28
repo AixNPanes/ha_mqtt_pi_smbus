@@ -117,7 +117,7 @@ tag:
 
 # Release a new version package
 release: version tag
-	@echo "Release v$(VERSION) pushed."
+	@echo "Release $(VERSION) pushed."
 
 # Suggest the next version of package
 suggest-next:

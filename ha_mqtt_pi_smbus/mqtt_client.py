@@ -17,16 +17,16 @@ from paho.mqtt.client import connack_string
 from ha_mqtt_pi_smbus.config import to_dict
 from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice
 from ha_mqtt_pi_smbus.environ import (
-    getObjectId,
-    getTemperature,
-    getUptime,
-    getLastRestart,
+    get_object_id,
+    get_temperature,
+    get_uptime,
+    get_last_restart,
 )
 from ha_mqtt_pi_smbus.parsing import MqttConfig
 from ha_mqtt_pi_smbus.state import State
 
 
-def getTemp():
+def get_temp():
     """Get CPU Temperature
 
     A Convenience method
@@ -39,7 +39,7 @@ def getTemp():
     -------
     float : the temperature
     """
-    return getTemperature()
+    return get_temperature()
 
 
 class MQTT_Publisher_Thread(threading.Thread):
@@ -242,7 +242,7 @@ class MQTTClient(mqtt.Client):
         """
         super().__init__(
             mqtt_enums.CallbackAPIVersion.VERSION2,
-            f"{client_prefix}-{getObjectId()}-{str(random.randint(0,1000)).zfill(3)}",
+            f"{client_prefix}-{get_object_id()}-{str(random.randint(0,1000)).zfill(3)}",
             True,
             None,
         )
@@ -429,13 +429,13 @@ class MQTTClient(mqtt.Client):
                 __version__ = version("ha_mqtt_pi_smbus")
             except PackageNotFoundError:
                 __version__ = "0.0.0"
-            temperature = getTemperature()
+            temperature = get_temperature()
             sensor.diagnosticData = {
                 "status": "OK",
                 "cpu_temperature": temperature,
                 "version": __version__,
-                "uptime": getUptime(),
-                "last_restart": getLastRestart(),
+                "uptime": get_uptime(),
+                "last_restart": get_last_restart(),
             }
             self.publish(
                 sensor.discovery_payload["json_attributes_topic"],

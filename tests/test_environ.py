@@ -18,17 +18,17 @@ from .mock_data import MOCK_CPUINFO_DATA, MOCK_OSRELEASE_DATA
 class TestDevice(unittest.TestCase):
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=43812)
     def test_get_temperature(self, mock_readfile):
-        temperature = ha_env.getTemperature()
+        temperature = ha_env.get_temperature()
         self.assertEqual(temperature, 43.812)
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
     def test_get_cpu_info(self, mock_readfile):
-        cpu_info = ha_env.getCpuInfo()
+        cpu_info = ha_env.get_cpu_info()
         self.assertEqual(cpu_info['cpu']['Model'], 'Raspberry Pi 3 Model B Rev 1.2')
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_OSRELEASE_DATA)
     def test_get_osinfo(self, mock_readfile):
-        osinfo = ha_env.getOSInfo()
+        osinfo = ha_env.get_os_info()
         self.assertEqual(osinfo['ID'], 'debian')
 
     @patch(
@@ -36,7 +36,7 @@ class TestDevice(unittest.TestCase):
         return_value="up 20 hours, 57 minutes"
     )
     def test_get_uptime(self, mock_readfile):
-        uptime = ha_env.getUptime()
+        uptime = ha_env.get_uptime()
         self.assertEqual(uptime, 'up 20 hours, 57 minutes')
 
     @patch(
@@ -44,7 +44,7 @@ class TestDevice(unittest.TestCase):
         return_value="2025-08026 17:42:54"
     )
     def test_get_last_restart(self, mock_readfile):
-        last_restart = ha_env.getLastRestart()
+        last_restart = ha_env.get_last_restart()
         self.assertEqual(last_restart, '2025-08026 17:42:54')
 
     @patch(
@@ -55,7 +55,7 @@ class TestDevice(unittest.TestCase):
         """,
     )
     def test_mac_address_eth_success(self, mock_getcmd):
-        mac = ha_env.getMacAddressByInterface("eth0")
+        mac = ha_env.get_mac_address_by_interface("eth0")
         self.assertEqual(mac, "b8:27:eb:94:a7:18")
 
     @patch(
@@ -66,7 +66,7 @@ class TestDevice(unittest.TestCase):
         """,
     )
     def test_mac_address_wlan_success(self, mock_getcmd):
-        mac = ha_env.getMacAddressByInterface("wlan0")
+        mac = ha_env.get_mac_address_by_interface("wlan0")
         self.assertEqual(mac, "b8:27:eb:94:a7:19")
 
     @patch(
@@ -79,7 +79,7 @@ class TestDevice(unittest.TestCase):
         ],
     )
     def test_mac_address_fake_except(self, mock_getcmd):
-        mac = ha_env.getMacAddressByInterface("fake0")
+        mac = ha_env.get_mac_address_by_interface("fake0")
         self.assertIsNone(mac)
 
     @patch(
@@ -91,7 +91,7 @@ class TestDevice(unittest.TestCase):
         ],
     )
     def test_mac_address_no_parm_but_eth(self, mock_getcmd):
-        mac = ha_env.getMacAddress()
+        mac = ha_env.get_mac_address()
         self.assertEqual(mac, "b8:27:eb:94:a7:19")
 
     @patch(
@@ -104,7 +104,7 @@ class TestDevice(unittest.TestCase):
         ],
     )
     def test_mac_address_no_parm_but_wlan(self, mock_getcmd):
-        mac = ha_env.getMacAddress()
+        mac = ha_env.get_mac_address()
         self.assertEqual(mac, "b8:27:eb:94:a7:19")
 
     @patch(
@@ -117,7 +117,7 @@ class TestDevice(unittest.TestCase):
         ],
     )
     def test_get_object_id(self, mock_getcmd):
-        objectId = ha_env.getObjectId()
+        objectId = ha_env.get_object_id()
         self.assertEqual(objectId, "b827eb94a719")
     
     @patch(

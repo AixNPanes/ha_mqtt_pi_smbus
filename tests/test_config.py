@@ -10,7 +10,7 @@ from ha_mqtt_pi_smbus.config import (
     WebConfig,
     MqttConfig,
     Config,
-    getConfig,
+    get_config,
 )
 from ha_mqtt_pi_smbus.parsing import Parser
 from .mock_data import MOCK_CONFIG_DATA
@@ -152,8 +152,8 @@ mqtt:
         self.assertEqual(config.mqtt.auto_discover, True)
         self.assertEqual(config.mqtt.expire_after, 117)        
 
-    def test_getConfig_none(self):
-        self.assertEqual(getConfig(None), {})
+    def test_get_config_none(self):
+        self.assertEqual(get_config(None), {})
 
     def test_Config_none(self):
         config = Config(None)

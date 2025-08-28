@@ -8,7 +8,7 @@ from typing import Any, Dict, Sequence
 
 from smbus2 import SMBus
 
-from ha_mqtt_pi_smbus.environ import getCpuInfo, getOSInfo, getObjectId
+from ha_mqtt_pi_smbus.environ import get_cpu_info, get_os_info, get_object_id
 
 
 class HASensor:
@@ -115,7 +115,7 @@ class HASensor:
             "availability": self.availability.__dict__,
         }
 
-    def jsonPayload(self) -> str:
+    def json_payload(self) -> str:
         """Return the discovery_payload as a json string
 
         Parameters
@@ -409,13 +409,13 @@ class HADevice:
         self.origin.name = "HA MQTT Pi"
         self.origin.sw_version = __version__
         self.origin.support_url = "http://www.example.com"
-        cpuinfo = getCpuInfo()
+        cpuinfo = get_cpu_info()
         self.device.hw_version = cpuinfo["cpu"]["Model"]
         self.device.identifiers = [name]
         self.device.name = name
         self.device.manufacturer = manufacturer
         self.device.model = model
-        self.device.serial_number = getObjectId()
+        self.device.serial_number = get_object_id()
         self.device.sw_version = "0.0.1"
         self.state_topic = state_topic
         self.qos = qos

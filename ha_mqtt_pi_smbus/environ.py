@@ -12,7 +12,7 @@ import ha_mqtt_pi_smbus
 from ha_mqtt_pi_smbus.util import readfile, get_command_data
 
 
-def getCpuInfo() -> Dict[str, Any]:
+def get_cpu_info() -> Dict[str, Any]:
     """get Raspberry Pi CPU info
 
         Parameters
@@ -25,8 +25,8 @@ def getCpuInfo() -> Dict[str, Any]:
 
         Example
         ------
-        >>> from environ import getCpuInfo
-        >>> print(f'The cpu info is as follows:\n{getCpuInfo()}')
+        >>> from environ import get_cpu_info
+        >>> print(f'The cpu info is as follows:\n{get_cpu_info()}')
        The cpu info is as follows:
     {'cpu': {'Revision': 'a22082', 'Serial': '000000009ec1f24d',
     'Model': 'Raspberry Pi 3 Model B Rev 1.2', 'processors': 4},
@@ -75,7 +75,7 @@ def getCpuInfo() -> Dict[str, Any]:
     return info
 
 
-def getTemperature() -> float:
+def get_temperature() -> float:
     """get Raspberry Pi CPU temperature in Centigrade as a float
 
     Parameters
@@ -89,15 +89,15 @@ def getTemperature() -> float:
 
     Example
     ------
-    >>> from environ import getTemperature
-    >>> print(f'The temperature of the Raspberry Pi is {getTemperature()}{chr(176)}C')
+    >>> from environ import get_temperature
+    >>> print(f'The temperature of the Raspberry Pi is {get_temperature()}{chr(176)}C')
     The temperature of the Raspberry Pi is 50.464°C
     >>>
     """
     return float(readfile("/sys/class/thermal/thermal_zone0/temp")) / 1000.0
 
 
-def getOSInfo() -> Dict[str, Any]:
+def get_os_info() -> Dict[str, Any]:
     """get Raspberry Pi OS operating system release information
 
     Parameters
@@ -110,8 +110,8 @@ def getOSInfo() -> Dict[str, Any]:
 
     Example
     ------
-    >>> from environ import getOSInfo
-    >>> print(f'The OS release information is:\n{getOSInfo()}')
+    >>> from environ import get_os_info
+    >>> print(f'The OS release information is:\n{get_os_info()}')
     The OS release information is:
     {'PRETTY_NAME': '"Debian GNU/Linux 12 (bookworm)"',
     'NAME': '"Debian GNU/Linux"', 'VERSION_ID': '"12"',
@@ -132,7 +132,7 @@ def getOSInfo() -> Dict[str, Any]:
     return info
 
 
-def getMacAddressByInterface(interface) -> str:
+def get_mac_address_by_interface(interface) -> str:
     """get the Mac address of the specified interface
 
     Parameters
@@ -148,8 +148,8 @@ def getMacAddressByInterface(interface) -> str:
 
     Example
     ------
-    >>> from environ import getTemperature
-    >>> print(f'The Mac address for wlan0 is {getMacAddressByInterface("wlan0")}')
+    >>> from environ import get_temperature
+    >>> print(f'The Mac address for wlan0 is {get_mac_address_by_interface("wlan0")}')
     The Mac address for wlan0 is b8:27:eb:94:a7:18
     >>>
     """
@@ -162,7 +162,7 @@ def getMacAddressByInterface(interface) -> str:
             return mac_address
 
 
-def getMacAddress() -> str:
+def get_mac_address() -> str:
     """get the 'primary' iac address of the Raspberry pi
 
     The Mac address for eth0 is returned, if no eth0, then for wlan0,
@@ -181,18 +181,18 @@ def getMacAddress() -> str:
 
     Example
     ------
-    >>> from environ import getMacAddress
-    >>> print(f'The mac address for the primary interface is {getMacAddress()}')
+    >>> from environ import get_mac_address
+    >>> print(f'The mac address for the primary interface is {get_mac_address()}')
     The mac address for the primary interface is b8:27:eb:c1:f2:4d
     >>>
     """
-    mac = getMacAddressByInterface("eth0")
+    mac = get_mac_address_by_interface("eth0")
     if mac is not None:
         return mac
-    return getMacAddressByInterface("wlan0")
+    return get_mac_address_by_interface("wlan0")
 
 
-def getObjectId() -> str:
+def get_object_id() -> str:
     """get a unique object id representing the Raspberry Pi system
 
     The object id returned is a str containing the Mac Address for the
@@ -211,15 +211,15 @@ def getObjectId() -> str:
 
     Example
     ------
-    >>> from environ import getObjectId
-    >>> print(f'The object id is {getObjectId()}')
+    >>> from environ import get_object_id
+    >>> print(f'The object id is {get_object_id()}')
     The object id is b827ebc1f24d
     >>>
     """
-    return getMacAddress().replace(":", "")
+    return get_mac_address().replace(":", "")
 
 
-def getUptime() -> str:
+def get_uptime() -> str:
     """get the time since the system was rebooted
 
     Parameters - none
@@ -230,15 +230,15 @@ def getUptime() -> str:
 
     Example
     ------
-    >>> from environ import getUptime
-    >>> print(f'The uptime is {getUptime("")}')
+    >>> from environ import get_uptime
+    >>> print(f'The uptime is {get_uptime("")}')
     The uptime is up 20 hours, 57 minutes
     >>>
     """
     return get_command_data(["uptime", "-p"])
 
 
-def getLastRestart() -> str:
+def get_last_restart() -> str:
     """get the Mac address of the specified interface
 
     Parameters
@@ -251,8 +251,8 @@ def getLastRestart() -> str:
 
     Example
     ------
-    >>> from environ import getTemperature
-    >>> print(f'The last restart time is {getLastRestart()}')
+    >>> from environ import get_temperature
+    >>> print(f'The last restart time is {get_last_restart()}')
     The last restart time is 2025-08-26 17:42:54
     >>>
     """

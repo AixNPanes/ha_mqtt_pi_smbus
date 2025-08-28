@@ -12,10 +12,10 @@ from ha_mqtt_pi_smbus.mqtt_client import (
     State,
     MQTTClient,
     MQTT_Publisher_Thread,
-    getTemp,
+    get_temp,
 )
 from ha_mqtt_pi_smbus.environ import DEGREE
-from ha_mqtt_pi_smbus.mqtt_client import getTemp
+from ha_mqtt_pi_smbus.mqtt_client import get_temp
 from ha_mqtt_pi_smbus.config import Config,MqttConfig
 
 from .mock_data import (
@@ -72,7 +72,7 @@ class TestMQTTClient(TestCase):
             'mqtt':{}
             })
 
-    @patch("ha_mqtt_pi_smbus.device.getObjectId", return_value="0123456789abcdef")
+    @patch("ha_mqtt_pi_smbus.device.get_object_id", return_value="0123456789abcdef")
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
     @patch(
         "ha_mqtt_pi_smbus.environ.get_command_data",
@@ -99,7 +99,7 @@ class TestMQTTClient(TestCase):
         rc = mqtt_client.connect_mqtt()
         assert rc == 1
 
-    @patch("ha_mqtt_pi_smbus.device.getObjectId", return_value="0123456789abcdef")
+    @patch("ha_mqtt_pi_smbus.device.get_object_id", return_value="0123456789abcdef")
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
     @patch(
         "ha_mqtt_pi_smbus.environ.get_command_data",
@@ -353,9 +353,9 @@ class TestMQTTClient(TestCase):
         rc = mqtt_client.subscribe("my/state")
         assert len(rc) == 2
 
-    @patch("ha_mqtt_pi_smbus.mqtt_client.getTemperature", return_value=30000)
+    @patch("ha_mqtt_pi_smbus.mqtt_client.get_temperature", return_value=30000)
     @patch(
-        "ha_mqtt_pi_smbus.mqtt_client.getUptime",
+        "ha_mqtt_pi_smbus.mqtt_client.get_uptime",
         return_value="up 1 week, 11 hours, 13 minutes",
     )
     @patch("ha_mqtt_pi_smbus.environ.readfile", side_effect=[MOCK_CPUINFO_DATA])
@@ -417,8 +417,8 @@ class TestMQTTClient(TestCase):
         mqtt_client.clear_discovery(mqtt_client.device)
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
-    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.environ.get_mac_address", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="123456")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
     def test_on_message_online(
@@ -438,8 +438,8 @@ class TestMQTTClient(TestCase):
         mock_available.assert_called_once()
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
-    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.environ.get_mac_address", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="123456")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
     def test_on_message_offline(
@@ -458,8 +458,8 @@ class TestMQTTClient(TestCase):
         self.assertFalse(client.is_discovered)
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
-    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.environ.get_mac_address", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="123456")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_config")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
@@ -480,8 +480,8 @@ class TestMQTTClient(TestCase):
         mock_config.assert_called_once()
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
-    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.environ.get_mac_address", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="123456")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
     def test_on_message_bad(
@@ -502,8 +502,8 @@ class TestMQTTClient(TestCase):
         mock_available.assert_not_called()
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
-    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.environ.get_mac_address", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="123456")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
     def test_on_message_badtopic(
@@ -523,14 +523,14 @@ class TestMQTTClient(TestCase):
         mock_discovery.assert_not_called()
         mock_available.assert_not_called()
 
-    @patch('ha_mqtt_pi_smbus.mqtt_client.getTemperature', return_value=101)
+    @patch('ha_mqtt_pi_smbus.mqtt_client.get_temperature', return_value=101)
     def test_temp(self, mock_temperature):
-        temp = getTemp()
+        temp = get_temp()
         self.assertEqual(temp, 101)
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
-    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.environ.get_mac_address", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="123456")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
     @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
     def test_mqtt_parser_none(
@@ -544,12 +544,12 @@ class TestMQTTClient(TestCase):
         with pytest.raises(Exception):
             client = MQTTClient(None, BME280_Device(), None, None)
 
-    #@patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
+    #@patch("ha_mqtt_pi_smbus.environ.get_mac_address", return_value="12:34:56")
     #@patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
     #@patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("ha_mqtt_pi_smbus.device.getObjectId", return_value="123456")
-    @patch("ha_mqtt_pi_smbus.mqtt_client.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.device.get_object_id", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.mqtt_client.get_object_id", return_value="123456")
     def test_mqtt_client_publish_config(
         self,
         mock_object_id,

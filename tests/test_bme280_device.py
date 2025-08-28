@@ -7,18 +7,18 @@ from unittest.mock import patch
 
 class TestDevice(TestCase):
     @patch("example.pi_bme280.device.BME280")
-    @patch("ha_mqtt_pi_smbus.device.getCpuInfo", return_value={"cpu": {"Model": "B"}})
-    @patch("ha_mqtt_pi_smbus.device.getObjectId", side_effect=["b827eb94a718"] * 10)
+    @patch("ha_mqtt_pi_smbus.device.get_cpu_info", return_value={"cpu": {"Model": "B"}})
+    @patch("ha_mqtt_pi_smbus.device.get_object_id", side_effect=["b827eb94a718"] * 10)
     def test_bmedevice_constructor(
-        self, mock_getObjectId, mock_getCpuInfo, mock_bme280
+        self, mock_get_object_id, mock_get_cpu_info, mock_bme280
     ):
         from example.pi_bme280.device import BME280_Device
 
         device = BME280_Device(
             "test", "bme280/state", "Bosch", "BME280", mock_bme280, 1, 119
         )
-        mock_getObjectId.assert_called_once()
-        mock_getCpuInfo.assert_called_once()
+        mock_get_object_id.assert_called_once()
+        mock_get_cpu_info.assert_called_once()
         self.assertEqual(len(device.sensors), 8)
         self.assertEqual(device.device.identifiers, ["test"])
         self.assertEqual(device.device.name, "test")
@@ -32,15 +32,15 @@ class TestDevice(TestCase):
         )
         self.assertEqual(device.qos, 0)
 
-    @patch("ha_mqtt_pi_smbus.device.getCpuInfo", return_value={"cpu": {"Model": "B"}})
-    @patch("ha_mqtt_pi_smbus.device.getObjectId", side_effect=["b827eb94a718"] * 10)
+    @patch("ha_mqtt_pi_smbus.device.get_cpu_info", return_value={"cpu": {"Model": "B"}})
+    @patch("ha_mqtt_pi_smbus.device.get_object_id", side_effect=["b827eb94a718"] * 10)
     @patch(
         "example.pi_bme280.device.BME280.getdata",
         return_value={"temperature": 99, "pressure": 1010, "humidity": 99},
     )
     @patch("example.pi_bme280.device.BME280")
     def test_bmedevice_data(
-        self, mock_bme280, mock_getdata, mock_getObjectId, mock_getCpuInfo
+        self, mock_bme280, mock_getdata, mock_get_object_id, mock_get_cpu_info
     ):
         from example.pi_bme280.device import BME280_Device
 
@@ -56,11 +56,11 @@ class TestDevice(TestCase):
         self.assertEqual(data["pressure"], 1010)
         self.assertEqual(data["humidity"], 99)
 
-    @patch("ha_mqtt_pi_smbus.device.getCpuInfo", return_value={"cpu": {"Model": "B"}})
+    @patch("ha_mqtt_pi_smbus.device.get_cpu_info", return_value={"cpu": {"Model": "B"}})
     @patch("bme280.sample")
     @patch("bme280.load_calibration_params", return_value=123.456)
     @patch("ha_mqtt_pi_smbus.device.SMBus")
-    def test_bme280(self, mock_smbus, mock_calibration, mock_sample, mock_getCpuInfo):
+    def test_bme280(self, mock_smbus, mock_calibration, mock_sample, mock_get_cpu_info):
         from example.pi_bme280.device import BME280
 
         device = BME280(bus=2, address=0x77)
