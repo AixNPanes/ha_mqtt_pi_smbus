@@ -17,15 +17,15 @@ class MockDatetime:
 
 
 CPUINFO = {
-    "cpu": {
-        "Model": "1234",
+    'cpu': {
+        'Model': '1234',
     }
 }
 
 
 class TestDevice(TestCase):
-    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="0123456789abcdef")
-    @patch("ha_mqtt_pi_smbus.environ.get_cpu_info", return_value=CPUINFO)
+    @patch('ha_mqtt_pi_smbus.environ.get_object_id', return_value='0123456789abcdef')
+    @patch('ha_mqtt_pi_smbus.environ.get_cpu_info', return_value=CPUINFO)
     def test_ha_sensor_base(self, mock_cpuinfo, mock_objectid):
         from ha_mqtt_pi_smbus.device import (
             HASensor,
@@ -39,12 +39,12 @@ class TestDevice(TestCase):
             Humidity,
         )
 
-        ha_sensor = Temperature("test")
-        self.assertEqual(ha_sensor.name, "test")
-        self.assertEqual(ha_sensor.device_class, "temperature")
-        self.assertEqual(ha_sensor.discovery_payload["device_class"], "temperature")
+        ha_sensor = Temperature('test')
+        self.assertEqual(ha_sensor.name, 'test')
+        self.assertEqual(ha_sensor.device_class, 'temperature')
+        self.assertEqual(ha_sensor.discovery_payload['device_class'], 'temperature')
         self.assertEqual(
-            ha_sensor.discovery_payload["unit_of_measurement"], f"{chr(176)}C"
+            ha_sensor.discovery_payload['unit_of_measurement'], f'{chr(176)}C'
         )
         self.assertEqual(len(ha_sensor.json_payload()), 378)
         self.assertEqual(
@@ -52,8 +52,8 @@ class TestDevice(TestCase):
             '{"platform": "sensor", "device_class": "temperature", "unique_id": "test_temperature", "expire_after": 120, "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "availability": {"payload_available": "Available", "payload_not_available": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/test/availability"}}',
         )
 
-    @patch("ha_mqtt_pi_smbus.environ.get_object_id", return_value="0123456789abcdef")
-    @patch("ha_mqtt_pi_smbus.environ.get_cpu_info", return_value=CPUINFO)
+    @patch('ha_mqtt_pi_smbus.environ.get_object_id', return_value='0123456789abcdef')
+    @patch('ha_mqtt_pi_smbus.environ.get_cpu_info', return_value=CPUINFO)
     def test_ha_sensor_no_name(self, mock_cpuinfo, mock_objectid):
         from ha_mqtt_pi_smbus.device import (
             HASensor,
@@ -68,10 +68,10 @@ class TestDevice(TestCase):
         )
 
         ha_sensor = Temperature()
-        self.assertEqual(ha_sensor.name, "temperature")
+        self.assertEqual(ha_sensor.name, 'temperature')
 
-    @patch("ha_mqtt_pi_smbus.device.get_object_id", return_value="0123456789abcdef")
-    @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
+    @patch('ha_mqtt_pi_smbus.device.get_object_id', return_value='0123456789abcdef')
+    @patch('ha_mqtt_pi_smbus.environ.readfile', return_value=MOCK_CPUINFO_DATA)
     def test_ha_device_base(self, mock_cpuinfo, mock_objectid):
         from ha_mqtt_pi_smbus.device import (
             HASensor,
@@ -86,20 +86,20 @@ class TestDevice(TestCase):
         )
 
         ha_device = HADevice(
-            [Temperature("test")],
-            name="Test device",
-            state_topic="my/topic",
-            manufacturer="manufact.",
-            model="model1234",
+            [Temperature('test')],
+            name='Test device',
+            state_topic='my/topic',
+            manufacturer='manufact.',
+            model='model1234',
         )
-        self.assertEqual(ha_device.sensors[0].name, "test")
-        self.assertEqual(ha_device.sensors[0].device_class, "temperature")
+        self.assertEqual(ha_device.sensors[0].name, 'test')
+        self.assertEqual(ha_device.sensors[0].device_class, 'temperature')
         self.assertEqual(
-            ha_device.sensors[0].discovery_payload["device_class"], "temperature"
+            ha_device.sensors[0].discovery_payload['device_class'], 'temperature'
         )
         self.assertEqual(
-            ha_device.sensors[0].discovery_payload["unit_of_measurement"],
-            f"{chr(176)}C",
+            ha_device.sensors[0].discovery_payload['unit_of_measurement'],
+            f'{chr(176)}C',
         )
         self.assertEqual(len(ha_device.sensors[0].json_payload()), 378)
         self.assertEqual(
@@ -107,42 +107,42 @@ class TestDevice(TestCase):
             '{"platform": "sensor", "device_class": "temperature", "unique_id": "test_temperature", "expire_after": 120, "unit_of_measurement": "\\u00b0C", "value_template": "{{ value_json.temperature }}", "availability": {"payload_available": "Available", "payload_not_available": "Unavailable", "value_template": "{{ value_json.availability }}", "topic": "homeassistant/test/availability"}}',
         )
 
-    @patch("ha_mqtt_pi_smbus.device.get_object_id", return_value="0123456789abcdef")
-    @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
+    @patch('ha_mqtt_pi_smbus.device.get_object_id', return_value='0123456789abcdef')
+    @patch('ha_mqtt_pi_smbus.environ.readfile', return_value=MOCK_CPUINFO_DATA)
     def test_ha_device_no_basename(self, mock_read, mock_get_object_id):
         from ha_mqtt_pi_smbus.device import HADevice
         from example.pi_bme280.device import Temperature
 
         ha_device = HADevice(
-            [Temperature("test")],
-            name="Test device",
-            state_topic="my/topic",
-            manufacturer="manufact.",
-            model="model1234",
+            [Temperature('test')],
+            name='Test device',
+            state_topic='my/topic',
+            manufacturer='manufact.',
+            model='model1234',
         )
         with self.assertRaises(Exception):
             ha_device.getdata()
 
-    @patch("ha_mqtt_pi_smbus.device.get_object_id", return_value="0123456789abcdef")
-    @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
+    @patch('ha_mqtt_pi_smbus.device.get_object_id', return_value='0123456789abcdef')
+    @patch('ha_mqtt_pi_smbus.environ.readfile', return_value=MOCK_CPUINFO_DATA)
     def test_ha_device_extra_parms(self, mock_cpu_info, mock_object_id):
         from ha_mqtt_pi_smbus.device import HADevice
         from example.pi_bme280.device import Temperature
 
         ha_device = HADevice(
-            [Temperature("test")],
-            name="Test device",
-            state_topic="my/topic",
-            manufacturer="manufact.",
-            model="model1234",
-            support_url="http://www.example.com/support",
-            suggested_area="race track",
+            [Temperature('test')],
+            name='Test device',
+            state_topic='my/topic',
+            manufacturer='manufact.',
+            model='model1234',
+            support_url='http://www.example.com/support',
+            suggested_area='race track',
         )
-        self.assertEqual(ha_device.origin.support_url, "http://www.example.com/support")
-        self.assertEqual(ha_device.origin.suggested_area, "race track")
+        self.assertEqual(ha_device.origin.support_url, 'http://www.example.com/support')
+        self.assertEqual(ha_device.origin.suggested_area, 'race track')
 
-    @patch("ha_mqtt_pi_smbus.device.datetime.datetime", MockDatetime)
-    @patch("ha_mqtt_pi_smbus.device.SMBus")
+    @patch('ha_mqtt_pi_smbus.device.datetime.datetime', MockDatetime)
+    @patch('ha_mqtt_pi_smbus.device.SMBus')
     def test_smbus_device_base(self, mock_smbus):
         from ha_mqtt_pi_smbus.device import SMBus, SMBusDevice
 
@@ -150,18 +150,18 @@ class TestDevice(TestCase):
         smbus_device.last_update = datetime.datetime.now()
         self.assertEqual(smbus_device.bus, 2)
         self.assertEqual(smbus_device.address, 113)
-        self.assertEqual(smbus_device.getdata()["bus"], 2)
-        self.assertEqual(smbus_device.getdata()["address"], 113)
+        self.assertEqual(smbus_device.getdata()['bus'], 2)
+        self.assertEqual(smbus_device.getdata()['address'], 113)
         smbus_device.sample()
         data = smbus_device.getdata()
-        self.assertEqual(data["last_update"], "01/01/2020 01:23:45")
-        self.assertEqual(smbus_device.toJson(), "")
-        self.assertEqual(str(smbus_device), "bus: 2, address: 113")
+        self.assertEqual(data['last_update'], '01/01/2020 01:23:45')
+        self.assertEqual(smbus_device.toJson(), '')
+        self.assertEqual(str(smbus_device), 'bus: 2, address: 113')
 
     @patch(
-        "ha_mqtt_pi_smbus.device.SMBusDevice.sample", return_value={"last_update": 2}
+        'ha_mqtt_pi_smbus.device.SMBusDevice.sample', return_value={'last_update': 2}
     )
-    @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
+    @patch('ha_mqtt_pi_smbus.device.SMBusDevice')
     def test_smbus_device_sampler_thread_base(self, mock_device, mock_sample):
         from ha_mqtt_pi_smbus.device import (
             SMBus,
@@ -172,14 +172,14 @@ class TestDevice(TestCase):
         thread = SMBusDevice_Sampler_Thread(mock_device, 1)
         thread.start()
         time.sleep(1)
-        assert mock_sample()["last_update"] == 2
+        assert mock_sample()['last_update'] == 2
         thread.do_run = False
         thread.join()
 
     @patch(
-        "ha_mqtt_pi_smbus.device.SMBusDevice.sample", return_value={"last_update": 2}
+        'ha_mqtt_pi_smbus.device.SMBusDevice.sample', return_value={'last_update': 2}
     )
-    @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
+    @patch('ha_mqtt_pi_smbus.device.SMBusDevice')
     def test_smbus_device_sampler_thread_sample(self, mock_device, mock_sample):
         from ha_mqtt_pi_smbus.device import (
             SMBus,
@@ -190,6 +190,6 @@ class TestDevice(TestCase):
         thread = SMBusDevice_Sampler_Thread(mock_device, 1)
         thread.start()
         time.sleep(15)
-        assert mock_sample()["last_update"] == 2
+        assert mock_sample()['last_update'] == 2
         thread.do_run = False
         thread.join()

@@ -14,15 +14,15 @@ app = None
 
 # shutdown callback
 def shutdown_server():
-    """Shutdown the web_server"""
+    '''Shutdown the web_server'''
     global app
-    logging.getLogger(__name__).info("Shutting down server")
+    logging.getLogger(__name__).info('Shutting down server')
     if app is not None:
         app.shutdown_server()
 
 
 def main(args):
-    """Main application for HA MQTT Pi SMBus BME280"""
+    '''Main application for HA MQTT Pi SMBus BME280'''
     global app
     atexit.register(shutdown_server)  # register shutdown
 
@@ -41,17 +41,17 @@ def main(args):
     # Device setup
     device = BME280_Device(
         config.bme280.sensor_name,
-        "tph280/state",  # state topic
-        "Bosch",  # manufacturer name
-        "BME280",  # model name
+        'tph280/state',  # state topic
+        'Bosch',  # manufacturer name
+        'BME280',  # model name
         bme280,
         polling_interval=config.bme280.polling_interval,
         expire_after=config.mqtt.expire_after,
-        basename="homeassistant",
+        basename='homeassistant',
     )
 
     # MQTT Setup
-    client = MQTTClient("bme280", device, bme280, config)
+    client = MQTTClient('bme280', device, bme280, config)
 
     # define the Flask web server
     app = HAFlask(__name__, config, client, device)
@@ -62,5 +62,5 @@ def main(args):
         print(e)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     main(sys.argv)  # pragma: no cover

@@ -13,7 +13,7 @@ from ha_mqtt_pi_smbus.device import (
 
 
 class Temperature(HASensor):
-    """Definition for a Bosch BME280 Temperature Sensor on Home Assistant MQTT 
+    '''Definition for a Bosch BME280 Temperature Sensor on Home Assistant MQTT 
     Raspberry Pi SMBus software
 
     Parameters
@@ -21,18 +21,18 @@ class Temperature(HASensor):
     name : str
         the name of the HADevice of which this sensor is a part. Default: None
     basename : str
-        the basename of the MQTT topics sent to MQTT. Default: "homeassistant"
+        the basename of the MQTT topics sent to MQTT. Default: 'homeassistant'
     expire_after : int
         the expiry for sensor, after which the sensor will be marked
         unavailable
-    """
-    units: str = f"{chr(176)}C"
-    device_class = "temperature"
+    '''
+    units: str = f'{chr(176)}C'
+    device_class = 'temperature'
 
     def __init__(
         self,
         sensor_name: str = None,
-        basename: str = "homeassistant",
+        basename: str = 'homeassistant',
         expire_after: int = 120,
     ):
         super().__init__(
@@ -45,7 +45,7 @@ class Temperature(HASensor):
 
 
 class Pressure(HASensor):
-    """Definition for a Bosch BME280 Pressure Sensor on Home Assistant MQTT 
+    '''Definition for a Bosch BME280 Pressure Sensor on Home Assistant MQTT 
     Raspberry Pi SMBus software
 
     Parameters
@@ -53,18 +53,18 @@ class Pressure(HASensor):
     name : str
         the name of the HADevice of which this sensor is a part. Default: None
     basename : str
-        the basename of the MQTT topics sent to MQTT. Default: "homeassistant"
+        the basename of the MQTT topics sent to MQTT. Default: 'homeassistant'
     expire_after : int
         the expiry for sensor, after which the sensor will be marked
         unavailable
-    """
-    units: str = "mbar"
-    device_class = "pressure"
+    '''
+    units: str = 'mbar'
+    device_class = 'pressure'
 
     def __init__(
         self,
         sensor_name: str = None,
-        basename: str = "homeassistant",
+        basename: str = 'homeassistant',
         expire_after: int = 120,
     ):
         super().__init__(
@@ -77,7 +77,7 @@ class Pressure(HASensor):
 
 
 class Humidity(HASensor):
-    """Definition for a Bosch BME280 Humidity Sensor on Home Assistant MQTT 
+    '''Definition for a Bosch BME280 Humidity Sensor on Home Assistant MQTT 
     Raspberry Pi SMBus software
 
     Parameters
@@ -85,18 +85,18 @@ class Humidity(HASensor):
     name : str
         the name of the HADevice of which this sensor is a part. Default: None
     basename : str
-        the basename of the MQTT topics sent to MQTT. Default: "homeassistant"
+        the basename of the MQTT topics sent to MQTT. Default: 'homeassistant'
     expire_after : int
         the expiry for sensor, after which the sensor will be marked
         unavailable
-    """
-    units: str = "%"
-    device_class = "humidity"
+    '''
+    units: str = '%'
+    device_class = 'humidity'
 
     def __init__(
         self,
         sensor_name: str = None,
-        basename: str = "homeassistant",
+        basename: str = 'homeassistant',
         expire_after: int = 120,
     ):
         super().__init__(
@@ -109,7 +109,7 @@ class Humidity(HASensor):
 
 
 class BME280_Device(HADevice):
-    """Definition for a Home Assistant dicscoverable sensor device
+    '''Definition for a Home Assistant dicscoverable sensor device
 
     Parameters
     ----------
@@ -134,7 +134,7 @@ class BME280_Device(HADevice):
         placed in the device object.
     basename : str
         The basename of the MQTT topics used to communicate to Home
-        Assistant. Default: "homeassistant"
+        Assistant. Default: 'homeassistant'
     expire_after : int
         the expiry for the device, after which the sensor in the device 
         will be marked unavailable
@@ -144,7 +144,7 @@ class BME280_Device(HADevice):
 
     bme280_device = BME280_Device('Living Room TPH')
 
-    """
+    '''
 
     def __init__(
         self,
@@ -154,7 +154,7 @@ class BME280_Device(HADevice):
         model: str,
         smbus_device: SMBusDevice,
         polling_interval: int,
-        basename: str = "homeassistant",
+        basename: str = 'homeassistant',
         expire_after: int = 120,
     ):
         super().__init__(
@@ -180,7 +180,7 @@ class BME280_Device(HADevice):
             manufacturer,
             model,
         )
-        self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
+        self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         self.smbus_device = smbus_device
         self.sampler_thread = SMBusDevice_Sampler_Thread(smbus_device, polling_interval)
         self.sampler_thread.start()
@@ -190,7 +190,7 @@ class BME280_Device(HADevice):
 
 
 class BME280(SMBusDevice):
-    """Definition for a SMBus device which communicated over I2C
+    '''Definition for a SMBus device which communicated over I2C
 
     Parameters
     ----------
@@ -206,7 +206,7 @@ class BME280(SMBusDevice):
 
     bme280 = BME280(bus = 1, address = 0x76)
 
-    """
+    '''
 
     last_update: datetime = datetime.datetime.now()
     temperature: float = -32.0 * 5 / 9
@@ -222,7 +222,7 @@ class BME280(SMBusDevice):
         )
 
     def sample(self) -> None:
-        """makes one sample of the device
+        '''makes one sample of the device
 
         The sampled data is retained in the device for later collection
         with the data() method.
@@ -235,7 +235,7 @@ class BME280(SMBusDevice):
         -------
         bme280.sample()
 
-        """
+        '''
         super().sample()
         data = bme280.sample(self._smbus, self.address, self._calibration_params)
         self.last_update = datetime.datetime.now()
@@ -244,7 +244,7 @@ class BME280(SMBusDevice):
         self.humidity = data.humidity
 
     def getdata(self) -> Dict[str, Any]:
-        """returns sampled data
+        '''returns sampled data
 
         The data was either sampled previously by the saple() method
         or, alternatively, the initial data stored in the object will
@@ -258,15 +258,15 @@ class BME280(SMBusDevice):
         ------
         A dict structure containing pertinent data.
 
-        """
+        '''
         return {
-            "last_update": self.last_update.strftime("%m/%d/%Y %H:%M:%S"),
-            "bus": self.bus,
-            "address": self.address,
-            "temperature": round(self.temperature, 1),
-            "temperature_units": f"{chr(176)}C",
-            "pressure": round(self.pressure, 1),
-            "pressure_units": "mbar",
-            "humidity": round(self.humidity, 1),
-            "humidity_units": "%",
+            'last_update': self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
+            'bus': self.bus,
+            'address': self.address,
+            'temperature': round(self.temperature, 1),
+            'temperature_units': f'{chr(176)}C',
+            'pressure': round(self.pressure, 1),
+            'pressure_units': 'mbar',
+            'humidity': round(self.humidity, 1),
+            'humidity_units': '%',
         }

@@ -79,11 +79,11 @@ class TestConfig(TestCase):
         self.assertEqual(sanitized.mqtt.expire_after, 99)
         self.assertEqual(sanitized.mqtt.status_topic, 'help/me')
 
-    @patch("sys.argv", ["me", "--mqtt_broker", "broker", "--mqtt_port", "1234", "--mqtt_username", "username", "--mqtt_password", "password", "--mqtt_polling_interval", "117","--mqtt_qos","1", "--mqtt_disable_retain", "--mqtt_auto_discover","--mqtt_expire_after","117","--mqtt_status_topic","homeassistant/status"])
-    @patch("ha_mqtt_pi_smbus.environ.get_pyproject_version", return_value="v0.1.2")
+    @patch('sys.argv', ['me', '--mqtt_broker', 'broker', '--mqtt_port', '1234', '--mqtt_username', 'username', '--mqtt_password', 'password', '--mqtt_polling_interval', '117','--mqtt_qos','1', '--mqtt_disable_retain', '--mqtt_auto_discover','--mqtt_expire_after','117','--mqtt_status_topic','homeassistant/status'])
+    @patch('ha_mqtt_pi_smbus.environ.get_pyproject_version', return_value='v0.1.2')
     @patch(
-        "ha_mqtt_pi_smbus.util.read_yaml",
-        return_value={"title": "Title", "subtitle": ""},
+        'ha_mqtt_pi_smbus.util.read_yaml',
+        return_value={'title': 'Title', 'subtitle': ''},
     )
     def test_parser_config_no_file(self, mock_read_yaml, mock_pyproject_version):
         parser = Parser()
@@ -96,12 +96,12 @@ class TestConfig(TestCase):
         self.assertEqual(config.mqtt.polling_interval, 117)
         self.assertEqual(config.mqtt.qos, 1)
 
-    @patch("sys.argv", ["me", "--mqtt_broker", "broker", "--mqtt_port", "1234", "--mqtt_username", "username", "--mqtt_password", "password", "--mqtt_polling_interval", "117","--mqtt_qos","1", "--mqtt_disable_retain", "--mqtt_auto_discover","--mqtt_expire_after","117","--mqtt_status_topic","homeassistant/status"])
-    @patch("ha_mqtt_pi_smbus.util.readfile", return_value=MOCK_CONFIG_DATA)
-    @patch("ha_mqtt_pi_smbus.environ.get_pyproject_version", return_value="v0.1.2")
+    @patch('sys.argv', ['me', '--mqtt_broker', 'broker', '--mqtt_port', '1234', '--mqtt_username', 'username', '--mqtt_password', 'password', '--mqtt_polling_interval', '117','--mqtt_qos','1', '--mqtt_disable_retain', '--mqtt_auto_discover','--mqtt_expire_after','117','--mqtt_status_topic','homeassistant/status'])
+    @patch('ha_mqtt_pi_smbus.util.readfile', return_value=MOCK_CONFIG_DATA)
+    @patch('ha_mqtt_pi_smbus.environ.get_pyproject_version', return_value='v0.1.2')
     @patch(
-        "ha_mqtt_pi_smbus.util.read_yaml",
-        return_value={"title": "Title", "subtitle": ""},
+        'ha_mqtt_pi_smbus.util.read_yaml',
+        return_value={'title': 'Title', 'subtitle': ''},
     )
     def test_parser_config_config_file(self, mock_read_yaml, mock_pyproject_version, mock_readfile):
         parser = Parser()
@@ -121,17 +121,17 @@ class TestConfig(TestCase):
         self.assertEqual(config.mqtt.auto_discover, True)
         self.assertEqual(config.mqtt.expire_after, 117)
 
-    @patch("sys.argv", ["me", "--secrets",".secrets.yaml","--mqtt_broker", "broker", "--mqtt_port", "1234", "--mqtt_polling_interval", "117","--mqtt_qos","1", "--mqtt_disable_retain", "--mqtt_auto_discover","--mqtt_expire_after","117","--mqtt_status_topic","homeassistant/status"])
-    @patch("ha_mqtt_pi_smbus.util.readfile", side_effect=[MOCK_CONFIG_DATA,
-"""---
+    @patch('sys.argv', ['me', '--secrets','.secrets.yaml','--mqtt_broker', 'broker', '--mqtt_port', '1234', '--mqtt_polling_interval', '117','--mqtt_qos','1', '--mqtt_disable_retain', '--mqtt_auto_discover','--mqtt_expire_after','117','--mqtt_status_topic','homeassistant/status'])
+    @patch('ha_mqtt_pi_smbus.util.readfile', side_effect=[MOCK_CONFIG_DATA,
+'''---
 mqtt:
   username: user
   password: pass
-""", '', ''])
-    @patch("ha_mqtt_pi_smbus.environ.get_pyproject_version", return_value="v0.1.2")
+''', '', ''])
+    @patch('ha_mqtt_pi_smbus.environ.get_pyproject_version', return_value='v0.1.2')
     @patch(
-        "ha_mqtt_pi_smbus.util.read_yaml",
-        return_value={"title": "Title", "subtitle": ""},
+        'ha_mqtt_pi_smbus.util.read_yaml',
+        return_value={'title': 'Title', 'subtitle': ''},
     )
     def test_parser_config_config_and_secrets_file(self, mock_read_yaml, mock_pyproject_version, mock_readfile):
         parser = Parser()

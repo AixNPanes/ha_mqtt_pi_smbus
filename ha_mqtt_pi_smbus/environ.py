@@ -13,7 +13,7 @@ from ha_mqtt_pi_smbus.util import readfile, get_command_data
 
 
 def get_cpu_info() -> Dict[str, Any]:
-    """get Raspberry Pi CPU info
+    '''get Raspberry Pi CPU info
 
         Parameters
         ----------
@@ -47,36 +47,36 @@ def get_cpu_info() -> Dict[str, Any]:
     'CPU implementer': '0x41', 'CPU architecture': 8,
     'CPU variant': '0x0', 'CPU part': '0xd03', 'CPU revision': 4}}}
         >>>
-    """
+    '''
     info = {}
-    content = readfile("/proc/cpuinfo")
-    groups = content.split("\n\n")
+    content = readfile('/proc/cpuinfo')
+    groups = content.split('\n\n')
     processors = {}
     for group in groups:
-        piece = group.split("\n")
+        piece = group.split('\n')
         stanza = {}
         for line in piece:
             if len(line.strip()) > 0:
-                token = line.strip().split(":")
+                token = line.strip().split(':')
                 token[0] = token[0].strip()
                 token[1] = token[1].strip()
                 stanza[token[0]] = token[1]
-        processor = stanza.pop("processor", None)
+        processor = stanza.pop('processor', None)
         if processor is not None:
-            stanza["BogoMIPS"] = float(stanza["BogoMIPS"])
-            stanza["CPU architecture"] = int(stanza["CPU architecture"])
-            stanza["CPU revision"] = int(stanza["CPU revision"])
-            stanza["Features"] = stanza["Features"].split(" ")
+            stanza['BogoMIPS'] = float(stanza['BogoMIPS'])
+            stanza['CPU architecture'] = int(stanza['CPU architecture'])
+            stanza['CPU revision'] = int(stanza['CPU revision'])
+            stanza['Features'] = stanza['Features'].split(' ')
             processors[processor] = stanza
         else:
-            stanza["processors"] = len(processors)
-            info["cpu"] = stanza
-    info["processors"] = processors
+            stanza['processors'] = len(processors)
+            info['cpu'] = stanza
+    info['processors'] = processors
     return info
 
 
 def get_temperature() -> float:
-    """get Raspberry Pi CPU temperature in Centigrade as a float
+    '''get Raspberry Pi CPU temperature in Centigrade as a float
 
     Parameters
     ----------
@@ -93,12 +93,12 @@ def get_temperature() -> float:
     >>> print(f'The temperature of the Raspberry Pi is {get_temperature()}{chr(176)}C')
     The temperature of the Raspberry Pi is 50.464°C
     >>>
-    """
-    return float(readfile("/sys/class/thermal/thermal_zone0/temp")) / 1000.0
+    '''
+    return float(readfile('/sys/class/thermal/thermal_zone0/temp')) / 1000.0
 
 
 def get_os_info() -> Dict[str, Any]:
-    """get Raspberry Pi OS operating system release information
+    '''get Raspberry Pi OS operating system release information
 
     Parameters
     ----------
@@ -113,18 +113,18 @@ def get_os_info() -> Dict[str, Any]:
     >>> from environ import get_os_info
     >>> print(f'The OS release information is:\n{get_os_info()}')
     The OS release information is:
-    {'PRETTY_NAME': '"Debian GNU/Linux 12 (bookworm)"',
-    'NAME': '"Debian GNU/Linux"', 'VERSION_ID': '"12"',
-    VERSION': '"12 (bookworm)"', 'VERSION_CODENAME': 'bookworm',
-    'ID': 'debian', 'HOME_URL': '"https://www.debian.org/"',
-    'SUPPORT_URL': '"https://www.debian.org/support"',
-    'BUG_REPORT_URL': '"https://bugs.debian.org/"'}
+    {'PRETTY_NAME': 'Debian GNU/Linux 12 (bookworm)',
+    'NAME': 'Debian GNU/Linux', 'VERSION_ID': '12',
+    VERSION': '12 (bookworm)', 'VERSION_CODENAME': 'bookworm',
+    'ID': 'debian', 'HOME_URL': 'https://www.debian.org/',
+    'SUPPORT_URL': 'https://www.debian.org/support',
+    'BUG_REPORT_URL': 'https://bugs.debian.org/'}
     >>>
-    """
+    '''
     info = {}
-    content = readfile("/etc/os-release")
-    for line in content.split("\n"):
-        token = line.split("=")
+    content = readfile('/etc/os-release')
+    for line in content.split('\n'):
+        token = line.split('=')
         if len(token) == 2:
             name = token[0].strip()
             value = token[1].strip().strip('"')
@@ -133,7 +133,7 @@ def get_os_info() -> Dict[str, Any]:
 
 
 def get_mac_address_by_interface(interface) -> str:
-    """get the Mac address of the specified interface
+    '''get the Mac address of the specified interface
 
     Parameters
     ----------
@@ -149,21 +149,21 @@ def get_mac_address_by_interface(interface) -> str:
     Example
     ------
     >>> from environ import get_temperature
-    >>> print(f'The Mac address for wlan0 is {get_mac_address_by_interface("wlan0")}')
+    >>> print(f'The Mac address for wlan0 is {get_mac_address_by_interface('wlan0')}')
     The Mac address for wlan0 is b8:27:eb:94:a7:18
     >>>
-    """
-    output = get_command_data(["ifconfig", interface])
+    '''
+    output = get_command_data(['ifconfig', interface])
     if output is None:
         return None
     for line in output.splitlines():
-        if "ether" in line:
+        if 'ether' in line:
             mac_address = line.split()[1]
             return mac_address
 
 
 def get_mac_address() -> str:
-    """get the 'primary' iac address of the Raspberry pi
+    '''get the 'primary' iac address of the Raspberry pi
 
     The Mac address for eth0 is returned, if no eth0, then for wlan0,
     if no wlan0, then None is returned
@@ -185,15 +185,15 @@ def get_mac_address() -> str:
     >>> print(f'The mac address for the primary interface is {get_mac_address()}')
     The mac address for the primary interface is b8:27:eb:c1:f2:4d
     >>>
-    """
-    mac = get_mac_address_by_interface("eth0")
+    '''
+    mac = get_mac_address_by_interface('eth0')
     if mac is not None:
         return mac
-    return get_mac_address_by_interface("wlan0")
+    return get_mac_address_by_interface('wlan0')
 
 
 def get_object_id() -> str:
-    """get a unique object id representing the Raspberry Pi system
+    '''get a unique object id representing the Raspberry Pi system
 
     The object id returned is a str containing the Mac Address for the
     'primary' interface with the semicolons(:) removed. If no 'primary'
@@ -215,12 +215,12 @@ def get_object_id() -> str:
     >>> print(f'The object id is {get_object_id()}')
     The object id is b827ebc1f24d
     >>>
-    """
-    return get_mac_address().replace(":", "")
+    '''
+    return get_mac_address().replace(':', '')
 
 
 def get_uptime() -> str:
-    """get the time since the system was rebooted
+    '''get the time since the system was rebooted
 
     Parameters - none
 
@@ -231,15 +231,15 @@ def get_uptime() -> str:
     Example
     ------
     >>> from environ import get_uptime
-    >>> print(f'The uptime is {get_uptime("")}')
+    >>> print(f'The uptime is {get_uptime('')}')
     The uptime is up 20 hours, 57 minutes
     >>>
-    """
-    return get_command_data(["uptime", "-p"])
+    '''
+    return get_command_data(['uptime', '-p'])
 
 
 def get_last_restart() -> str:
-    """get the Mac address of the specified interface
+    '''get the Mac address of the specified interface
 
     Parameters
     ----------
@@ -255,12 +255,12 @@ def get_last_restart() -> str:
     >>> print(f'The last restart time is {get_last_restart()}')
     The last restart time is 2025-08-26 17:42:54
     >>>
-    """
-    return get_command_data(["uptime", "-s"])
+    '''
+    return get_command_data(['uptime', '-s'])
 
 
 def get_pyproject_version():
-    """get the module's software version from pyproject.toml
+    '''get the module's software version from pyproject.toml
 
     Parameters
     ----------
@@ -271,19 +271,19 @@ def get_pyproject_version():
     str : the version contained in the pyproject.toml file or None in the
     event of an error
     ------
-    """
+    '''
     # Try pyproject first in dev
-    pyproject_file = pathlib.Path("pyproject.toml")
+    pyproject_file = pathlib.Path('pyproject.toml')
     if pyproject_file.exists():
         pyproject = tomllib.loads(readfile(pyproject_file))
-        if "project" in pyproject:
-            if "version" in pyproject["project"]:
-                return pyproject["project"]["version"]
+        if 'project' in pyproject:
+            if 'version' in pyproject['project']:
+                return pyproject['project']['version']
     return None
 
 
 def get_setuptools_version():
-    """Get the module's software version from the setuptools_scm module
+    '''Get the module's software version from the setuptools_scm module
 
     Parameters
     ----------
@@ -292,13 +292,13 @@ def get_setuptools_version():
     Returns
     -------
     str : the version returned by the setuptools_scm module
-    """
+    '''
     # Try setuptools
-    return get_command_data(["python3", "-m", "setuptools_scm"])
+    return get_command_data(['python3', '-m', 'setuptools_scm'])
 
 
 def get_metadata_version():
-    """get the version contained in the package metadata
+    '''get the version contained in the package metadata
 
     Parameters
     ----------
@@ -308,15 +308,15 @@ def get_metadata_version():
     -------
     str : the version contained in the package metadata or None if no
     package metadata is available
-    """
+    '''
     try:
-        return importlib.metadata.version("ha_mqtt_pi_smbus")
+        return importlib.metadata.version('ha_mqtt_pi_smbus')
     except importlib.metadata.PackageNotFoundError:
         return None
 
 
 def get_package_version():
-    """get the version from the package __version__ attribute
+    '''get the version from the package __version__ attribute
 
     Parameters
     ----------
@@ -325,7 +325,7 @@ def get_package_version():
     Returns
     -------
     str : the version contained from the package __version__ attribute
-    """
+    '''
     try:
         from . import __version__
         version = __version__
@@ -335,7 +335,7 @@ def get_package_version():
 
 
 def get_my_version():
-    """get the package version from one of the available methods for
+    '''get the package version from one of the available methods for
     retrieving the version
 
     Parameters
@@ -344,9 +344,9 @@ def get_my_version():
 
     Returns
     -------
-    str : the version number or "0.0.0-dev" if no version number can be
+    str : the version number or '0.0.0-dev' if no version number can be
     otherwise obtained
-    """
+    '''
     version = get_pyproject_version()
     if version is not None:
         return version
@@ -359,4 +359,4 @@ def get_my_version():
     version = get_package_version()
     if version is not None:
         return version
-    return "0.0.0-dev"
+    return '0.0.0-dev'

@@ -12,7 +12,7 @@ from ha_mqtt_pi_smbus.environ import get_cpu_info, get_os_info, get_object_id
 
 
 class HASensor:
-    """Definition for a Home Assistant discoverable sensor
+    '''Definition for a Home Assistant discoverable sensor
 
         Parameters
         ----------
@@ -27,7 +27,7 @@ class HASensor:
             device name of temperature by default.
         basename : str
             The prefix for topics sent to Home Assistant MQTT. Default:
-            "homeassistant"
+            'homeassistant'
         device_class : str
             The Home Assistant class of the device. This device class
             describes the type of sensor. The default is the class name
@@ -69,27 +69,27 @@ class HASensor:
 
         In this example the 3 sensors for a Bosch BME280 are defined.
 
-    """
+    '''
 
     class Availability:  # mutually exclusive with availability_topic
-        """Definition for Availability subsection of Discovery payloadA
+        '''Definition for Availability subsection of Discovery payloadA
 
         Parameters
         ----------
         None
-        """
+        '''
 
         def __init__(self):
-            self.payload_available = "Available"
-            self.payload_not_available = "Unavailable"
-            self.value_template = "{{ value_json.availability }}"
+            self.payload_available = 'Available'
+            self.payload_not_available = 'Unavailable'
+            self.value_template = '{{ value_json.availability }}'
             pass
 
     def __init__(
         self,
         units: str,
         name: str = None,
-        basename: str = "homeassistant",
+        basename: str = 'homeassistant',
         device_class: str = None,
         expire_after: int = 120,
     ):
@@ -101,32 +101,32 @@ class HASensor:
         self.basename = basename
         if self.device_class is None:
             self.device_class = type(self).__name__.lower()
-        self.unique_id = f"{name}_{device_class}"
+        self.unique_id = f'{name}_{device_class}'
         self.availability = self.Availability()
-        self.availability.topic = f"{basename}/{name}/availability"
-        self.undiscovery_payload = {"platform": "sensor"}
+        self.availability.topic = f'{basename}/{name}/availability'
+        self.undiscovery_payload = {'platform': 'sensor'}
         self.discovery_payload = {
-            "platform": "sensor",
-            "device_class": device_class,
-            "unique_id": self.unique_id,
-            "expire_after": expire_after,
-            "unit_of_measurement": units,
-            "value_template": f"{{{{ value_json.{self.device_class} }}}}",
-            "availability": self.availability.__dict__,
+            'platform': 'sensor',
+            'device_class': device_class,
+            'unique_id': self.unique_id,
+            'expire_after': expire_after,
+            'unit_of_measurement': units,
+            'value_template': f'{{{{ value_json.{self.device_class} }}}}',
+            'availability': self.availability.__dict__,
         }
 
     def json_payload(self) -> str:
-        """Return the discovery_payload as a json string
+        '''Return the discovery_payload as a json string
 
         Parameters
         ----------
         None
-        """
+        '''
         return json.dumps(self.discovery_payload, default=vars)
 
 
 class HADiagnosticSensor(HASensor):
-    """Definition for a Home Assistant discoverable diagnostic sensor.
+    '''Definition for a Home Assistant discoverable diagnostic sensor.
     This sensor provides extra diagnostic information to the standard
     display of an MQTT device.
 
@@ -141,31 +141,31 @@ class HADiagnosticSensor(HASensor):
     diagtype : str
         The type of the diagnostic. Default:
         None
-    """
+    '''
 
     def __init__(
         self, name: str = None, device_class: str = None, diagtype: str = None
     ):
         super().__init__(None, name=name, device_class=device_class)
-        self.unique_id = f"{name}_diagnostic_{diagtype}"
+        self.unique_id = f'{name}_diagnostic_{diagtype}'
         self.diagnostic = True
-        del self.discovery_payload["device_class"]
-        del self.discovery_payload["unit_of_measurement"]
-        self.discovery_payload["unique_id"] = self.unique_id
-        self.discovery_payload["value_template"] = (
-            "{{ value_json.status ~ ' — ' ~ value_json.cpu_temperature ~ '°C' }}"
+        del self.discovery_payload['device_class']
+        del self.discovery_payload['unit_of_measurement']
+        self.discovery_payload['unique_id'] = self.unique_id
+        self.discovery_payload['value_template'] = (
+            '{{ value_json.status ~ \' — \' ~ value_json.cpu_temperature ~ \'°C\' }}'
         )
-        self.discovery_payload["entity_category"] = "diagnostic"
-        self.discovery_payload["name"] = diagtype
-        self.discovery_payload["json_attributes_topic"] = f"{name}/diagnostics/state"
-        self.discovery_payload["json_attributes_template"] = (
+        self.discovery_payload['entity_category'] = 'diagnostic'
+        self.discovery_payload['name'] = diagtype
+        self.discovery_payload['json_attributes_topic'] = f'{name}/diagnostics/state'
+        self.discovery_payload['json_attributes_template'] = (
             '{"Status": "{{ value_json.status }}", "CPU Temperature": "{{ value_json.cpu_temperature }}", "Version": "{{ value_json.version }}"}'
         )
-        self.discovery_payload["state_topic"] = f"{name}/diagnostics/state"
+        self.discovery_payload['state_topic'] = f'{name}/diagnostics/state'
 
 
 class HADiagnosticStatus(HADiagnosticSensor):
-    """Definition for a Home Assistant Status diagnostic sensor.
+    '''Definition for a Home Assistant Status diagnostic sensor.
 
     Parameters
     ----------
@@ -178,15 +178,15 @@ class HADiagnosticStatus(HADiagnosticSensor):
     diagtype : str
         The name of the diagnostic on the MQTT device display. Default:
         'status'
-    """
+    '''
 
     def __init__(self, name: str = None, device_class: str = None):
-        super().__init__(name=name, device_class=device_class, diagtype="status")
-        self.discovery_payload["value_template"] = "{{ value_json.status }}"
+        super().__init__(name=name, device_class=device_class, diagtype='status')
+        self.discovery_payload['value_template'] = '{{ value_json.status }}'
 
 
 class HADiagnosticVersion(HADiagnosticSensor):
-    """Definition for a Home Assistant Version diagnostic sensor. It displays
+    '''Definition for a Home Assistant Version diagnostic sensor. It displays
     the current version of the HA MQTT Pi SMBus software module.
 
     Parameters
@@ -200,15 +200,15 @@ class HADiagnosticVersion(HADiagnosticSensor):
     diagtype : str
         The name of the diagnostic on the MQTT device display. Default:
         'status'
-    """
+    '''
 
     def __init__(self, name: str = None, device_class: str = None):
-        super().__init__(name=name, device_class=device_class, diagtype="status")
-        self.discovery_payload["value_template"] = "{{ value_json.status }}"
+        super().__init__(name=name, device_class=device_class, diagtype='status')
+        self.discovery_payload['value_template'] = '{{ value_json.status }}'
 
 
 class HADiagnosticTemperature(HADiagnosticSensor):
-    """Definition for a Home Assistant Temperature diagnostic sensor. It
+    '''Definition for a Home Assistant Temperature diagnostic sensor. It
     displays the CPU Termperature of the Raspberry Pi.
 
     Parameters
@@ -222,15 +222,15 @@ class HADiagnosticTemperature(HADiagnosticSensor):
     diagtype : str
         The name of the diagnostic on the MQTT device display. Default:
         'status'
-    """
+    '''
 
     def __init__(self, name: str = None, device_class: str = None):
-        super().__init__(name=name, device_class=device_class, diagtype="temperature")
-        self.discovery_payload["value_template"] = "{{ value_json.cpu_temperature }}"
+        super().__init__(name=name, device_class=device_class, diagtype='temperature')
+        self.discovery_payload['value_template'] = '{{ value_json.cpu_temperature }}'
 
 
 class HADiagnosticUptime(HADiagnosticSensor):
-    """Definition for a Home Assistant Uptime diagnostic sensor. It displays
+    '''Definition for a Home Assistant Uptime diagnostic sensor. It displays
     the current uptime of the Raspberry Pi operating system.
 
     Parameters
@@ -244,15 +244,15 @@ class HADiagnosticUptime(HADiagnosticSensor):
     diagtype : str
         The name of the diagnostic on the MQTT device display. Default:
         'status'
-    """
+    '''
 
     def __init__(self, name: str = None, device_class: str = None):
-        super().__init__(name=name, device_class=device_class, diagtype="uptime")
-        self.discovery_payload["value_template"] = "{{ value_json.uptime }}"
+        super().__init__(name=name, device_class=device_class, diagtype='uptime')
+        self.discovery_payload['value_template'] = '{{ value_json.uptime }}'
 
 
 class HADiagnosticLastRestart(HADiagnosticSensor):
-    """Definition for a Home Assistant Restart diagnostic sensor. It displays
+    '''Definition for a Home Assistant Restart diagnostic sensor. It displays
     the time and date of the last restart of the Raspberry Pi operating
     system.
 
@@ -267,15 +267,15 @@ class HADiagnosticLastRestart(HADiagnosticSensor):
     diagtype : str
         The name of the diagnostic on the MQTT device display. Default:
         'status'
-    """
+    '''
 
     def __init__(self, name: str = None, device_class: str = None):
-        super().__init__(name=name, device_class=device_class, diagtype="last-restart")
-        self.discovery_payload["value_template"] = "{{ value_json.last_restart }}"
+        super().__init__(name=name, device_class=device_class, diagtype='last-restart')
+        self.discovery_payload['value_template'] = '{{ value_json.last_restart }}'
 
 
 class HADevice:
-    """Definition for a Home Assistant device with discoverable sensors
+    '''Definition for a Home Assistant device with discoverable sensors
 
     This device with its sensors defines that data that is used to see
 
@@ -342,27 +342,27 @@ class HADevice:
         def getdata(self) -> Dict[str, Any]:
             return self.smbus_device.getdata()
 
-    """
+    '''
 
     class Origin:  #
-        """Definition for Origin subsection of Discovery payloadA
+        '''Definition for Origin subsection of Discovery payloadA
 
         Parameters
         ----------
         None
-        """
+        '''
 
         name: str  # 'bla2mqtt'
         sw_version: str  # '2.1'
         # support_url:str             # 'https://bla2mqtt.example.com/support'
 
     class Device:
-        """Definition for Device subsection of Discovery payloadA
+        '''Definition for Device subsection of Discovery payloadA
 
         Parameters
         ----------
         None
-        """
+        '''
 
         # configuration_url:str       # defined only if set
         # connections:Sequence[str]   #
@@ -389,14 +389,14 @@ class HADevice:
         manufacturer: str,
         model: str,
         suggested_area=None,
-        base_name: str = "homeassistant",
+        base_name: str = 'homeassistant',
         support_url: str = None,  #'http://www.example.com',
         qos: int = 0,
     ):
         try:
-            __version__ = version("ha_mqtt_pi_smbus")
+            __version__ = version('ha_mqtt_pi_smbus')
         except PackageNotFoundError:
-            __version__ = "0.0.0"
+            __version__ = '0.0.0'
         basename = base_name
         self.diagnosticSensors = [
             HADiagnosticStatus(name),
@@ -406,17 +406,17 @@ class HADevice:
             HADiagnosticLastRestart(name),
         ]
         self.sensors = sensors + self.diagnosticSensors
-        self.origin.name = "HA MQTT Pi"
+        self.origin.name = 'HA MQTT Pi'
         self.origin.sw_version = __version__
-        self.origin.support_url = "http://www.example.com"
+        self.origin.support_url = 'http://www.example.com'
         cpuinfo = get_cpu_info()
-        self.device.hw_version = cpuinfo["cpu"]["Model"]
+        self.device.hw_version = cpuinfo['cpu']['Model']
         self.device.identifiers = [name]
         self.device.name = name
         self.device.manufacturer = manufacturer
         self.device.model = model
         self.device.serial_number = get_object_id()
-        self.device.sw_version = "0.0.1"
+        self.device.sw_version = '0.0.1'
         self.state_topic = state_topic
         self.qos = qos
         if support_url is not None:
@@ -424,38 +424,38 @@ class HADevice:
         if suggested_area is not None:
             self.origin.suggested_area = suggested_area
         self.discovery_payload = {
-            "device": self.device.__dict__,
-            "origin": self.origin.__dict__,
-            "components": {v.unique_id: v.discovery_payload for v in self.sensors},
-            "state_topic": self.state_topic,
-            "qos": self.qos,
+            'device': self.device.__dict__,
+            'origin': self.origin.__dict__,
+            'components': {v.unique_id: v.discovery_payload for v in self.sensors},
+            'state_topic': self.state_topic,
+            'qos': self.qos,
         }
         self.undiscovery_payload1 = {
-            "device": self.device.__dict__,
-            "origin": self.origin.__dict__,
-            "components": {v.unique_id: v.undiscovery_payload for v in self.sensors},
-            "state_topic": self.state_topic,
-            "qos": self.qos,
+            'device': self.device.__dict__,
+            'origin': self.origin.__dict__,
+            'components': {v.unique_id: v.undiscovery_payload for v in self.sensors},
+            'state_topic': self.state_topic,
+            'qos': self.qos,
         }
         self.undiscovery_payload2 = {
-            "device": self.device.__dict__,
-            "origin": self.origin.__dict__,
-            "state_topic": self.state_topic,
-            "qos": self.qos,
+            'device': self.device.__dict__,
+            'origin': self.origin.__dict__,
+            'state_topic': self.state_topic,
+            'qos': self.qos,
         }
-        self.discovery_topic = f"{basename}/device/{self.device.serial_number}/config"
+        self.discovery_topic = f'{basename}/device/{self.device.serial_number}/config'
         self.state_topic = state_topic
-        self.config_topic = "device/config"
+        self.config_topic = 'device/config'
 
     def getdata(self) -> Dict[str, Any]:
         raise Exception(
-            f"Class {self.__class__.__module}.{self.__class__.__name__} needs getdata(self) definition"
+            f'Class {self.__class__.__module}.{self.__class__.__name__} needs getdata(self) definition'
         )
 
 
 # class SMBusDevice(SMBus):
 class SMBusDevice:
-    """Definition for a physical SMBus device.
+    '''Definition for a physical SMBus device.
 
     Parameters
     ----------
@@ -502,18 +502,18 @@ class SMBusDevice:
 
         def getdata(self) -> Dict[str, Any]:
             return {
-                "last_update": self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
-                "bus": self.bus,
-                "address": self.address,
-                "temperature": round(self.temperature, 1),
-                "temperature_units": f'{chr(176)}C',
-                "pressure": round(self.pressure, 1),
-                "pressure_units": "mbar",
-                "humidity": round(self.humidity, 1),
-                "humidity_units": "%",
+                'last_update': self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
+                'bus': self.bus,
+                'address': self.address,
+                'temperature': round(self.temperature, 1),
+                'temperature_units': f'{chr(176)}C',
+                'pressure': round(self.pressure, 1),
+                'pressure_units': 'mbar',
+                'humidity': round(self.humidity, 1),
+                'humidity_units': '%',
                 }
 
-    """
+    '''
 
     def __init__(self, bus: int = 1, address: int = 0x76):
         self.bus = bus
@@ -522,7 +522,7 @@ class SMBusDevice:
 
     # Override this method
     def sample(self) -> None:
-        """sample device, save the data in the object's 'data' variable
+        '''sample device, save the data in the object's 'data' variable
 
         Parameters
         ----------
@@ -533,13 +533,13 @@ class SMBusDevice:
 
         bme = BME280()
         bme.sample()
-        """
+        '''
         self.last_update = datetime.datetime.now()
 
     # Override this method return any desired data stored
     # in the 'data' variable as a dict
     def getdata(self) -> Dict[str, Any]:
-        """return the previously sampled data to the application
+        '''return the previously sampled data to the application
 
         Parameters
         ----------
@@ -563,25 +563,25 @@ class SMBusDevice:
         bme = BME280()
         bme.sample()
         data = bme.getdata()
-        """
+        '''
         return {
-            "last_update": self.last_update.strftime("%m/%d/%Y %H:%M:%S"),
-            "bus": self.bus,
-            "address": self.address,
+            'last_update': self.last_update.strftime('%m/%d/%Y %H:%M:%S'),
+            'bus': self.bus,
+            'address': self.address,
         }
 
     # Override this method if desired
     def toJson(self) -> str:
-        return ""
+        return ''
 
     # Override this method if desired
     def __str__(self) -> str:
-        return f"bus: {self.bus}, address: {self.address}"
+        return f'bus: {self.bus}, address: {self.address}'
 
 
 class SMBusDevice_Sampler_Thread(threading.Thread):
     def __init__(self, smbus_device: SMBusDevice, polling_interval: int):
-        """Definition of a sampler thread for an SMBusDevice
+        '''Definition of a sampler thread for an SMBusDevice
 
         Parameters
         ----------
@@ -605,15 +605,15 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
                 self.sampler_thread = SMBusDevice_Sampler_Thread(
                     logger, smbus_device, polling_interval)
                 self.sampler_thread.start()
-        """
-        super().__init__(name="SMBusDevice", daemon=True)
-        self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
+        '''
+        super().__init__(name='SMBusDevice', daemon=True)
+        self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         self.smbus_device = smbus_device
         self.polling_interval = polling_interval
         self.do_run = True
 
     def run(self) -> None:
-        """the thread execution method
+        '''the thread execution method
 
         Parameters
         ----------
@@ -625,7 +625,7 @@ class SMBusDevice_Sampler_Thread(threading.Thread):
         This method need not be overridden in normal use. It is called
         when the thread is started with the thread.start() method.
         (See class example, above.)
-        """
+        '''
         time.sleep(10)  # Wait for startup to get device data out sooner.
         while True:
             for i in range(self.polling_interval):

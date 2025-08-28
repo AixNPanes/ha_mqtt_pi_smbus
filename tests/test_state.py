@@ -16,11 +16,11 @@ class TestState(TestCase):
 
     def test_state_obj(self):
         obj = {
-            "Connected": True,
-            "Discovered": True,
-            "rc": 0,
-            "Errorcode": [StateErrorEnum.CONNECTED_INCONSISTENT_1.code],
-            "Error": ["Error!"],
+            'Connected': True,
+            'Discovered': True,
+            'rc': 0,
+            'Errorcode': [StateErrorEnum.CONNECTED_INCONSISTENT_1.code],
+            'Error': ['Error!'],
         }
         state = State(obj)
         self.assertTrue(state.connected)
@@ -32,36 +32,36 @@ class TestState(TestCase):
         )
         self.assertIsInstance(state.error_code, list)
         self.assertEqual(len(state.error), 1)
-        self.assertEqual(state.error[0], "Error!")
+        self.assertEqual(state.error[0], 'Error!')
         self.assertIsInstance(state.error, list)
-        self.assertEqual(state.to_dict()["rc"], 0)
+        self.assertEqual(state.to_dict()['rc'], 0)
 
     def test_state_error_code_not_list_and_error_not_list(self):
         obj = {
-            "Connected": True,
-            "Discovered": True,
-            "rc": 0,
-            "Errorcode": 0,
-            "Error": "Error!",
+            'Connected': True,
+            'Discovered': True,
+            'rc': 0,
+            'Errorcode': 0,
+            'Error': 'Error!',
         }
         state = State(obj)
         self.assertNotIsInstance(state.error, list)
         self.assertNotIsInstance(state.error_code, list)
-        self.assertEqual(state.to_dict()["rc"], 0)
+        self.assertEqual(state.to_dict()['rc'], 0)
         self.assertEqual(state.error_code, 0)
-        self.assertEqual(state.error, "Error!")
+        self.assertEqual(state.error, 'Error!')
 
     def test_state_add_error_code(self):
         obj = {
-            "Connected": True,
-            "Discovered": True,
-            "rc": 0,
-            "Errorcode": [],
-            "Error": ["Error!"],
+            'Connected': True,
+            'Discovered': True,
+            'rc': 0,
+            'Errorcode': [],
+            'Error': ['Error!'],
         }
         state = State(obj)
         self.assertEqual(len(state.error), 1)
-        self.assertEqual(state.error[0], "Error!")
+        self.assertEqual(state.error[0], 'Error!')
         state.add_error_code(StateErrorEnum.CONNECTED_INCONSISTENT_1.code)
         self.assertEqual(len(state.error_code), 1)
         self.assertEqual(
@@ -77,72 +77,72 @@ class TestState(TestCase):
         )
 
     def test_state_connected_equal(self):
-        init_state = State({"Connected": False})
-        state = init_state.validate({"Connected": False}, False)
+        init_state = State({'Connected': False})
+        state = init_state.validate({'Connected': False}, False)
         self.assertEqual(len(state.error_code), 0)
 
-        state = State({"Connected": True}).validate({"Connected": True}, True)
+        state = State({'Connected': True}).validate({'Connected': True}, True)
         self.assertEqual(len(state.error_code), 0)
 
     def test_state_connected_not_equal(self):
-        init_state = State({"Connected": False})
-        state = init_state.validate({"Connected": True}, False)
+        init_state = State({'Connected': False})
+        state = init_state.validate({'Connected': True}, False)
         self.assertEqual(len(state.error_code), 1)
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_1, state.error_code[0])
 
-        state = init_state.validate({"Connected": True}, True)
+        state = init_state.validate({'Connected': True}, True)
         self.assertEqual(len(state.error_code), 2)
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_1, state.error_code[0])
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_2, state.error_code[1])
 
-        state = init_state.validate({"Connected": False}, True)
+        state = init_state.validate({'Connected': False}, True)
         self.assertEqual(len(state.error_code), 2)
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_1, state.error_code[0])
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_2, state.error_code[1])
 
-        init_state = State({"Connected": True})
-        state = init_state.validate({"Connected": False}, False)
+        init_state = State({'Connected': True})
+        state = init_state.validate({'Connected': False}, False)
         self.assertEqual(len(state.error_code), 2)
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_1, state.error_code[0])
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_2, state.error_code[1])
 
-        state = init_state.validate({"Connected": False}, True)
+        state = init_state.validate({'Connected': False}, True)
         self.assertEqual(len(state.error_code), 1)
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_1, state.error_code[0])
 
-        state = init_state.validate({"Connected": False}, False)
+        state = init_state.validate({'Connected': False}, False)
         self.assertEqual(len(state.error_code), 2)
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_1, state.error_code[0])
         self.assertEqual(StateErrorEnum.CONNECTED_INCONSISTENT_2, state.error_code[1])
 
     def test_state_discovered_equal(self):
-        init_state = State({"Connected": False, "Discovered": False})
-        json_data = {"Connected": False, "Discovered": False}
+        init_state = State({'Connected': False, 'Discovered': False})
+        json_data = {'Connected': False, 'Discovered': False}
         state = init_state.validate(json_data, False)
         self.assertEqual(len(state.error_code), 0)
 
-        init_state = State({"Connected": True, "Discovered": False})
-        state = init_state.validate({"Connected": True, "Discovered": False}, True)
+        init_state = State({'Connected': True, 'Discovered': False})
+        state = init_state.validate({'Connected': True, 'Discovered': False}, True)
         self.assertEqual(len(state.error_code), 0)
 
-        init_state = State({"Connected": True, "Discovered": True})
-        state = init_state.validate({"Connected": True, "Discovered": True}, True)
+        init_state = State({'Connected': True, 'Discovered': True})
+        state = init_state.validate({'Connected': True, 'Discovered': True}, True)
         self.assertEqual(len(state.error_code), 0)
 
     def test_state_discovered_not_equal(self):
-        init_state = State({"Connected": True, "Discovered": False})
-        state = init_state.validate({"Connected": True, "Discovered": True}, True)
+        init_state = State({'Connected': True, 'Discovered': False})
+        state = init_state.validate({'Connected': True, 'Discovered': True}, True)
         self.assertEqual(len(state.error_code), 1)
         self.assertEqual(state.error_code[0], StateErrorEnum.DISCOVERED_INCONSISTENT)
 
     def test_state_not_connected_and_discovered(self):
-        init_state = State({"Connected": False, "Discovered": True})
-        state = init_state.validate({"Connected": False, "Discovered": True}, False)
+        init_state = State({'Connected': False, 'Discovered': True})
+        state = init_state.validate({'Connected': False, 'Discovered': True}, False)
         self.assertEqual(len(state.error_code), 1)
         self.assertEqual(state.error_code[0], StateErrorEnum.NOT_CONNECTED)
 
     def test_translate_error_codes(self):
-        state = State({"Errorcode": None, "Error": None})
+        state = State({'Errorcode': None, 'Error': None})
         state.translate_error_codes()
         self.assertNotEqual(state.error_code, None)
         self.assertNotEqual(state.error, None)
@@ -151,7 +151,7 @@ class TestState(TestCase):
 
         state = State(
             {
-                "Errorcode": [
+                'Errorcode': [
                     StateErrorEnum.CONNECTED_INCONSISTENT_1,
                     StateErrorEnum.DISCOVERED_INCONSISTENT,
                 ]

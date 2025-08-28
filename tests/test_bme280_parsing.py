@@ -18,14 +18,14 @@ from .mock_data import (
 
 
 class TestParser(TestCase):
-    @patch("sys.argv", ["me", "-c", ".config.yaml"])
+    @patch('sys.argv', ['me', '-c', '.config.yaml'])
     def test_bmeparser(self):
         parser = BME280Parser()
         parser.parse_args()
         self.assertEqual(parser._config_dict['config'], '.config.yaml')
 
-    @patch("ha_mqtt_pi_smbus.util.readfile", return_value=MOCK_CONFIG_DATA)
-    @patch("sys.argv", ["me", "-c", ".config.yaml", "-a", "0x77", "-r", "2", "-N", "tph281","-I", "2"])
+    @patch('ha_mqtt_pi_smbus.util.readfile', return_value=MOCK_CONFIG_DATA)
+    @patch('sys.argv', ['me', '-c', '.config.yaml', '-a', '0x77', '-r', '2', '-N', 'tph281','-I', '2'])
     def test_bmeparser(self, mock_read):
         parser = BME280Parser()
         parser.parse_args()

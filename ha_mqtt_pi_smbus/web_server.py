@@ -11,7 +11,7 @@ from ha_mqtt_pi_smbus.config import Config
 
 
 class HAFlask(Flask):
-    """Wrap the Flask class to provide functons for MQTT
+    '''Wrap the Flask class to provide functons for MQTT
 
     Parameters
     ----------
@@ -26,15 +26,15 @@ class HAFlask(Flask):
     _debug_step_count : int
         the maximum number of .5 second intervals over which the web
         server will wait before giving put.  Default 20,
-    """
+    '''
 
     def connect(self):
-        """Connect to the MQTT broker
+        '''Connect to the MQTT broker
 
         Parameters
         ----------
         None
-        """
+        '''
         # Connect and start loop
         self.client.connect_mqtt()
         self.client.loop_start()
@@ -46,12 +46,12 @@ class HAFlask(Flask):
             time.sleep(0.5)
 
     def discover(self):
-        """Send discovery payload to MQTT broker
+        '''Send discovery payload to MQTT broker
 
         Parameters
         ----------
         None
-        """
+        '''
         # Turn ON
         self.client.loop_start()
         self.client.publish_discovery(self.device)
@@ -67,10 +67,10 @@ class HAFlask(Flask):
         _debug_step_count: int = 20,
     ):
         templates_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "templates")
+            os.path.join(os.path.dirname(__file__), '..', 'templates')
         )
         static_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "static")
+            os.path.join(os.path.dirname(__file__), '..', 'static')
         )
         super().__init__(
             import_name, template_folder=templates_path, static_folder=static_path
@@ -78,7 +78,7 @@ class HAFlask(Flask):
         self._debug_step_count = _debug_step_count
         self._register_routes()
         self.piconfig = config
-        self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
+        self.__logger = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         self.client = client
         self.device = device
         secret_key = secrets.token_hex(32)
@@ -90,22 +90,22 @@ class HAFlask(Flask):
             self.discover()
 
     def _register_routes(self):
-        """Define the Flask web routes"""
+        '''Define the Flask web routes'''
 
-        @self.route("/", methods=["GET"])
+        @self.route('/', methods=['GET'])
         def index():
             return render_template(
-                "index.html",
+                'index.html',
                 state=self.client.state.to_dict(),
                 title=self.title,
                 subtitle=self.subtitle,
             )
 
-        @self.route("/status", methods=["GET"])
+        @self.route('/status', methods=['GET'])
         def status():
             return jsonify(self.client.state.to_dict())
 
-        @self.route("/mqtt-toggle", methods=["POST"])
+        @self.route('/mqtt-toggle', methods=['POST'])
         def mqtt_toggle():
             state = self.client.state.validate(
                 request.get_json(), self.client.is_connected()
@@ -118,7 +118,7 @@ class HAFlask(Flask):
             self.client.state.connected = False
             return jsonify(self.client.state.to_dict())
 
-        @self.route("/discovery-toggle", methods=["POST"])
+        @self.route('/discovery-toggle', methods=['POST'])
         def discovery_toggle():
             self.client.state.error = []
 
@@ -135,25 +135,25 @@ class HAFlask(Flask):
             return jsonify(self.client.state.to_dict())
 
     def shutdown_server(self):
-        """Handle ctrl-c, clear discoveries, and shut things down
+        '''Handle ctrl-c, clear discoveries, and shut things down
 
         Parameters
         ----------
         None
-        """
-        route = "Shutdown"
-        self.__logger.info("%s Shutting down server", route)
+        '''
+        route = 'Shutdown'
+        self.__logger.info('%s Shutting down server', route)
         if self.client.state.discovered:
-            self.__logger.info("%s Clearing discovery", route)
+            self.__logger.info('%s Clearing discovery', route)
             self.client.clear_discovery(self.device)
             time.sleep(0.5)
             self.client.loop_stop()
             self.client.state.discovered = False
         else:
-            self.__logger.info("%s Not discovering", route)
+            self.__logger.info('%s Not discovering', route)
         if self.client.state.connected:
             self.client.state.connected = False
-            self.__logger.info("%s Disconnecting MQTT", route)
+            self.__logger.info('%s Disconnecting MQTT', route)
             self.client.disconnect()
         else:
-            self.__logger.info("%s Not Connected", route)
+            self.__logger.info('%s Not Connected', route)

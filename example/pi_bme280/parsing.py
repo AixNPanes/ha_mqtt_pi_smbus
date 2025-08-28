@@ -7,44 +7,44 @@ from ha_mqtt_pi_smbus.util import auto_int
 
 
 class BME280Parser(Parser):
-    """Parse BME280 specific parameters and merge with config files
-    """
+    '''Parse BME280 specific parameters and merge with config files
+    '''
     def __init__(self):
         super().__init__()
         self.add_argument(
-            "-a",
-            "--bme280_address",
-            help="BME280 address (118, 119, 0x76, 0x77",
+            '-a',
+            '--bme280_address',
+            help='BME280 address (118, 119, 0x76, 0x77',
             type=auto_int,
             choices=(118, 119),
         )
         self.add_argument(
-            "-r", "--bme280_bus", help="BME280 I2C bus (1, 2)", type=int, choices=(1, 2)
+            '-r', '--bme280_bus', help='BME280 I2C bus (1, 2)', type=int, choices=(1, 2)
         )
         self.add_argument(
-            "-N",
-            "--bme280_sensor_name",
-            help="BME280 Home Assistant sensor name",
+            '-N',
+            '--bme280_sensor_name',
+            help='BME280 Home Assistant sensor name',
             type=str,
         )
         self.add_argument(
-            "-I", "--bme280_polling_interval", help="BME280 polling interval", type=int
+            '-I', '--bme280_polling_interval', help='BME280 polling interval', type=int
         )
 
     def parse_args(self):
-        """Parse commandline arguments and merge with config files"""
+        '''Parse commandline arguments and merge with config files'''
         super().parse_args()
 
         # get BME280 parameters
         bme280 = {}
         if self.args.bme280_bus is not None:
-            bme280["bus"] = self.args.bme280_bus
+            bme280['bus'] = self.args.bme280_bus
         if self.args.bme280_address is not None:
-            bme280["address"] = self.args.bme280_address
+            bme280['address'] = self.args.bme280_address
         if self.args.bme280_sensor_name is not None:
-            bme280["sensor_name"] = self.args.bme280_sensor_name
+            bme280['sensor_name'] = self.args.bme280_sensor_name
         if self.args.bme280_polling_interval is not None:
-            bme280["polling_interval"] = self.args.bme280_polling_interval
+            bme280['polling_interval'] = self.args.bme280_polling_interval
         self._config_dict['bme280'] = bme280    
 
 

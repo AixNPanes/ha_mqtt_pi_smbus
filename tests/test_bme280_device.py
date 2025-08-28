@@ -6,60 +6,60 @@ from unittest.mock import patch
 
 
 class TestDevice(TestCase):
-    @patch("example.pi_bme280.device.BME280")
-    @patch("ha_mqtt_pi_smbus.device.get_cpu_info", return_value={"cpu": {"Model": "B"}})
-    @patch("ha_mqtt_pi_smbus.device.get_object_id", side_effect=["b827eb94a718"] * 10)
+    @patch('example.pi_bme280.device.BME280')
+    @patch('ha_mqtt_pi_smbus.device.get_cpu_info', return_value={'cpu': {'Model': 'B'}})
+    @patch('ha_mqtt_pi_smbus.device.get_object_id', side_effect=['b827eb94a718'] * 10)
     def test_bmedevice_constructor(
         self, mock_get_object_id, mock_get_cpu_info, mock_bme280
     ):
         from example.pi_bme280.device import BME280_Device
 
         device = BME280_Device(
-            "test", "bme280/state", "Bosch", "BME280", mock_bme280, 1, 119
+            'test', 'bme280/state', 'Bosch', 'BME280', mock_bme280, 1, 119
         )
         mock_get_object_id.assert_called_once()
         mock_get_cpu_info.assert_called_once()
         self.assertEqual(len(device.sensors), 8)
-        self.assertEqual(device.device.identifiers, ["test"])
-        self.assertEqual(device.device.name, "test")
-        self.assertEqual(device.device.manufacturer, "Bosch")
-        self.assertEqual(device.device.model, "BME280")
-        self.assertEqual(device.device.serial_number, "b827eb94a718")
-        self.assertEqual(device.device.sw_version, "0.0.1")
-        self.assertEqual(device.state_topic, "bme280/state")
+        self.assertEqual(device.device.identifiers, ['test'])
+        self.assertEqual(device.device.name, 'test')
+        self.assertEqual(device.device.manufacturer, 'Bosch')
+        self.assertEqual(device.device.model, 'BME280')
+        self.assertEqual(device.device.serial_number, 'b827eb94a718')
+        self.assertEqual(device.device.sw_version, '0.0.1')
+        self.assertEqual(device.state_topic, 'bme280/state')
         self.assertEqual(
-            device.discovery_topic, "homeassistant/device/b827eb94a718/config"
+            device.discovery_topic, 'homeassistant/device/b827eb94a718/config'
         )
         self.assertEqual(device.qos, 0)
 
-    @patch("ha_mqtt_pi_smbus.device.get_cpu_info", return_value={"cpu": {"Model": "B"}})
-    @patch("ha_mqtt_pi_smbus.device.get_object_id", side_effect=["b827eb94a718"] * 10)
+    @patch('ha_mqtt_pi_smbus.device.get_cpu_info', return_value={'cpu': {'Model': 'B'}})
+    @patch('ha_mqtt_pi_smbus.device.get_object_id', side_effect=['b827eb94a718'] * 10)
     @patch(
-        "example.pi_bme280.device.BME280.getdata",
-        return_value={"temperature": 99, "pressure": 1010, "humidity": 99},
+        'example.pi_bme280.device.BME280.getdata',
+        return_value={'temperature': 99, 'pressure': 1010, 'humidity': 99},
     )
-    @patch("example.pi_bme280.device.BME280")
+    @patch('example.pi_bme280.device.BME280')
     def test_bmedevice_data(
         self, mock_bme280, mock_getdata, mock_get_object_id, mock_get_cpu_info
     ):
         from example.pi_bme280.device import BME280_Device
 
         device = BME280_Device(
-            "test", "bme280/state", "Bosch", "BME280", mock_bme280, 1, 119
+            'test', 'bme280/state', 'Bosch', 'BME280', mock_bme280, 1, 119
         )
         data = device.getdata()
         mock_getdata.assert_called_once()
-        self.assertTrue("temperature" in data)
-        self.assertTrue("pressure" in data)
-        self.assertTrue("humidity" in data)
-        self.assertEqual(data["temperature"], 99)
-        self.assertEqual(data["pressure"], 1010)
-        self.assertEqual(data["humidity"], 99)
+        self.assertTrue('temperature' in data)
+        self.assertTrue('pressure' in data)
+        self.assertTrue('humidity' in data)
+        self.assertEqual(data['temperature'], 99)
+        self.assertEqual(data['pressure'], 1010)
+        self.assertEqual(data['humidity'], 99)
 
-    @patch("ha_mqtt_pi_smbus.device.get_cpu_info", return_value={"cpu": {"Model": "B"}})
-    @patch("bme280.sample")
-    @patch("bme280.load_calibration_params", return_value=123.456)
-    @patch("ha_mqtt_pi_smbus.device.SMBus")
+    @patch('ha_mqtt_pi_smbus.device.get_cpu_info', return_value={'cpu': {'Model': 'B'}})
+    @patch('bme280.sample')
+    @patch('bme280.load_calibration_params', return_value=123.456)
+    @patch('ha_mqtt_pi_smbus.device.SMBus')
     def test_bme280(self, mock_smbus, mock_calibration, mock_sample, mock_get_cpu_info):
         from example.pi_bme280.device import BME280
 
@@ -81,8 +81,8 @@ class TestDevice(TestCase):
         device.pressure = 2
         device.humidity = 3
         data = device.getdata()
-        last_update_string = last_update.strftime("%m/%d/%Y %H:%M:%S")
-        self.assertEqual(data["last_update"], last_update_string)
-        self.assertEqual(data["temperature"], 1)
-        self.assertEqual(data["pressure"], 2)
-        self.assertEqual(data["humidity"], 3)
+        last_update_string = last_update.strftime('%m/%d/%Y %H:%M:%S')
+        self.assertEqual(data['last_update'], last_update_string)
+        self.assertEqual(data['temperature'], 1)
+        self.assertEqual(data['pressure'], 2)
+        self.assertEqual(data['humidity'], 3)

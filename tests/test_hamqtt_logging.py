@@ -16,9 +16,9 @@ class MockOpen:
     builtin_open = open
 
     def open(self, *args, **kwargs):
-        if args[0] == "logging.config":
+        if args[0] == 'logging.config':
             return mock.mock_open(read_data=MOCK_CPUINFO_DATA)(*args, **kwargs)
-        if args[0] == "/etc/os-release":
+        if args[0] == '/etc/os-release':
             return mock.mock_open(read_data=MOCK_OSRELEASE_DATA)(*args, **kwargs)
         return self.builtin_open(*args, **kwargs)
 
@@ -38,55 +38,55 @@ class MockLogging:
 
 
 class TestLogging(TestCase):
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.readfile", side_effect=FileNotFoundError)
+    @patch('ha_mqtt_pi_smbus.hamqtt_logging.readfile', side_effect=FileNotFoundError)
     def test_file_not_found(self, mock_readfile):
         loggerConfig()
-        mock_readfile.assert_called_once_with("logging.config")
+        mock_readfile.assert_called_once_with('logging.config')
 
     @patch(
-        "ha_mqtt_pi_smbus.hamqtt_logging.readfile",
-        return_value="""{
-                "version": 1
-            }""",
+        'ha_mqtt_pi_smbus.hamqtt_logging.readfile',
+        return_value='''{
+                'version': 1
+            }''',
     )
     def test_no_disable_existing_loggers(selfi, mockopen):
         loggerConfig()
-        mockopen.assert_called_once_with("logging.config")
+        mockopen.assert_called_once_with('logging.config')
 
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.readfile", return_value=MOCK_LOGGING_CONFIG_JSON)
+    @patch('ha_mqtt_pi_smbus.hamqtt_logging.readfile', return_value=MOCK_LOGGING_CONFIG_JSON)
     def test_loggerconfig_normal(self, mock_readfile):
         logger_config = loggerConfig()
 
         # Assert open called
-        mock_readfile.assert_called_once_with("logging.config")
-        self.assertEqual(logger_config["version"], 1)
+        mock_readfile.assert_called_once_with('logging.config')
+        self.assertEqual(logger_config['version'], 1)
 
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.json.loads", side_effect=Exception)
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.readfile", return_value=json.dumps(MOCK_LOGGING_CONFIG_DATA))
+    @patch('ha_mqtt_pi_smbus.hamqtt_logging.json.loads', side_effect=Exception)
+    @patch('ha_mqtt_pi_smbus.hamqtt_logging.readfile', return_value=json.dumps(MOCK_LOGGING_CONFIG_DATA))
     def test_loggerconfig_generic_exception(self, mock_readfile, mock_json_load):
         logger_config = loggerConfig()
 
-        mock_readfile.assert_called_once_with("logging.config")
+        mock_readfile.assert_called_once_with('logging.config')
         mock_json_load.assert_called_once()
-        self.assertEqual(logger_config["version"], 1)
+        self.assertEqual(logger_config['version'], 1)
 
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.json.loads", side_effect=JSONDecodeError('msgx','xdoc',0))
-    @patch("ha_mqtt_pi_smbus.hamqtt_logging.readfile", return_value=json.dumps(MOCK_LOGGING_CONFIG_DATA))
+    @patch('ha_mqtt_pi_smbus.hamqtt_logging.json.loads', side_effect=JSONDecodeError('msgx','xdoc',0))
+    @patch('ha_mqtt_pi_smbus.hamqtt_logging.readfile', return_value=json.dumps(MOCK_LOGGING_CONFIG_DATA))
     def test_loggerconfig_jsonexception(self, mock_readfile, mock_json_load):
         logger_config = loggerConfig()
 
-        mock_readfile.assert_called_once_with("logging.config")
+        mock_readfile.assert_called_once_with('logging.config')
         mock_json_load.assert_called_once()
-        self.assertEqual(logger_config["version"], 1)
+        self.assertEqual(logger_config['version'], 1)
 
     @patch(
-        "ha_mqtt_pi_smbus.hamqtt_logging.readfile",
+        'ha_mqtt_pi_smbus.hamqtt_logging.readfile',
         return_value=json.dumps(MOCK_LOGGING_CONFIG_DATA),
     )
     def test_loggerconfig_disable_existing_loggers(self, mock_readfile):
         logger_config = loggerConfig()
 
-        mock_readfile.assert_called_once_with("logging.config")
-        self.assertEqual(logger_config["version"], 1)
-        self.assertIn("loggers", logger_config)
-        self.assertEqual(logger_config["disable_existing_loggers"], False)
+        mock_readfile.assert_called_once_with('logging.config')
+        self.assertEqual(logger_config['version'], 1)
+        self.assertIn('loggers', logger_config)
+        self.assertEqual(logger_config['disable_existing_loggers'], False)
