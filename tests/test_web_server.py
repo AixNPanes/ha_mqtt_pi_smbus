@@ -3,22 +3,20 @@ import logging
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from ha_mqtt_pi_smbus.parsing import MQTTConfig
+from ha_mqtt_pi_smbus.config import Config
 from ha_mqtt_pi_smbus.state import State
 from ha_mqtt_pi_smbus.web_server import HAFlask
 
 
-class DummyParser:
-    title = "Test Title"
-    subtitle = "Test Subtitle"
-    mqtt = MQTTConfig()
-    mqtt.auto_discover = True
-
-
 class TestHAFlask(TestCase):
-
     def setUp(self):
-        parser = DummyParser()
+        config = Config({
+            'title': 'Test Title',
+            'subtitle': 'Test Subtitle',
+            'mqtt': {
+                'auto_discover': True,
+                },
+            })
 
         # Mock MQTTClient and HADevice
         self.mock_client = MagicMock()
@@ -37,12 +35,12 @@ class TestHAFlask(TestCase):
         self.mock_client.connect_mqtt.return_value = None
         self.mock_client.loop_start.return_value = None
         self.mock_client.state = self.mock_state
-        self.app = HAFlask(__name__, parser, self.mock_client, self.mock_device, 3)
+        self.app = HAFlask(__name__, config, self.mock_client, self.mock_device, 3)
         self.app.config["TESTING"] = True
         self.client = self.app.test_client()
         self.logger = logging.getLogger("TestHAFlask")
 
-    def test_index(self):
+    def test_index_normal(self):
         self.mock_client.is_connected.return_value = True
         with self.client.get("/", content_type="text/plain") as response:
             self.logger.debug(response)

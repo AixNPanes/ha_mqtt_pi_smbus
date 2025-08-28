@@ -4,6 +4,7 @@ import sys
 
 from example.pi_bme280.parsing import BME280Parser
 from example.pi_bme280.device import BME280, BME280_Device
+from ha_mqtt_pi_smbus.config import Config
 from ha_mqtt_pi_smbus.hamqtt_logging import loggerConfig
 from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
 from ha_mqtt_pi_smbus.web_server import HAFlask
@@ -28,34 +29,35 @@ def main(args):
     # parse config and command line args
     parser = BME280Parser()
     parser.parse_args()
+    config = Config(parser._config_dict)
 
     # logger Setup
     loggerConfig()
     logger = logging.getLogger(__name__)
 
     # BME280 Setup
-    bme280 = BME280(bus=parser.bme280.bus, address=parser.bme280.address)
+    bme280 = BME280(bus=config.bme280.bus, address=config.bme280.address)
 
     # Device setup
     device = BME280_Device(
-        parser.bme280.sensor_name,
+        config.bme280.sensor_name,
         "tph280/state",  # state topic
         "Bosch",  # manufacturer name
         "BME280",  # model name
         bme280,
-        polling_interval=parser.bme280.polling_interval,
-        expire_after=parser.mqtt.expire_after,
+        polling_interval=config.bme280.polling_interval,
+        expire_after=config.mqtt.expire_after,
         basename="homeassistant",
     )
 
     # MQTT Setup
-    client = MQTTClient("bme280", device, bme280, parser)
+    client = MQTTClient("bme280", device, bme280, config)
 
     # define the Flask web server
-    app = HAFlask(__name__, parser, client, device)
+    app = HAFlask(__name__, config, client, device)
 
     try:
-        app.run(host=parser.web.address, port=parser.web.port, use_reloader=False)
+        app.run(host=config.web.address, port=config.web.port, use_reloader=False)
     except Exception as e:
         print(e)
 

@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, jsonify
 
 from ha_mqtt_pi_smbus.device import HADevice
 from ha_mqtt_pi_smbus.mqtt_client import MQTTClient
+from ha_mqtt_pi_smbus.config import Config
 
 
 class HAFlask(Flask):
@@ -16,8 +17,8 @@ class HAFlask(Flask):
     ----------
     import_name : str
         the Flask import_name
-    parser : ha_mqtt_pi_smbus.parsing.AParser
-        the parser variable from which to retrieve configuration
+    config : ha_mqtt_pi_smbus.config.Config
+        the config variable from which to retrieve configuration
     client : ha_mqtt_pi_smbus.mqtt_client.MQTTClient
         the MQTT client to us to commuicate with the MQTT broker
     device : ha_mqtt_pi_smbus.device.HADevice
@@ -60,7 +61,7 @@ class HAFlask(Flask):
     def __init__(
         self,
         import_name,
-        parser,
+        config,
         client: MQTTClient,
         device: HADevice,
         _debug_step_count: int = 20,
@@ -76,15 +77,15 @@ class HAFlask(Flask):
         )
         self._debug_step_count = _debug_step_count
         self._register_routes()
-        self.parser = parser
+        self.piconfig = config
         self.__logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
         self.client = client
         self.device = device
         secret_key = secrets.token_hex(32)
         self.config.SECRET_KEY = secret_key
-        self.title = parser.title
-        self.subtitle = parser.subtitle
-        if parser.mqtt.auto_discover:
+        self.title = config.title
+        self.subtitle = config.subtitle
+        if config.mqtt.auto_discover:
             self.connect()
             self.discover()
 

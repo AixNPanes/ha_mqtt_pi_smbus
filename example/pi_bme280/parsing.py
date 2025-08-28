@@ -1,11 +1,9 @@
-from ha_mqtt_pi_smbus.parsing import Parser, auto_int
+import logging
+from typing import Any, Dict
 
-
-class BME280Config:
-    address: int
-    bus: int
-    sensor_name: str
-    polling_interval: int
+from ha_mqtt_pi_smbus.config import Config
+from ha_mqtt_pi_smbus.parsing import Parser
+from ha_mqtt_pi_smbus.util import auto_int
 
 
 class BME280Parser(Parser):
@@ -35,29 +33,51 @@ class BME280Parser(Parser):
 
     def parse_args(self):
         """Parse commandline arguments and merge with config files"""
-        self.args = super().parse_args()
+        super().parse_args()
 
         # get BME280 parameters
-        self.bme280 = BME280Config()
-        bme280 = self.config["bme280"] if "bme280" in self.config else []
-        self.bme280.bus = (
-            self.args.bme280_bus
-            if self.args.bme280_bus
-            else bme280["bus"] if "bus" in bme280 else 1
-        )
-        self.bme280.address = (
-            self.args.bme280_address
-            if self.args.bme280_address
-            else bme280["address"] if "address" in bme280 else 0x76
-        )
-        self.bme280.sensor_name = (
-            self.args.bme280_sensor_name
-            if self.args.bme280_sensor_name
-            else bme280["sensor_name"] if "sensor_name" in bme280 else None
-        )
-        self.bme280.polling_interval = (
-            self.args.bme280_polling_interval
-            if self.args.bme280_polling_interval
-            else bme280["polling_interval"] if "polling_interval" in bme280 else 60
-        )
-        return self.args
+        bme280 = {}
+        if self.args.bme280_bus is not None:
+            bme280["bus"] = self.args.bme280_bus
+        if self.args.bme280_address is not None:
+            bme280["address"] = self.args.bme280_address
+        if self.args.bme280_sensor_name is not None:
+            bme280["sensor_name"] = self.args.bme280_sensor_name
+        if self.args.bme280_polling_interval is not None:
+            bme280["polling_interval"] = self.args.bme280_polling_interval
+        self._config_dict['bme280'] = bme280    
+
+
+class Bme280Config():
+    address: int
+    bus: int
+    sensor_name: str
+    polling_interval: int
+
+    #def __init__(self, args:Dict[str, Any] = None):
+    #    if 'args' == None:
+    #        return
+    #    logging.getLogger(__name__).error(args)
+    #    if 'bme280' not in args:
+    #        return
+    #    bme280 = args['bme280']
+    #    if 'bus' in bme280:
+    #        self.bus = bme280['bus']
+    #    if 'address' in bme280:
+    #        self.address = bme280['address']
+    #    if 'sensor_name' in bme280:
+    #        self.sensor_name = bme280['sensor_name']
+    #    if 'polling_interval' in bme280:
+    #        self.polling_interval = bme280['polling_interval']
+    #    logging.getLogger(__name__).error(self.__dict__)
+
+
+    def clone(self):
+        config = Bme280Config()
+        config.bus = self.bus
+        config.address = self.address
+        config.sensor_name = self.sensor_name
+        config.polling_interval = self.polling_interval
+
+    def sanitize(self):
+        return self

@@ -8,38 +8,8 @@ from typing import Any, Dict
 
 DEGREE = chr(176)
 
-
-def readfile(file_name) -> str:
-    """Read a file
-
-    Parameters
-    ----------
-    file_name : str
-        The name of the file to be read
-    """
-    with open(file_name, "r") as file_object:
-        return file_object.read()
-
-
-def get_command_data(args: list[str]) -> str:
-    """Issue a command to the underlying operating system and return the
-    result as a UTF-8 encoded string
-
-    Parameters
-    ----------
-    args : list[str]
-        An array containing the name of the command and the arguments
-        to that command as elements of an array
-
-    Return
-    ------
-    str : A string with the results of the command encoded as UTF-8. None
-        if there is an error.
-    """
-    try:
-        return subprocess.check_output(args).decode("utf-8")
-    except subprocess.CalledProcessError:
-        return None
+import ha_mqtt_pi_smbus
+from ha_mqtt_pi_smbus.util import readfile, get_command_data
 
 
 def getCpuInfo() -> Dict[str, Any]:
@@ -262,7 +232,7 @@ def getUptime() -> str:
     ------
     >>> from environ import getUptime
     >>> print(f'The uptime is {getUptime("")}')
-    The Mac address for wlan0 is b8:27:eb:94:a7:18
+    The uptime is up 20 hours, 57 minutes
     >>>
     """
     return get_command_data(["uptime", "-p"])
@@ -283,13 +253,13 @@ def getLastRestart() -> str:
     ------
     >>> from environ import getTemperature
     >>> print(f'The last restart time is {getLastRestart()}')
-    The Mac address for wlan0 is b8:27:eb:94:a7:18
+    The last restart time is 2025-08-26 17:42:54
     >>>
     """
     return get_command_data(["uptime", "-s"])
 
 
-def _get_pyproject_version():
+def get_pyproject_version():
     """get the module's software version from pyproject.toml
 
     Parameters
@@ -306,12 +276,13 @@ def _get_pyproject_version():
     pyproject_file = pathlib.Path("pyproject.toml")
     if pyproject_file.exists():
         pyproject = tomllib.loads(readfile(pyproject_file))
-        if "version" in pyproject:
-            return pyproject["version"]
+        if "project" in pyproject:
+            if "version" in pyproject["project"]:
+                return pyproject["project"]["version"]
     return None
 
 
-def _get_setuptools_version():
+def get_setuptools_version():
     """Get the module's software version from the setuptools_scm module
 
     Parameters
@@ -326,7 +297,7 @@ def _get_setuptools_version():
     return get_command_data(["python3", "-m", "setuptools_scm"])
 
 
-def _get_metadata_version():
+def get_metadata_version():
     """get the version contained in the package metadata
 
     Parameters
@@ -338,14 +309,13 @@ def _get_metadata_version():
     str : the version contained in the package metadata or None if no
     package metadata is available
     """
-    # Then try installed metadata
     try:
-        return importlib.metadata.version("yourpackage")
+        return importlib.metadata.version("ha_mqtt_pi_smbus")
     except importlib.metadata.PackageNotFoundError:
         return None
 
 
-def _get_package_version():
+def get_package_version():
     """get the version from the package __version__ attribute
 
     Parameters
@@ -358,13 +328,13 @@ def _get_package_version():
     """
     try:
         from . import __version__
-
-        return __version__
+        version = __version__
+        return version
     except ImportError:
         return None
 
 
-def get_version():
+def get_my_version():
     """get the package version from one of the available methods for
     retrieving the version
 
@@ -377,16 +347,16 @@ def get_version():
     str : the version number or "0.0.0-dev" if no version number can be
     otherwise obtained
     """
-    version = _get_pyproject_version()
+    version = get_pyproject_version()
     if version is not None:
         return version
-    version = _get_setuptools_version()
+    version = get_setuptools_version()
     if version is not None:
         return version
-    version = _get_metadata_version()
+    version = get_metadata_version()
     if version is not None:
         return version
-    version = _get_package_version()
+    version = get_package_version()
     if version is not None:
         return version
     return "0.0.0-dev"

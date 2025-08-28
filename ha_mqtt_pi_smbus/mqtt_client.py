@@ -14,6 +14,7 @@ import paho.mqtt.enums as mqtt_enums
 import paho.mqtt.properties as mqtt_properties
 from paho.mqtt.client import connack_string
 
+from ha_mqtt_pi_smbus.config import to_dict
 from ha_mqtt_pi_smbus.device import HADevice, HASensor, SMBusDevice
 from ha_mqtt_pi_smbus.environ import (
     getObjectId,
@@ -21,7 +22,7 @@ from ha_mqtt_pi_smbus.environ import (
     getUptime,
     getLastRestart,
 )
-from ha_mqtt_pi_smbus.parsing import MQTTConfig
+from ha_mqtt_pi_smbus.parsing import MqttConfig
 from ha_mqtt_pi_smbus.state import State
 
 
@@ -211,7 +212,7 @@ class MQTTClient(mqtt.Client):
         client_prefix: str,
         device: HADevice,
         smbus_device: SMBusDevice,
-        parser: Parser = None,
+        config: BasicConfig = None,
     ):
         """
         Paameters
@@ -245,10 +246,10 @@ class MQTTClient(mqtt.Client):
             True,
             None,
         )
-        if parser is None:
-            raise Exception("parser cannot be None")
-        self.parser = parser
-        mqtt_config = self.parser.mqtt
+        if config is None:
+            raise Exception("config cannot be None")
+        self.config = config
+        mqtt_config = self.config.mqtt
         self.config_topic = device.config_topic
         self.broker_address = mqtt_config.broker
         self.port = mqtt_config.port
@@ -387,7 +388,7 @@ class MQTTClient(mqtt.Client):
         self.publisher_thread.start()
         self.state.discovered = True
 
-    def publish_config(self, device: HADevice) -> None:
+    def publish_config(self, device: HADevice):
         """Publish an available message for the given sensor or each sensor
         in the device
 
@@ -397,9 +398,9 @@ class MQTTClient(mqtt.Client):
             a device or sensor
 
         """
-        self.publish(
+        return self.publish(
             f"{self.config_topic}/state",
-            json.dumps(self.parser.sanitize()),
+            json.dumps(to_dict(self.config.sanitize())),
             qos=self.qos,
             retain=self.retain,
         )

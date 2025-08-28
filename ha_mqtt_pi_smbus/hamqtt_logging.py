@@ -3,7 +3,7 @@ from json.decoder import JSONDecodeError
 import logging
 import logging.config
 
-from ha_mqtt_pi_smbus.environ import readfile
+from ha_mqtt_pi_smbus.util import readfile
 
 
 def loggerConfig() -> str:
@@ -92,7 +92,7 @@ def loggerConfig() -> str:
         print(f"\tJSONDecodeError, lineno: {e.lineno}, colno: {e.colno}\n\t{e.msg}")
         logging_config = LOGGING_CONFIG
     except Exception as e:
-        print(f"\t{e.__class__}\n\t{e}")
+        print(f"\tException: {e.__class__}\n\t{e}")
         logging_config = LOGGING_CONFIG
 
     # Apply the logging config

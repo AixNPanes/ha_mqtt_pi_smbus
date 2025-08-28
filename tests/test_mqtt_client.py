@@ -1,10 +1,11 @@
 # tests/test_mqtt_client.py
 import logging
+import pytest
 import time
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
-from paho.mqtt.client import MQTTMessage
+from paho.mqtt.client import MQTTMessage,MQTTErrorCode
 
 from ha_mqtt_pi_smbus.device import HADevice, HASensor
 from ha_mqtt_pi_smbus.mqtt_client import (
@@ -14,7 +15,8 @@ from ha_mqtt_pi_smbus.mqtt_client import (
     getTemp,
 )
 from ha_mqtt_pi_smbus.environ import DEGREE
-from ha_mqtt_pi_smbus.parsing import MQTTConfig
+from ha_mqtt_pi_smbus.mqtt_client import getTemp
+from ha_mqtt_pi_smbus.config import Config,MqttConfig
 
 from .mock_data import (
     MOCK_SUBPROCESS_CHECK_OUTPUT_SIDE_EFFECT,
@@ -57,6 +59,19 @@ class BME280_Device(HADevice):
 
 
 class TestMQTTClient(TestCase):
+    def setUp(self):
+        self.config = Config({
+            'web': {
+                'broker':"127.0.0.1",
+                'port':1883,
+                'username':"me",
+                'password':"mine",
+                'qos':1,
+                'retain':True,
+                },
+            'mqtt':{}
+            })
+
     @patch("ha_mqtt_pi_smbus.device.getObjectId", return_value="0123456789abcdef")
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
     @patch(
@@ -75,20 +90,11 @@ class TestMQTTClient(TestCase):
         mock_cpuinfo,
         mock_objecid,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=(BME280_Device()),
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config
         )
         rc = mqtt_client.connect_mqtt()
         assert rc == 1
@@ -116,20 +122,11 @@ class TestMQTTClient(TestCase):
         mock_read,
         mock_object_id,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=(BME280_Device()),
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config,
         )
         thread = MQTT_Publisher_Thread(
             mqtt_client,
@@ -163,10 +160,13 @@ class TestMQTTClient(TestCase):
         thread.join()
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
-    @patch("subprocess.check_output")
-    @patch("paho.mqtt.client.Client.is_connected")
-    @patch("paho.mqtt.client.Client.disconnect")
-    @patch("paho.mqtt.client.Client.connect")
+    @patch("subprocess.check_output", side_effect = [
+            MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
+            MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
+        ] * 10)
+    @patch("paho.mqtt.client.Client.is_connected", return_value=False)
+    @patch("paho.mqtt.client.Client.disconnect", side_effect=[1, 1])
+    @patch("paho.mqtt.client.Client.connect", return_value = 0)
     @patch("ha_mqtt_pi_smbus.device.SMBusDevice")
     def test_mqtt_client_connect_disconnect(
         self,
@@ -177,27 +177,11 @@ class TestMQTTClient(TestCase):
         mock_subprocess_check_output,
         mock_readfile,
     ):
-        mock_subprocess_check_output.side_effect = [
-            MOCK_IFCONFIG_ETH0_DATA.encode("utf-8"),
-            MOCK_IFCONFIG_WLAN0_DATA.encode("utf-8"),
-        ] * 10
-        mock_connect.return_value = 0
-        mock_disconnect.side_effect = [0, 1]
-        mock_is_connected.return_value = False
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=(BME280_Device()),
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config,
         )
         obj = {"Connected": False, "Discovered": False, "rc": 0, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -242,20 +226,11 @@ class TestMQTTClient(TestCase):
         mock_subprocess_check_output,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=(BME280_Device()),
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config,
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -290,20 +265,11 @@ class TestMQTTClient(TestCase):
         mock_subprocess_check_output,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=(BME280_Device()),
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config,
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -333,20 +299,11 @@ class TestMQTTClient(TestCase):
         mock_subprocess_check_output,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=(BME280_Device()),
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config,
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -380,20 +337,11 @@ class TestMQTTClient(TestCase):
         mock_subprocess_check_output,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=(BME280_Device()),
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config,
         )
         obj = {"Connected": False, "Discovered": False, "rc": 1, "Error": ["Error!"]}
         mqtt_client.state = State(obj)
@@ -444,20 +392,11 @@ class TestMQTTClient(TestCase):
             "God",
             "WASP",
         )
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
         mqtt_client = MQTTClient(
             client_prefix="me",
             device=device,
             smbus_device=mock_smbus,
-            parser=parser,
+            config=self.config,
         )
         obj = {
             "Connected": False,
@@ -490,16 +429,7 @@ class TestMQTTClient(TestCase):
         mock_mac_address,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
-        client = MQTTClient(None, BME280_Device(), None, parser)
+        client = MQTTClient(None, BME280_Device(), None, self.config)
         client.is_discovered = True
         msg = MQTTMessage(topic=client.status_topic.encode("utf-8"))
         msg.payload = b"online"
@@ -520,21 +450,34 @@ class TestMQTTClient(TestCase):
         mock_mac_address,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
-        client = MQTTClient(None, BME280_Device(), None, parser)
+        client = MQTTClient(None, BME280_Device(), None, self.config)
         client.is_discovered = True
         msg = MQTTMessage(topic=client.status_topic.encode("utf-8"))
         msg.payload = b"offline"
         client.on_message(None, None, msg)
         self.assertFalse(client.is_discovered)
+
+    @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
+    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_config")
+    @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
+    @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
+    def test_on_message_config_topic(
+        self,
+        mock_discovery,
+        mock_available,
+        mock_config,
+        mock_object_id,
+        mock_mac_address,
+        mock_cpuinfo,
+    ):
+        client = MQTTClient(None, BME280_Device(), None, self.config)
+        client.is_discovered = True
+        msg = MQTTMessage(topic=f'{client.config_topic}/get'.encode("utf-8"))
+        msg.payload = b"anye"
+        client.on_message(None, None, msg)
+        mock_config.assert_called_once()
 
     @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
     @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
@@ -549,16 +492,7 @@ class TestMQTTClient(TestCase):
         mock_mac_address,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
-        client = MQTTClient(None, BME280_Device(), None, parser)
+        client = MQTTClient(None, BME280_Device(), None, self.config)
         client.is_discovered = True
         msg = MQTTMessage(topic=client.status_topic.encode("utf-8"))
         msg.payload = b"bad"
@@ -580,16 +514,7 @@ class TestMQTTClient(TestCase):
         mock_mac_address,
         mock_cpuinfo,
     ):
-        parser = MagicMock()
-        parser.mqtt = MQTTConfig(
-            broker="127.0.0.1",
-            port=1883,
-            username="me",
-            password="mine",
-            qos=1,
-            retain=True,
-        )
-        client = MQTTClient(None, BME280_Device(), None, parser)
+        client = MQTTClient(None, BME280_Device(), None, self.config)
         client.is_discovered = True
         msg = MQTTMessage(topic=b"bad")
         msg.payload = b"bad"
@@ -597,3 +522,44 @@ class TestMQTTClient(TestCase):
         self.assertTrue(client.is_discovered)
         mock_discovery.assert_not_called()
         mock_available.assert_not_called()
+
+    @patch('ha_mqtt_pi_smbus.mqtt_client.getTemperature', return_value=101)
+    def test_temp(self, mock_temperature):
+        temp = getTemp()
+        self.assertEqual(temp, 101)
+
+    @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
+    @patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
+    @patch("ha_mqtt_pi_smbus.environ.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
+    @patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
+    def test_mqtt_parser_none(
+        self,
+        mock_discovery,
+        mock_available,
+        mock_object_id,
+        mock_mac_address,
+        mock_cpuinfo,
+    ):
+        with pytest.raises(Exception):
+            client = MQTTClient(None, BME280_Device(), None, None)
+
+    #@patch("ha_mqtt_pi_smbus.environ.getMacAddress", return_value="12:34:56")
+    #@patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_available")
+    #@patch("ha_mqtt_pi_smbus.mqtt_client.MQTTClient.publish_discovery")
+    @patch("ha_mqtt_pi_smbus.environ.readfile", return_value=MOCK_CPUINFO_DATA)
+    @patch("ha_mqtt_pi_smbus.device.getObjectId", return_value="123456")
+    @patch("ha_mqtt_pi_smbus.mqtt_client.getObjectId", return_value="123456")
+    def test_mqtt_client_publish_config(
+        self,
+        mock_object_id,
+        mock_object_id2,
+        mock_cpuinfo,
+        #mock_discovery,
+        #mock_available,
+        #mock_mac_address,
+    ):
+        device = BME280_Device()
+        client = MQTTClient(None, device, None, self.config)
+        result = client.publish_config(device)
+        self.assertEqual(result[0], MQTTErrorCode.MQTT_ERR_NO_CONN)
