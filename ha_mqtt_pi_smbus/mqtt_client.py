@@ -175,7 +175,7 @@ class MQTTClient(mqtt.Client):
             client.subscribe(client.status_topic)
             client.subscribe(f'{client.config_topic}/get')
             client.__logger.debug(
-                f'Subscribed to HA status topic: {client.status_topic}'
+                'Subscribed to HA status topic: %s', client.status_topic
             )
 
         else:
@@ -200,12 +200,12 @@ class MQTTClient(mqtt.Client):
                 client.__logger.warning('Home Assistant is OFFLINE')
                 client.is_discovered = False
             else:
-                client.__logger.debug(f'HA status unknown payload: {payload}')
+                client.__logger.debug('HA status unknown payload: %s', payload)
         elif msg.topic == f'{client.config_topic}/get':
             logging.getLogger(__name__).error('on_message publishing config')
             client.publish_config(client.device)
         else:
-            client.__logger.debug(f'message unknown topic: {msg.topic}')
+            client.__logger.debug('message unknown topic: %s', msg.topic)
 
     def __init__(
         self,
